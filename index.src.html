@@ -1,15 +1,15 @@
 <pre class='metadata'>
-Title: Security Policy Manifest
+Title: Origin Policy Manifest
 Status: DREAM
-ED: https://mikewest.github.io/security-policy-manifest/
-Shortname: spm
+ED: https://mikewest.github.io/origin-policy-manifest/
+Shortname: origin-policy
 Level: None
 Editor: Mike West 56384, Google Inc., mkwst@google.com
 Abstract:
-  This specification defines a delivery mechanism for a number of security
-  policies which are to be applied to an entire origin. It compliments
-  header-based delivery mechanisms for existing policies (Content Security
-  Policy, Referrer Policy, etc).
+  This specification defines a delivery mechanism for a number of policies
+  which are to be applied to an entire origin. It compliments header-based
+  delivery mechanisms for existing policies (Content Security Policy,
+  Referrer Policy, etc).
 Indent: 2
 Markup Shorthands: markdown on
 Boilerplate: omit conformance, omit feedback-header
@@ -37,7 +37,7 @@ applied to each of the pages on `https://example.com`, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they've really covered everything that lives on the origin.
 
-When they see a request come in that contains a <a>`Security-Policy`</a>
+When they see a request come in that contains a <a>`Origin-Policy`</a>
 header, they can respond in kind, pointing the client to a manifest file
 in a well-known location on their server. That is, given the following
 request:
@@ -47,7 +47,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Security-Policy</a>: 0
+<a>Origin-Policy</a>: 0
 ...
 </pre>
 
@@ -60,19 +60,30 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Security-Policy</a>: "v1"
+<a>Origin-Policy</a>: "v1"
 ...
 </pre>
 
 The client will parse the response headers, and synchronously request
-`https://example.com/.well-known/security-policy/v1` before completing
+`https://example.com/.well-known/origin-policy/v1` before completing
 the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on
 `https://example.com/` (including the current navigation).
 
 <pre>
 {
-  "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a>csp</a>": [
+    {
+      "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
+      "mode": "enforce",
+      "type": "fallback"
+    },
+    {
+      "policy": "script-src https:; report-to 'mixed'",
+      "mode": "report",
+      "type": "baseline"
+    }
+  ],
   "<a>referrer</a>": "origin-when-cross-origin",
   "<a>cors</a>": { "allow-credentials": true },
   "<a>nosniff</a>": true,
@@ -88,7 +99,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Security-Policy</a>: "<strong>v1</strong>"
+<a>Origin-Policy</a>: "<strong>v1</strong>"
 ...
 </pre>
 
@@ -102,33 +113,49 @@ ISSUE: Maybe turn this into a `Link` header with special behavior?
 Framework {#framework}
 ======================
 
-The `Security-Policy` HTTP Header Field {#security-policy-header}
+The `Origin-Policy` HTTP Header Field {#origin-policy-header}
 -----------------------------------------------------------------
 
-The <dfn export>`Security-Policy`</dfn> HTTP header field is sent with
+The <dfn export>`Origin-Policy`</dfn> HTTP header field is sent with
 navigational HTTP requests in order to advertise support generally for the
-security policy manifest mechanism defined in this document, and to inform
-the server which version of its security policy is cached locally.
+origin policy manifest mechanism defined in this document, and to inform
+the server which version of its origin policy is cached locally.
 
 The same header is sent by the server in responses to such requests to
-inform the client that a security policy manifest is available to fetch.
+inform the client that a origin policy manifest is available to fetch.
 
 <pre class="abnf">
-  Security-Policy: 0 / quoted-string
+  Origin-Policy: 0 / DQUOTE *( DIGIT / ALPHA / "_" / "-" ) DQUOTE 
 </pre>
 
 This header MUST be ignored if delivered over non-secure transport.
 
-The Security Policy Manifest File {#manifest-file}
+User agents have a <dfn export>Origin Policy Store</dfn>, which is a key
+value store which can hold a single <dfn>policy</dfn> for each origin.
+Each <a>policy</a> is a (<dfn for="policy">version</dfn>,
+<dfn for="policy">manifest</dfn>) tuple.
+
+The Origin Policy Manifest File {#manifest-file}
 ------------------------------------------------------
 
-The <dfn export local-lt="manifest">Security Policy Manifest</dfn> is a
+The <dfn export local-lt="manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
-members. Each member defines a specific aspect of an origin's security policy.
+members. Each member defines a specific aspect of an origin's policy.
 
 <pre class="example">
 {
-  "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a>csp</a>": [
+    {
+      "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
+      "mode": "enforce",
+      "type": "fallback"
+    },
+    {
+      "policy": "script-src https:; report-to 'mixed'",
+      "mode": "report",
+      "type": "baseline"
+    }
+  ],
   "<a>referrer</a>": "origin-when-cross-origin",
   "<a>cors</a>": { "allow-credentials": true },
   "<a>nosniff</a>": true,
@@ -136,25 +163,23 @@ members. Each member defines a specific aspect of an origin's security policy.
 }
 </pre>
 
-### The `baseline-csp` member {#baseline-csp-member}
+ISSUE: Perhaps the various members should be pushed out into various other
+specs in some kind of extension model. That is, the parsing algorithm could
+have a hook for the member name that other specs could latch onto. Not sure
+if that's worth the effort, but it might be a more rational way to define
+behavior, since we're otherwise hooking into a different spec for each bit.
 
-The <dfn export>`baseline-csp`</dfn> member defines a <a>Content Security
-Policy</a> [[!CSP3]] which will be applied to every resource delivered from the
-policy's origin.
+### The `csp` member {#csp-member}
 
-Its value MUST be a string. Any other type will be ignored.
+The <dfn export>`csp`</dfn> member defines a set of <a>Content Security
+Policies</a> [[!CSP3]] which will be applied to every resource delivered from the
+manifest's origin.
 
-### The `fallback-csp` member {#fallback-csp-member}
+Its value MUST be either a single dictionary, or a list of dictionaries. Each
+dictionary MUST have a "`policy`" member, and MAY have "`mode`" and "`type`"
+members.
 
-The <dfn export>`fallback-csp`</dfn> member defines a <a>Content Security
-Policy</a> [[!CSP3]] which will be applied to every document and worker
-delivered from the policy's origin which does not itself supply a
-<a>Content-Security-Policy</a> header.
-
-Its value MUST be a string. Any other type will be ignored.
-
-If a <a>manifest</a> contains both a <a>`baseline-csp`</a> and a
-<a>`fallback-csp`</a> member, the <a>`fallback-csp`</a> member MUST be ignored.
+Any non-conforming value will be ignored.
 
 ### The `referrer` member {#referrer-member}
 
@@ -208,23 +233,6 @@ The <dfn export>`nosniff`</dfn> member asserts that resources served from an
 origin should rely only on their explicitly asserted `Content-Type`, and MUST
 not be sniffed into other types of content based on their contents.
 
-Fetch Integration {#monkey-patching-fetch}
------------------
-
-In a somewhat hand-wavey way, we'll do the following when making a navigational request:
-
-1.  Append `Security-Policy` to its header list with a value of `0` if no manifest is
-    cached for its URLs origin, or the verion of the manifest that is cached as a quoted
-    string otherwise (e.g. `"v1"`).
-
-2.  When we receive a response from the network, we'll sift through its headers, and
-    extract the `Security-Policy` header. If present, and its value does not match
-    the value of the locally cached manifest for the response's origin, we'll issue
-    a synchronous request for a resource located on the request's URL's origin at
-    `/.well-known/security-policy/{value}`.
-
-    ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
-    are scoped to the whole origin?
 
 HTML Integration {#monkey-patching-html}
 ----------------
@@ -239,6 +247,108 @@ At the end of the navigation algorithm, we'll do the following:
 At the end of the "run a worker" algorithm, we'll do the same thing.
 
 ISSUE: Spell all of this out.
+
+Algorithms {#algorithms}
+==========
+
+<h3 algorithm dfn id="version-for-origin">
+  Retrieve |origin|'s manifest version.
+</h3>
+
+Given an origin (|origin|), this algorithm returns `0` if no manifest is present
+in the user agent's <a>Origin Policy Store</a>, or a string representing the
+cached version otherwise.
+
+1.  Let |version| be `0`.
+
+2.  If the user agent's <a>Origin Policy Store</a> contains a tuple for
+    |origin|, let |version| be that tuple's first element.
+
+3.  Return |version|.
+
+Fetch Integration {#monkey-patching-fetch}
+-----------------
+
+During a navigation request, Fetch will hook into this specification in two ways:
+
+1.  At the top of the basic fetch algorithm, Fetch will call
+    [[#fetch-prepare-request]] in order to append `Origin-Policy` to the
+    request's header list with a value of `0` if no manifest is cached for its
+    URL's origin, or a value of the verion of the manifest that is cached  (e.g.
+    `"v1"`).
+
+2.  When a response is received during HTTP-network fetch algorithm, Fetch will
+    call into [[#fetch-parse-response]] to sift through its headers, and
+    extract the `Origin-Policy` header. If present, and its value does not match
+    the value of the locally cached manifest for the response's origin, we'll issue
+    a synchronous request for a resource located on the request's URL's origin at
+    `/.well-known/origin-policy/{value}`, as defined in [[#fetch-manifest]].
+
+    ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
+    are scoped to the whole origin?
+
+<h4 algorithm dfn id="fetch-prepare-request">
+  Prepare |request| with Origin Policy.
+</h4>
+
+Given a request |request|, add appropriate headers to inform a server about a
+client's active policy:
+
+1.  If |request| is not a navigation request, or if  abort these steps and return.
+
+2.  Let |version| be the result of executing [[#version-for-origin]] on
+    |request|'s URL's origin.
+
+3.  Append a header named `Origin-Policy` with a value of |version| to
+    |request|'s header list.
+
+<h4 algorithm dfn id="fetch-parse-response">
+  Process |response| for Origin Policy.  
+</h4>
+
+1.  Let |version| be the result of parsing "`Origin-Policy`" in |response|'s
+    header list.
+
+2.  If |version| is not `null`, execute [[#fetch-manifest]] on |version| and
+    |response|'s URL's origin.
+
+<h4 algorithm dfn id="fetch-manifest">
+  Fetch an Origin Policy manifest |version| for |origin|.
+</h4>
+
+To fetch a origin policy manifest given a string (|version|) and an origin
+(|origin|) execute the following steps:
+
+1.  If |origin| is an opaque origin, abort these steps and return.
+
+2.  Let |url| be the result of executing the <a>URL parser</a> on |origin|'s
+    serialization.
+
+3.  If |url| is failure, or [[secure-contexts#is-url-trustworthy]] returns
+    "`Not Trustworthy`" when executed upon |url|, abort these steps and return.
+
+4.  Set |url|'s path to the concatenation of "`/.well-known/origin-policy/`" and
+    |version|.
+
+5.  Let |request| be a new request whose method is "`GET`", url is |url|, client
+    is `null`, window is `no-window`, skip-service-worker flag is set,
+    destination is `manifest`, mode is `same-origin`, and redirect mode is
+    `error`.
+
+6.  Let |response| be the result of performing an HTTP-network-or-cache fetch 
+    using |request|.
+
+7.  If |response|'s status is an ok status:
+
+    1.  Let |MIME type| be the result of extracting a MIME type from
+        |response|'s header list.
+
+    2.  If |MIME type| is not `application/manifest+json`, abort these steps
+        and return.
+
+    3.  Store the tuple (|version|, |response|'s body) in the user agent's
+        <a>Origin Policy Store</a> for |origin|.
+
 
 Specification Considerations {#specification}
 =============================
@@ -278,7 +388,7 @@ Privacy and Security Considerations {#privacy-and-security}
 Tracking {#tracking}
 --------
 
-The <a>`Security-Policy`</a> header, as well as the manifest it represents, can
+The <a>`Origin-Policy`</a> header, as well as the manifest it represents, can
 be used to track users with only marginally less granularity and coverage than
 cookies allow. As such, the user agent MUST purge cached manifests whenever a
 user instructs it to clear cookies or cached data.

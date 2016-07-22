@@ -1,7 +1,7 @@
 <!doctype html><html lang="en">
  <head>
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-  <title>Security Policy Manifest</title>
+  <title>Origin Policy Manifest</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 <style data-fill-with="stylesheet">/******************************************************************************
  *                   Style sheet for the W3C specifications                   *
@@ -1350,12 +1350,12 @@ Possible extra rowspan handling
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"></p>
-   <h1 class="p-name no-ref" id="title">Security Policy Manifest</h1>
+   <h1 class="p-name no-ref" id="title">Origin Policy Manifest</h1>
    <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-07-22">22 July 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
-     <dd><a class="u-url" href="https://mikewest.github.io/security-policy-manifest/">https://mikewest.github.io/security-policy-manifest/</a>
+     <dd><a class="u-url" href="https://mikewest.github.io/origin-policy-manifest/">https://mikewest.github.io/origin-policy-manifest/</a>
      <dt class="editor">Editor:
      <dd class="editor p-author h-card vcard" data-editor-id="56384"><a class="p-name fn u-email email" href="mailto:mkwst@google.com">Mike West</a> (<span class="p-org org">Google Inc.</span>)
     </dl>
@@ -1371,11 +1371,11 @@ Parts of this work may be from another specification document.  If so, those par
   </div>
   <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
   <div class="p-summary" data-fill-with="abstract">
-   <p>This specification defines a delivery mechanism for a number of security
+   <p>This specification defines a delivery mechanism for a number of policies
 
-policies which are to be applied to an entire origin. It compliments
-header-based delivery mechanisms for existing policies (Content Security
-Policy, Referrer Policy, etc).</p>
+which are to be applied to an entire origin. It compliments header-based
+delivery mechanisms for existing policies (Content Security Policy,
+Referrer Policy, etc).</p>
   </div>
   <div data-fill-with="at-risk"></div>
   <nav data-fill-with="table-of-contents" id="toc">
@@ -1389,38 +1389,48 @@ Policy, Referrer Policy, etc).</p>
     <li>
      <a href="#framework"><span class="secno">2</span> <span class="content">Framework</span></a>
      <ol class="toc">
-      <li><a href="#security-policy-header"><span class="secno">2.1</span> <span class="content">The <code>Security-Policy</code> HTTP Header Field</span></a>
+      <li><a href="#origin-policy-header"><span class="secno">2.1</span> <span class="content">The <code>Origin-Policy</code> HTTP Header Field</span></a>
       <li>
-       <a href="#manifest-file"><span class="secno">2.2</span> <span class="content">The Security Policy Manifest File</span></a>
+       <a href="#manifest-file"><span class="secno">2.2</span> <span class="content">The Origin Policy Manifest File</span></a>
        <ol class="toc">
-        <li><a href="#baseline-csp-member"><span class="secno">2.2.1</span> <span class="content">The <code>baseline-csp</code> member {#baseline-csp-member}</span></a>
-        <li><a href="#fallback-csp-member"><span class="secno">2.2.2</span> <span class="content">The <code>fallback-csp</code> member {#fallback-csp-member}</span></a>
-        <li><a href="#referrer-member"><span class="secno">2.2.3</span> <span class="content">The <code>referrer</code> member {#referrer-member}</span></a>
+        <li><a href="#csp-member"><span class="secno">2.2.1</span> <span class="content">The <code>csp</code> member {#csp-member}</span></a>
+        <li><a href="#referrer-member"><span class="secno">2.2.2</span> <span class="content">The <code>referrer</code> member {#referrer-member}</span></a>
         <li>
-         <a href="#cors-preflight-member"><span class="secno">2.2.4</span> <span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span></a>
+         <a href="#cors-preflight-member"><span class="secno">2.2.3</span> <span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span></a>
          <ol class="toc">
-          <li><a href="#cors-preflight-values"><span class="secno">2.2.4.1</span> <span class="content">Values {#cors-preflight-values}</span></a>
+          <li><a href="#cors-preflight-values"><span class="secno">2.2.3.1</span> <span class="content">Values {#cors-preflight-values}</span></a>
          </ol>
-        <li><a href="#hsts-member"><span class="secno">2.2.5</span> <span class="content">The <code>hsts</code> member {#hsts-member}</span></a>
-        <li><a href="#hpkp-member"><span class="secno">2.2.6</span> <span class="content">The <code>hpkp</code> member {#hpkp-member}</span></a>
-        <li><a href="#nosniff-member"><span class="secno">2.2.7</span> <span class="content">The <code>nosniff</code> member {#nosniff-member}</span></a>
+        <li><a href="#hsts-member"><span class="secno">2.2.4</span> <span class="content">The <code>hsts</code> member {#hsts-member}</span></a>
+        <li><a href="#hpkp-member"><span class="secno">2.2.5</span> <span class="content">The <code>hpkp</code> member {#hpkp-member}</span></a>
+        <li><a href="#nosniff-member"><span class="secno">2.2.6</span> <span class="content">The <code>nosniff</code> member {#nosniff-member}</span></a>
        </ol>
-      <li><a href="#monkey-patching-fetch"><span class="secno">2.3</span> <span class="content">Fetch Integration</span></a>
-      <li><a href="#monkey-patching-html"><span class="secno">2.4</span> <span class="content">HTML Integration</span></a>
+      <li><a href="#monkey-patching-html"><span class="secno">2.3</span> <span class="content">HTML Integration</span></a>
      </ol>
     <li>
-     <a href="#specification"><span class="secno">3</span> <span class="content">Specification Considerations</span></a>
+     <a href="#algorithms"><span class="secno">3</span> <span class="content">Algorithms</span></a>
      <ol class="toc">
-      <li><a href="#fallback-vs-baseline"><span class="secno">3.1</span> <span class="content">Fallback vs Baseline</span></a>
-      <li><a href="#app-manifest"><span class="secno">3.2</span> <span class="content">Relation to Web App Manifests</span></a>
+      <li><a href="#version-for-origin"><span class="secno">3.1</span> <span class="content"> Retrieve <var>origin</var>’s manifest version. </span></a>
+      <li>
+       <a href="#monkey-patching-fetch"><span class="secno">3.2</span> <span class="content">Fetch Integration</span></a>
+       <ol class="toc">
+        <li><a href="#fetch-prepare-request"><span class="secno">3.2.1</span> <span class="content"> Prepare <var>request</var> with Origin Policy. </span></a>
+        <li><a href="#fetch-parse-response"><span class="secno">3.2.2</span> <span class="content"> Process <var>response</var> for Origin Policy. </span></a>
+        <li><a href="#fetch-manifest"><span class="secno">3.2.3</span> <span class="content"> Fetch an Origin Policy manifest <var>version</var> for <var>origin</var>. </span></a>
+       </ol>
      </ol>
     <li>
-     <a href="#privacy-and-security"><span class="secno">4</span> <span class="content">Privacy and Security Considerations</span></a>
+     <a href="#specification"><span class="secno">4</span> <span class="content">Specification Considerations</span></a>
      <ol class="toc">
-      <li><a href="#tracking"><span class="secno">4.1</span> <span class="content">Tracking</span></a>
-      <li><a href="#perf"><span class="secno">4.2</span> <span class="content">Performance</span></a>
+      <li><a href="#fallback-vs-baseline"><span class="secno">4.1</span> <span class="content">Fallback vs Baseline</span></a>
+      <li><a href="#app-manifest"><span class="secno">4.2</span> <span class="content">Relation to Web App Manifests</span></a>
      </ol>
-    <li><a href="#iana"><span class="secno">5</span> <span class="content">IANA Considerations</span></a>
+    <li>
+     <a href="#privacy-and-security"><span class="secno">5</span> <span class="content">Privacy and Security Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#tracking"><span class="secno">5.1</span> <span class="content">Tracking</span></a>
+      <li><a href="#perf"><span class="secno">5.2</span> <span class="content">Performance</span></a>
+     </ol>
+    <li><a href="#iana"><span class="secno">6</span> <span class="content">IANA Considerations</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -1440,19 +1450,19 @@ Policy, Referrer Policy, etc).</p>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
    <p>[Insert clever introduction here.]</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-87c9468a">
-    <a class="self-link" href="#example-87c9468a"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-9c21882c">
+    <a class="self-link" href="#example-9c21882c"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
-    <p>When they see a request come in that contains a <a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-1"><code>Security-Policy</code></a> header, they can respond in kind, pointing the client to a manifest file
+    <p>When they see a request come in that contains a <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-1"><code>Origin-Policy</code></a> header, they can respond in kind, pointing the client to a manifest file
 in a well-known location on their server. That is, given the following
 request:</p>
 <pre>GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-2">Security-Policy</a>: 0
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-2">Origin-Policy</a>: 0
 ...
 </pre>
     <p>MegaCorp, Inc. can respond with:</p>
@@ -1462,14 +1472,25 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-3">Security-Policy</a>: "v1"
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-3">Origin-Policy</a>: "v1"
 ...
 </pre>
-    <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/security-policy/v1</code> before completing
+    <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/origin-policy/v1</code> before completing
 the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on <code>https://example.com/</code> (including the current navigation).</p>
 <pre>{
-  "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-1">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a data-link-type="dfn" href="#csp" id="ref-for-csp-1">csp</a>": [
+    {
+      "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
+      "mode": "enforce",
+      "type": "fallback"
+    },
+    {
+      "policy": "script-src https:; report-to 'mixed'",
+      "mode": "report",
+      "type": "baseline"
+    }
+  ],
   "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-1">referrer</a>": "origin-when-cross-origin",
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-1">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-1">nosniff</a>": true,
@@ -1482,7 +1503,7 @@ the policy currently cached for the origin. In this case:</p>
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-4">Security-Policy</a>: "<strong>v1</strong>"
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-4">Origin-Policy</a>: "<strong>v1</strong>"
 ...
 </pre>
     <p class="issue" id="issue-e4da3694"><a class="self-link" href="#issue-e4da3694"></a> Maybe turn this into a <code>Link</code> header with special behavior?</p>
@@ -1490,44 +1511,60 @@ Connection: keep-alive
 <pre class="example" id="example-73553e9a"><a class="self-link" href="#example-73553e9a"></a>[Add an HTTP/2 server push example to speed this up.]
 </pre>
    <h2 class="heading settled" data-level="2" id="framework"><span class="secno">2. </span><span class="content">Framework</span><a class="self-link" href="#framework"></a></h2>
-   <h3 class="heading settled" data-level="2.1" id="security-policy-header"><span class="secno">2.1. </span><span class="content">The <code>Security-Policy</code> HTTP Header Field</span><a class="self-link" href="#security-policy-header"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="security-policy"><code>Security-Policy</code></dfn> HTTP header field is sent with
+   <h3 class="heading settled" data-level="2.1" id="origin-policy-header"><span class="secno">2.1. </span><span class="content">The <code>Origin-Policy</code> HTTP Header Field</span><a class="self-link" href="#origin-policy-header"></a></h3>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy"><code>Origin-Policy</code></dfn> HTTP header field is sent with
 navigational HTTP requests in order to advertise support generally for the
-security policy manifest mechanism defined in this document, and to inform
-the server which version of its security policy is cached locally.</p>
+origin policy manifest mechanism defined in this document, and to inform
+the server which version of its origin policy is cached locally.</p>
    <p>The same header is sent by the server in responses to such requests to
-inform the client that a security policy manifest is available to fetch.</p>
-<pre class="abnf">Security-Policy: 0 / quoted-string
+inform the client that a origin policy manifest is available to fetch.</p>
+<pre class="abnf">Origin-Policy: 0 / DQUOTE *( DIGIT / ALPHA / "_" / "-" ) DQUOTE 
 </pre>
    <p>This header MUST be ignored if delivered over non-secure transport.</p>
-   <h3 class="heading settled" data-level="2.2" id="manifest-file"><span class="secno">2.2. </span><span class="content">The Security Policy Manifest File</span><a class="self-link" href="#manifest-file"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="security-policy-manifest">Security Policy Manifest</dfn> is a
+   <p>User agents have a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy-store">Origin Policy Store</dfn>, which is a key
+value store which can hold a single <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="policy">policy</dfn> for each origin.
+Each <a data-link-type="dfn" href="#policy" id="ref-for-policy-1">policy</a> is a (<dfn data-dfn-for="policy" data-dfn-type="dfn" data-noexport="" id="policy-version">version<a class="self-link" href="#policy-version"></a></dfn>, <dfn data-dfn-for="policy" data-dfn-type="dfn" data-noexport="" id="policy-manifest">manifest<a class="self-link" href="#policy-manifest"></a></dfn>) tuple.</p>
+   <h3 class="heading settled" data-level="2.2" id="manifest-file"><span class="secno">2.2. </span><span class="content">The Origin Policy Manifest File</span><a class="self-link" href="#manifest-file"></a></h3>
+   <p>The <dfn data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest<a class="self-link" href="#origin-policy-manifest"></a></dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
-members. Each member defines a specific aspect of an origin’s security policy.</p>
-<pre class="example" id="example-204e3e84"><a class="self-link" href="#example-204e3e84"></a>{
-  "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-2">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+members. Each member defines a specific aspect of an origin’s policy.</p>
+<pre class="example" id="example-adec858a"><a class="self-link" href="#example-adec858a"></a>{
+  "<a data-link-type="dfn" href="#csp" id="ref-for-csp-2">csp</a>": [
+    {
+      "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
+      "mode": "enforce",
+      "type": "fallback"
+    },
+    {
+      "policy": "script-src https:; report-to 'mixed'",
+      "mode": "report",
+      "type": "baseline"
+    }
+  ],
   "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-2">referrer</a>": "origin-when-cross-origin",
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-2">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-2">nosniff</a>": true,
   "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-2">hsts</a>": true,
 }
 </pre>
-   <h4 class="heading settled" data-level="2.2.1" id="baseline-csp-member"><span class="secno">2.2.1. </span><span class="content">The <code>baseline-csp</code> member {#baseline-csp-member}</span><a class="self-link" href="#baseline-csp-member"></a></h4>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="baseline-csp"><code>baseline-csp</code></dfn> member defines a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy">Content Security
-Policy</a> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a> which will be applied to every resource delivered from the
-policy’s origin.</p>
-   <p>Its value MUST be a string. Any other type will be ignored.</p>
-   <h4 class="heading settled" data-level="2.2.2" id="fallback-csp-member"><span class="secno">2.2.2. </span><span class="content">The <code>fallback-csp</code> member {#fallback-csp-member}</span><a class="self-link" href="#fallback-csp-member"></a></h4>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="fallback-csp"><code>fallback-csp</code></dfn> member defines a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy">Content Security
-Policy</a> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a> which will be applied to every document and worker
-delivered from the policy’s origin which does not itself supply a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a> header.</p>
-   <p>Its value MUST be a string. Any other type will be ignored.</p>
-   <p>If a <a data-link-type="dfn" href="#security-policy-manifest" id="ref-for-security-policy-manifest-1">manifest</a> contains both a <a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-3"><code>baseline-csp</code></a> and a <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-1"><code>fallback-csp</code></a> member, the <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-2"><code>fallback-csp</code></a> member MUST be ignored.</p>
-   <h4 class="heading settled" data-level="2.2.3" id="referrer-member"><span class="secno">2.2.3. </span><span class="content">The <code>referrer</code> member {#referrer-member}</span><a class="self-link" href="#referrer-member"></a></h4>
+   <p class="issue" id="issue-d435325f"><a class="self-link" href="#issue-d435325f"></a> Perhaps the various members should be pushed out into various other
+specs in some kind of extension model. That is, the parsing algorithm could
+have a hook for the member name that other specs could latch onto. Not sure
+if that’s worth the effort, but it might be a more rational way to define
+behavior, since we’re otherwise hooking into a different spec for each bit.</p>
+   <h4 class="heading settled" data-level="2.2.1" id="csp-member"><span class="secno">2.2.1. </span><span class="content">The <code>csp</code> member {#csp-member}</span><a class="self-link" href="#csp-member"></a></h4>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="csp"><code>csp</code></dfn> member defines a set of <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy">Content Security
+Policies</a> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a> which will be applied to every resource delivered from the
+manifest’s origin.</p>
+   <p>Its value MUST be either a single dictionary, or a list of dictionaries. Each
+dictionary MUST have a "<code>policy</code>" member, and MAY have "<code>mode</code>" and "<code>type</code>"
+members.</p>
+   <p>Any non-conforming value will be ignored.</p>
+   <h4 class="heading settled" data-level="2.2.2" id="referrer-member"><span class="secno">2.2.2. </span><span class="content">The <code>referrer</code> member {#referrer-member}</span><a class="self-link" href="#referrer-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
 the policy’s origin.</p>
    <p>Its value MUST be a string. Any other type will be ignored.</p>
-   <h4 class="heading settled" data-level="2.2.4" id="cors-preflight-member"><span class="secno">2.2.4. </span><span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span><a class="self-link" href="#cors-preflight-member"></a></h4>
+   <h4 class="heading settled" data-level="2.2.3" id="cors-preflight-member"><span class="secno">2.2.3. </span><span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span><a class="self-link" href="#cors-preflight-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="cors"><code>cors</code></dfn> member asserts that an origin understands the
 CORS protocol, and that the user agent can therefore assume success for certain
 types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight requests</a>.</p>
@@ -1535,7 +1572,7 @@ types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-prefl
 only allows the user agent to skip the <code>OPTIONS</code> preflight request for a
 defined set of requests.</p>
    <p>Its value MUST be a dictionary. Any other type will be ignored.</p>
-   <h5 class="heading settled" data-level="2.2.4.1" id="cors-preflight-values"><span class="secno">2.2.4.1. </span><span class="content">Values {#cors-preflight-values}</span><a class="self-link" href="#cors-preflight-values"></a></h5>
+   <h5 class="heading settled" data-level="2.2.3.1" id="cors-preflight-values"><span class="secno">2.2.3.1. </span><span class="content">Values {#cors-preflight-values}</span><a class="self-link" href="#cors-preflight-values"></a></h5>
    <p class="issue" id="issue-440ca7b8"><a class="self-link" href="#issue-440ca7b8"></a> Spell this out.</p>
 <pre class="example" id="example-7ffae137"><a class="self-link" href="#example-7ffae137"></a>{
   "cors-preflight": {
@@ -1546,32 +1583,17 @@ defined set of requests.</p>
 }
 </pre>
    <p class="issue" id="issue-2123bd64"><a class="self-link" href="#issue-2123bd64"></a> This might be a footgun?</p>
-   <h4 class="heading settled" data-level="2.2.5" id="hsts-member"><span class="secno">2.2.5. </span><span class="content">The <code>hsts</code> member {#hsts-member}</span><a class="self-link" href="#hsts-member"></a></h4>
+   <h4 class="heading settled" data-level="2.2.4" id="hsts-member"><span class="secno">2.2.4. </span><span class="content">The <code>hsts</code> member {#hsts-member}</span><a class="self-link" href="#hsts-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="hsts"><code>hsts</code></dfn> member asserts Strict Transport Security for an
 origin <a data-link-type="biblio" href="#biblio-rfc6797">[RFC6797]</a>.</p>
-   <h4 class="heading settled" data-level="2.2.6" id="hpkp-member"><span class="secno">2.2.6. </span><span class="content">The <code>hpkp</code> member {#hpkp-member}</span><a class="self-link" href="#hpkp-member"></a></h4>
+   <h4 class="heading settled" data-level="2.2.5" id="hpkp-member"><span class="secno">2.2.5. </span><span class="content">The <code>hpkp</code> member {#hpkp-member}</span><a class="self-link" href="#hpkp-member"></a></h4>
    <p>The <dfn data-dfn-type="dfn" data-export="" id="hpkp"><code>hpkp</code><a class="self-link" href="#hpkp"></a></dfn> member asserts a set of pinned public keys for an
 origin <a data-link-type="biblio" href="#biblio-rfc7469">[RFC7469]</a>.</p>
-   <h4 class="heading settled" data-level="2.2.7" id="nosniff-member"><span class="secno">2.2.7. </span><span class="content">The <code>nosniff</code> member {#nosniff-member}</span><a class="self-link" href="#nosniff-member"></a></h4>
+   <h4 class="heading settled" data-level="2.2.6" id="nosniff-member"><span class="secno">2.2.6. </span><span class="content">The <code>nosniff</code> member {#nosniff-member}</span><a class="self-link" href="#nosniff-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="nosniff"><code>nosniff</code></dfn> member asserts that resources served from an
 origin should rely only on their explicitly asserted <code>Content-Type</code>, and MUST
 not be sniffed into other types of content based on their contents.</p>
-   <h3 class="heading settled" data-level="2.3" id="monkey-patching-fetch"><span class="secno">2.3. </span><span class="content">Fetch Integration</span><a class="self-link" href="#monkey-patching-fetch"></a></h3>
-   <p>In a somewhat hand-wavey way, we’ll do the following when making a navigational request:</p>
-   <ol>
-    <li data-md="">
-     <p>Append <code>Security-Policy</code> to its header list with a value of <code>0</code> if no manifest is
-  cached for its URLs origin, or the verion of the manifest that is cached as a quoted
-  string otherwise (e.g. <code>"v1"</code>).</p>
-    <li data-md="">
-     <p>When we receive a response from the network, we’ll sift through its headers, and
-  extract the <code>Security-Policy</code> header. If present, and its value does not match
-  the value of the locally cached manifest for the response’s origin, we’ll issue
-  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/security-policy/{value}</code>.</p>
-     <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
-  are scoped to the whole origin?</p>
-   </ol>
-   <h3 class="heading settled" data-level="2.4" id="monkey-patching-html"><span class="secno">2.4. </span><span class="content">HTML Integration</span><a class="self-link" href="#monkey-patching-html"></a></h3>
+   <h3 class="heading settled" data-level="2.3" id="monkey-patching-html"><span class="secno">2.3. </span><span class="content">HTML Integration</span><a class="self-link" href="#monkey-patching-html"></a></h3>
    <p>At the end of the navigation algorithm, we’ll do the following:</p>
    <ol>
     <li data-md="">
@@ -1582,11 +1604,92 @@ not be sniffed into other types of content based on their contents.</p>
    </ol>
    <p>At the end of the "run a worker" algorithm, we’ll do the same thing.</p>
    <p class="issue" id="issue-17286ff7"><a class="self-link" href="#issue-17286ff7"></a> Spell all of this out.</p>
-   <h2 class="heading settled" data-level="3" id="specification"><span class="secno">3. </span><span class="content">Specification Considerations</span><a class="self-link" href="#specification"></a></h2>
-   <h3 class="heading settled" data-level="3.1" id="fallback-vs-baseline"><span class="secno">3.1. </span><span class="content">Fallback vs Baseline</span><a class="self-link" href="#fallback-vs-baseline"></a></h3>
+   <h2 class="heading settled" data-level="3" id="algorithms"><span class="secno">3. </span><span class="content">Algorithms</span><a class="self-link" href="#algorithms"></a></h2>
+   <h3 class="heading settled dfn-paneled" data-algorithm="Retrieve origin’s manifest version." data-dfn-type="dfn" data-level="3.1" data-lt="Retrieve origin’s manifest version." data-noexport="" id="version-for-origin"><span class="secno">3.1. </span><span class="content"> Retrieve <var>origin</var>’s manifest version. </span></h3>
+   <p>Given an origin (<var>origin</var>), this algorithm returns <code>0</code> if no manifest is present
+in the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-1">Origin Policy Store</a>, or a string representing the
+cached version otherwise.</p>
+   <ol>
+    <li data-md="">
+     <p>Let <var>version</var> be <code>0</code>.</p>
+    <li data-md="">
+     <p>If the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-2">Origin Policy Store</a> contains a tuple for <var>origin</var>, let <var>version</var> be that tuple’s first element.</p>
+    <li data-md="">
+     <p>Return <var>version</var>.</p>
+   </ol>
+   <h3 class="heading settled" data-level="3.2" id="monkey-patching-fetch"><span class="secno">3.2. </span><span class="content">Fetch Integration</span><a class="self-link" href="#monkey-patching-fetch"></a></h3>
+   <p>During a navigation request, Fetch will hook into this specification in two ways:</p>
+   <ol>
+    <li data-md="">
+     <p>At the top of the basic fetch algorithm, Fetch will call <a href="#fetch-prepare-request" id="ref-for-fetch-prepare-request-1">§3.2.1 Prepare request with Origin Policy.</a> in order to append <code>Origin-Policy</code> to the
+  request’s header list with a value of <code>0</code> if no manifest is cached for its
+  URL’s origin, or a value of the verion of the manifest that is cached  (e.g. <code>"v1"</code>).</p>
+    <li data-md="">
+     <p>When a response is received during HTTP-network fetch algorithm, Fetch will
+  call into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-1">§3.2.2 Process response for Origin Policy.</a> to sift through its headers, and
+  extract the <code>Origin-Policy</code> header. If present, and its value does not match
+  the value of the locally cached manifest for the response’s origin, we’ll issue
+  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/origin-policy/{value}</code>, as defined in <a href="#fetch-manifest" id="ref-for-fetch-manifest-1">§3.2.3 Fetch an Origin Policy manifest version for origin.</a>.</p>
+     <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
+  are scoped to the whole origin?</p>
+   </ol>
+   <h4 class="heading settled dfn-paneled" data-algorithm="Prepare request with Origin Policy." data-dfn-type="dfn" data-level="3.2.1" data-lt="Prepare request with Origin Policy." data-noexport="" id="fetch-prepare-request"><span class="secno">3.2.1. </span><span class="content"> Prepare <var>request</var> with Origin Policy. </span></h4>
+   <p>Given a request <var>request</var>, add appropriate headers to inform a server about a
+client’s active policy:</p>
+   <ol>
+    <li data-md="">
+     <p>If <var>request</var> is not a navigation request, or if  abort these steps and return.</p>
+    <li data-md="">
+     <p>Let <var>version</var> be the result of executing <a href="#version-for-origin" id="ref-for-version-for-origin-1">§3.1 Retrieve origin’s manifest version.</a> on <var>request</var>’s URL’s origin.</p>
+    <li data-md="">
+     <p>Append a header named <code>Origin-Policy</code> with a value of <var>version</var> to <var>request</var>’s header list.</p>
+   </ol>
+   <h4 class="heading settled dfn-paneled" data-algorithm="Process response for Origin Policy." data-dfn-type="dfn" data-level="3.2.2" data-lt="Process response for Origin Policy." data-noexport="" id="fetch-parse-response"><span class="secno">3.2.2. </span><span class="content"> Process <var>response</var> for Origin Policy. </span></h4>
+   <ol>
+    <li data-md="">
+     <p>Let <var>version</var> be the result of parsing "<code>Origin-Policy</code>" in <var>response</var>’s
+  header list.</p>
+    <li data-md="">
+     <p>If <var>version</var> is not <code>null</code>, execute <a href="#fetch-manifest" id="ref-for-fetch-manifest-2">§3.2.3 Fetch an Origin Policy manifest version for origin.</a> on <var>version</var> and <var>response</var>’s URL’s origin.</p>
+   </ol>
+   <h4 class="heading settled dfn-paneled" data-algorithm="Fetch an Origin Policy manifest version for origin." data-dfn-type="dfn" data-level="3.2.3" data-lt="Fetch an Origin Policy manifest version for origin." data-noexport="" id="fetch-manifest"><span class="secno">3.2.3. </span><span class="content"> Fetch an Origin Policy manifest <var>version</var> for <var>origin</var>. </span></h4>
+   <p>To fetch a origin policy manifest given a string (<var>version</var>) and an origin
+(<var>origin</var>) execute the following steps:</p>
+   <ol>
+    <li data-md="">
+     <p>If <var>origin</var> is an opaque origin, abort these steps and return.</p>
+    <li data-md="">
+     <p>Let <var>url</var> be the result of executing the <a data-link-type="dfn">URL parser</a> on <var>origin</var>’s
+  serialization.</p>
+    <li data-md="">
+     <p>If <var>url</var> is failure, or <a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns
+  "<code>Not Trustworthy</code>" when executed upon <var>url</var>, abort these steps and return.</p>
+    <li data-md="">
+     <p>Set <var>url</var>’s path to the concatenation of "<code>/.well-known/origin-policy/</code>" and <var>version</var>.</p>
+    <li data-md="">
+     <p>Let <var>request</var> be a new request whose method is "<code>GET</code>", url is <var>url</var>, client
+  is <code>null</code>, window is <code>no-window</code>, skip-service-worker flag is set,
+  destination is <code>manifest</code>, mode is <code>same-origin</code>, and redirect mode is <code>error</code>.</p>
+    <li data-md="">
+     <p>Let <var>response</var> be the result of performing an HTTP-network-or-cache fetch
+  using <var>request</var>.</p>
+    <li data-md="">
+     <p>If <var>response</var>’s status is an ok status:</p>
+     <ol>
+      <li data-md="">
+       <p>Let <var>MIME type</var> be the result of extracting a MIME type from <var>response</var>’s header list.</p>
+      <li data-md="">
+       <p>If <var>MIME type</var> is not <code>application/manifest+json</code>, abort these steps
+  and return.</p>
+      <li data-md="">
+       <p>Store the tuple (<var>version</var>, <var>response</var>’s body) in the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-3">Origin Policy Store</a> for <var>origin</var>.</p>
+     </ol>
+   </ol>
+   <h2 class="heading settled" data-level="4" id="specification"><span class="secno">4. </span><span class="content">Specification Considerations</span><a class="self-link" href="#specification"></a></h2>
+   <h3 class="heading settled" data-level="4.1" id="fallback-vs-baseline"><span class="secno">4.1. </span><span class="content">Fallback vs Baseline</span><a class="self-link" href="#fallback-vs-baseline"></a></h3>
    <p>Perhaps this ought to be defined at a higher level of the manifest? It seems
 like it might be a useful concept for things other than CSP.</p>
-   <h3 class="heading settled" data-level="3.2" id="app-manifest"><span class="secno">3.2. </span><span class="content">Relation to Web App Manifests</span><a class="self-link" href="#app-manifest"></a></h3>
+   <h3 class="heading settled" data-level="4.2" id="app-manifest"><span class="secno">4.2. </span><span class="content">Relation to Web App Manifests</span><a class="self-link" href="#app-manifest"></a></h3>
    <p>It might make sense to combine this mechanism with the manifest notion
 defined in <a data-link-type="biblio" href="#biblio-appmanifest">[APPMANIFEST]</a>. There are a few distinctions, however, which
 lead to the current design:</p>
@@ -1606,17 +1709,17 @@ lead to the current design:</p>
 Perhaps if a certain set of attributes was parsed iff certain properties of the
 request are true (same-origin, specific path, etc). Something to look into. For
 now, we’ve done the simple thing as a strawman.</p>
-   <h2 class="heading settled" data-level="4" id="privacy-and-security"><span class="secno">4. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
-   <h3 class="heading settled" data-level="4.1" id="tracking"><span class="secno">4.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
-   <p>The <a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-5"><code>Security-Policy</code></a> header, as well as the manifest it represents, can
+   <h2 class="heading settled" data-level="5" id="privacy-and-security"><span class="secno">5. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
+   <h3 class="heading settled" data-level="5.1" id="tracking"><span class="secno">5.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
+   <p>The <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-5"><code>Origin-Policy</code></a> header, as well as the manifest it represents, can
 be used to track users with only marginally less granularity and coverage than
 cookies allow. As such, the user agent MUST purge cached manifests whenever a
 user instructs it to clear cookies or cached data.</p>
-   <h3 class="heading settled" data-level="4.2" id="perf"><span class="secno">4.2. </span><span class="content">Performance</span><a class="self-link" href="#perf"></a></h3>
+   <h3 class="heading settled" data-level="5.2" id="perf"><span class="secno">5.2. </span><span class="content">Performance</span><a class="self-link" href="#perf"></a></h3>
    <p>Servers SHOULD set a long cache lifetime for the manifest file, using the version
 to change policy for an origin as opposed to changing the existing policy and
 relying on cache expiration.</p>
-   <h2 class="heading settled" data-level="5" id="iana"><span class="secno">5. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
+   <h2 class="heading settled" data-level="6" id="iana"><span class="secno">6. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
    <p class="issue" id="issue-2d5267cb"><a class="self-link" href="#issue-2d5267cb"></a> Register the header.</p>
    <p class="issue" id="issue-0e90b225"><a class="self-link" href="#issue-0e90b225"></a> Register the well-known path.</p>
   </main>
@@ -1752,16 +1855,27 @@ relying on cache expiration.</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#baseline-csp">baseline-csp</a><span>, in §2.2.1</span>
-   <li><a href="#cors">cors</a><span>, in §2.2.4</span>
-   <li><a href="#fallback-csp">fallback-csp</a><span>, in §2.2.2</span>
-   <li><a href="#hpkp">hpkp</a><span>, in §2.2.6</span>
-   <li><a href="#hsts">hsts</a><span>, in §2.2.5</span>
-   <li><a href="#security-policy-manifest">manifest</a><span>, in §2.2</span>
-   <li><a href="#nosniff">nosniff</a><span>, in §2.2.7</span>
-   <li><a href="#referrer">referrer</a><span>, in §2.2.3</span>
-   <li><a href="#security-policy">Security-Policy</a><span>, in §2.1</span>
-   <li><a href="#security-policy-manifest">Security Policy Manifest</a><span>, in §2.2</span>
+   <li><a href="#cors">cors</a><span>, in §2.2.3</span>
+   <li><a href="#csp">csp</a><span>, in §2.2.1</span>
+   <li><a href="#fetch-manifest">Fetch an Origin Policy manifest version for origin.</a><span>, in §3.2.2</span>
+   <li><a href="#hpkp">hpkp</a><span>, in §2.2.5</span>
+   <li><a href="#hsts">hsts</a><span>, in §2.2.4</span>
+   <li>
+    manifest
+    <ul>
+     <li><a href="#policy-manifest">dfn for policy</a><span>, in §2.1</span>
+     <li><a href="#origin-policy-manifest">definition of</a><span>, in §2.2</span>
+    </ul>
+   <li><a href="#nosniff">nosniff</a><span>, in §2.2.6</span>
+   <li><a href="#origin-policy">Origin-Policy</a><span>, in §2.1</span>
+   <li><a href="#origin-policy-manifest">Origin Policy Manifest</a><span>, in §2.2</span>
+   <li><a href="#origin-policy-store">Origin Policy Store</a><span>, in §2.1</span>
+   <li><a href="#policy">policy</a><span>, in §2.1</span>
+   <li><a href="#fetch-prepare-request">Prepare request with Origin Policy.</a><span>, in §3.2</span>
+   <li><a href="#fetch-parse-response">Process response for Origin Policy.</a><span>, in §3.2.1</span>
+   <li><a href="#referrer">referrer</a><span>, in §2.2.2</span>
+   <li><a href="#version-for-origin">Retrieve origin’s manifest version.</a><span>, in §3</span>
+   <li><a href="#policy-version">version</a><span>, in §2.1</span>
   </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
@@ -1774,7 +1888,6 @@ relying on cache expiration.</p>
     <a data-link-type="biblio">[CSP1]</a> defines the following terms:
     <ul>
      <li><a href="https://w3c.github.io/webappsec-csp/#content-security-policy">content security policy</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
     </ul>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
@@ -1809,67 +1922,101 @@ relying on cache expiration.</p>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
    <div class="issue"> Maybe turn this into a <code>Link</code> header with special behavior?<a href="#issue-e4da3694"> ↵ </a></div>
+   <div class="issue"> Perhaps the various members should be pushed out into various other
+specs in some kind of extension model. That is, the parsing algorithm could
+have a hook for the member name that other specs could latch onto. Not sure
+if that’s worth the effort, but it might be a more rational way to define
+behavior, since we’re otherwise hooking into a different spec for each bit.<a href="#issue-d435325f"> ↵ </a></div>
    <div class="issue"> Spell this out.<a href="#issue-440ca7b8"> ↵ </a></div>
    <div class="issue"> This might be a footgun?<a href="#issue-2123bd64"> ↵ </a></div>
+   <div class="issue"> Spell all of this out.<a href="#issue-17286ff7"> ↵ </a></div>
    <div class="issue"> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?<a href="#issue-43a867ce"> ↵ </a></div>
-   <div class="issue"> Spell all of this out.<a href="#issue-17286ff7"> ↵ </a></div>
    <div class="issue"> Register the header.<a href="#issue-2d5267cb"> ↵ </a></div>
    <div class="issue"> Register the well-known path.<a href="#issue-0e90b225"> ↵ </a></div>
   </div>
-  <aside class="dfn-panel" data-for="security-policy">
-   <b><a href="#security-policy">#security-policy</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="origin-policy">
+   <b><a href="#origin-policy">#origin-policy</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-security-policy-1">1.1. Examples</a> <a href="#ref-for-security-policy-2">(2)</a> <a href="#ref-for-security-policy-3">(3)</a> <a href="#ref-for-security-policy-4">(4)</a>
-    <li><a href="#ref-for-security-policy-5">4.1. Tracking</a>
+    <li><a href="#ref-for-origin-policy-1">1.1. Examples</a> <a href="#ref-for-origin-policy-2">(2)</a> <a href="#ref-for-origin-policy-3">(3)</a> <a href="#ref-for-origin-policy-4">(4)</a>
+    <li><a href="#ref-for-origin-policy-5">5.1. Tracking</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="security-policy-manifest">
-   <b><a href="#security-policy-manifest">#security-policy-manifest</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="origin-policy-store">
+   <b><a href="#origin-policy-store">#origin-policy-store</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-security-policy-manifest-1">2.2.2. The fallback-csp member {#fallback-csp-member}</a>
+    <li><a href="#ref-for-origin-policy-store-1">3.1. 
+  Retrieve origin’s manifest version. </a> <a href="#ref-for-origin-policy-store-2">(2)</a>
+    <li><a href="#ref-for-origin-policy-store-3">3.2.3. 
+  Fetch an Origin Policy manifest version for origin. </a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="baseline-csp">
-   <b><a href="#baseline-csp">#baseline-csp</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="policy">
+   <b><a href="#policy">#policy</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-baseline-csp-1">1.1. Examples</a>
-    <li><a href="#ref-for-baseline-csp-2">2.2. The Security Policy Manifest File</a>
-    <li><a href="#ref-for-baseline-csp-3">2.2.2. The fallback-csp member {#fallback-csp-member}</a>
+    <li><a href="#ref-for-policy-1">2.1. The Origin-Policy HTTP Header Field</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="fallback-csp">
-   <b><a href="#fallback-csp">#fallback-csp</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="csp">
+   <b><a href="#csp">#csp</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-fallback-csp-1">2.2.2. The fallback-csp member {#fallback-csp-member}</a> <a href="#ref-for-fallback-csp-2">(2)</a>
+    <li><a href="#ref-for-csp-1">1.1. Examples</a>
+    <li><a href="#ref-for-csp-2">2.2. The Origin Policy Manifest File</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="referrer">
    <b><a href="#referrer">#referrer</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-referrer-1">1.1. Examples</a>
-    <li><a href="#ref-for-referrer-2">2.2. The Security Policy Manifest File</a>
+    <li><a href="#ref-for-referrer-2">2.2. The Origin Policy Manifest File</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="cors">
    <b><a href="#cors">#cors</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-cors-1">1.1. Examples</a>
-    <li><a href="#ref-for-cors-2">2.2. The Security Policy Manifest File</a>
+    <li><a href="#ref-for-cors-2">2.2. The Origin Policy Manifest File</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="hsts">
    <b><a href="#hsts">#hsts</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-hsts-1">1.1. Examples</a>
-    <li><a href="#ref-for-hsts-2">2.2. The Security Policy Manifest File</a>
+    <li><a href="#ref-for-hsts-2">2.2. The Origin Policy Manifest File</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="nosniff">
    <b><a href="#nosniff">#nosniff</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-nosniff-1">1.1. Examples</a>
-    <li><a href="#ref-for-nosniff-2">2.2. The Security Policy Manifest File</a>
+    <li><a href="#ref-for-nosniff-2">2.2. The Origin Policy Manifest File</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="version-for-origin">
+   <b><a href="#version-for-origin">#version-for-origin</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-version-for-origin-1">3.2.1. 
+  Prepare request with Origin Policy. </a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fetch-prepare-request">
+   <b><a href="#fetch-prepare-request">#fetch-prepare-request</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fetch-prepare-request-1">3.2. Fetch Integration</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fetch-parse-response">
+   <b><a href="#fetch-parse-response">#fetch-parse-response</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fetch-parse-response-1">3.2. Fetch Integration</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fetch-manifest">
+   <b><a href="#fetch-manifest">#fetch-manifest</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fetch-manifest-1">3.2. Fetch Integration</a>
+    <li><a href="#ref-for-fetch-manifest-2">3.2.2. 
+  Process response for Origin Policy. </a>
    </ul>
   </aside>
 <script>/* script-dfn-panel */

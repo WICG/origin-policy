@@ -1438,8 +1438,8 @@ Policy, Referrer Policy, etc).</p>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
    <p>[Insert clever introduction here.]</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-5448fbc0">
-    <a class="self-link" href="#example-5448fbc0"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-87c9468a">
+    <a class="self-link" href="#example-87c9468a"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1468,7 +1468,10 @@ the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on <code>https://example.com/</code> (including the current navigation).</p>
 <pre>{
   "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-1">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
-  ...
+  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-1">referrer</a>": "origin-when-cross-origin",
+  "<a data-link-type="dfn" href="#cors" id="ref-for-cors-1">cors</a>": { "allow-credentials": true },
+  "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-1">nosniff</a>": true,
+  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-1">hsts</a>": true,
 }
 </pre>
     <p>Subsequent requests from the same client will contain the version of
@@ -1499,8 +1502,12 @@ inform the client that a security policy manifest is available to fetch.</p>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="security-policy-manifest">Security Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin’s security policy.</p>
-<pre class="example" id="example-1202a0dc"><a class="self-link" href="#example-1202a0dc"></a>{
-    "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-2">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+<pre class="example" id="example-204e3e84"><a class="self-link" href="#example-204e3e84"></a>{
+  "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-2">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-2">referrer</a>": "origin-when-cross-origin",
+  "<a data-link-type="dfn" href="#cors" id="ref-for-cors-2">cors</a>": { "allow-credentials": true },
+  "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-2">nosniff</a>": true,
+  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-2">hsts</a>": true,
 }
 </pre>
    <h4 class="heading settled" data-level="2.2.1" id="baseline-csp-member"><span class="secno">2.2.1. </span><span class="content">The <code>baseline-csp</code> member {#baseline-csp-member}</span><a class="self-link" href="#baseline-csp-member"></a></h4>
@@ -1515,11 +1522,11 @@ delivered from the policy’s origin which does not itself supply a <a data-link
    <p>Its value MUST be a string. Any other type will be ignored.</p>
    <p>If a <a data-link-type="dfn" href="#security-policy-manifest" id="ref-for-security-policy-manifest-1">manifest</a> contains both a <a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-3"><code>baseline-csp</code></a> and a <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-1"><code>fallback-csp</code></a> member, the <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-2"><code>fallback-csp</code></a> member MUST be ignored.</p>
    <h4 class="heading settled" data-level="2.2.3" id="referrer-member"><span class="secno">2.2.3. </span><span class="content">The <code>referrer</code> member {#referrer-member}</span><a class="self-link" href="#referrer-member"></a></h4>
-   <p>The <dfn data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code><a class="self-link" href="#referrer"></a></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
 the policy’s origin.</p>
    <p>Its value MUST be a string. Any other type will be ignored.</p>
    <h4 class="heading settled" data-level="2.2.4" id="cors-preflight-member"><span class="secno">2.2.4. </span><span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span><a class="self-link" href="#cors-preflight-member"></a></h4>
-   <p>The <dfn data-dfn-type="dfn" data-export="" id="cors"><code>cors</code><a class="self-link" href="#cors"></a></dfn> member asserts that an origin understands the
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="cors"><code>cors</code></dfn> member asserts that an origin understands the
 CORS protocol, and that the user agent can therefore assume success for certain
 types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight requests</a>.</p>
    <p class="note" role="note">Note: This member does <em>not</em> set defaults for responses in general; it
@@ -1538,13 +1545,13 @@ defined set of requests.</p>
 </pre>
    <p class="issue" id="issue-2123bd64"><a class="self-link" href="#issue-2123bd64"></a> This might be a footgun?</p>
    <h4 class="heading settled" data-level="2.2.5" id="hsts-member"><span class="secno">2.2.5. </span><span class="content">The <code>hsts</code> member {#hsts-member}</span><a class="self-link" href="#hsts-member"></a></h4>
-   <p>The <dfn data-dfn-type="dfn" data-export="" id="hsts"><code>hsts</code><a class="self-link" href="#hsts"></a></dfn> member asserts Strict Transport Security for an
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="hsts"><code>hsts</code></dfn> member asserts Strict Transport Security for an
 origin <a data-link-type="biblio" href="#biblio-rfc6797">[RFC6797]</a>.</p>
    <h4 class="heading settled" data-level="2.2.6" id="hpkp-member"><span class="secno">2.2.6. </span><span class="content">The <code>hpkp</code> member {#hpkp-member}</span><a class="self-link" href="#hpkp-member"></a></h4>
    <p>The <dfn data-dfn-type="dfn" data-export="" id="hpkp"><code>hpkp</code><a class="self-link" href="#hpkp"></a></dfn> member asserts a set of pinned public keys for an
 origin <a data-link-type="biblio" href="#biblio-rfc7469">[RFC7469]</a>.</p>
    <h4 class="heading settled" data-level="2.2.7" id="nosniff-member"><span class="secno">2.2.7. </span><span class="content">The <code>nosniff</code> member {#nosniff-member}</span><a class="self-link" href="#nosniff-member"></a></h4>
-   <p>The <dfn data-dfn-type="dfn" data-export="" id="nosniff"><code>nosniff</code><a class="self-link" href="#nosniff"></a></dfn> member asserts that resources served from an
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="nosniff"><code>nosniff</code></dfn> member asserts that resources served from an
 origin should rely only on their explicitly asserted <code>Content-Type</code>, and MUST
 not be sniffed into other types of content based on their contents.</p>
    <h3 class="heading settled" data-level="2.3" id="monkey-patching-fetch"><span class="secno">2.3. </span><span class="content">Fetch Integration</span><a class="self-link" href="#monkey-patching-fetch"></a></h3>
@@ -1818,6 +1825,34 @@ relying on cache expiration.</p>
    <b><a href="#fallback-csp">#fallback-csp</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-fallback-csp-1">2.2.2. The fallback-csp member {#fallback-csp-member}</a> <a href="#ref-for-fallback-csp-2">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="referrer">
+   <b><a href="#referrer">#referrer</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-referrer-1">1.1. Examples</a>
+    <li><a href="#ref-for-referrer-2">2.2. The Security Policy Manifest File</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="cors">
+   <b><a href="#cors">#cors</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-cors-1">1.1. Examples</a>
+    <li><a href="#ref-for-cors-2">2.2. The Security Policy Manifest File</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="hsts">
+   <b><a href="#hsts">#hsts</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-hsts-1">1.1. Examples</a>
+    <li><a href="#ref-for-hsts-2">2.2. The Security Policy Manifest File</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="nosniff">
+   <b><a href="#nosniff">#nosniff</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-nosniff-1">1.1. Examples</a>
+    <li><a href="#ref-for-nosniff-2">2.2. The Security Policy Manifest File</a>
    </ul>
   </aside>
 <script>/* script-dfn-panel */

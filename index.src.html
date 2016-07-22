@@ -73,7 +73,10 @@ according to the normal HTTP caching rules, and applied to pages on
 <pre>
 {
   "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
-  ...
+  "<a>referrer</a>": "origin-when-cross-origin",
+  "<a>cors</a>": { "allow-credentials": true },
+  "<a>nosniff</a>": true,
+  "<a>hsts</a>": true,
 }
 </pre>
 
@@ -125,7 +128,11 @@ members. Each member defines a specific aspect of an origin's security policy.
 
 <pre class="example">
 {
-    "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  "<a>referrer</a>": "origin-when-cross-origin",
+  "<a>cors</a>": { "allow-credentials": true },
+  "<a>nosniff</a>": true,
+  "<a>hsts</a>": true,
 }
 </pre>
 

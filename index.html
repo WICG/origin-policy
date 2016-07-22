@@ -1406,6 +1406,7 @@ Policy, Referrer Policy, etc).</p>
         <li><a href="#nosniff-member"><span class="secno">2.2.7</span> <span class="content">The <code>nosniff</code> member {#nosniff-member}</span></a>
        </ol>
       <li><a href="#monkey-patching-fetch"><span class="secno">2.3</span> <span class="content">Fetch Integration</span></a>
+      <li><a href="#monkey-patching-html"><span class="secno">2.4</span> <span class="content">HTML Integration</span></a>
      </ol>
     <li>
      <a href="#specification"><span class="secno">3</span> <span class="content">Specification Considerations</span></a>
@@ -1419,6 +1420,7 @@ Policy, Referrer Policy, etc).</p>
       <li><a href="#tracking"><span class="secno">4.1</span> <span class="content">Tracking</span></a>
       <li><a href="#perf"><span class="secno">4.2</span> <span class="content">Performance</span></a>
      </ol>
+    <li><a href="#iana"><span class="secno">5</span> <span class="content">IANA Considerations</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -1569,7 +1571,17 @@ not be sniffed into other types of content based on their contents.</p>
      <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?</p>
    </ol>
-   <p class="issue" id="issue-440ca7b80"><a class="self-link" href="#issue-440ca7b80"></a> Spell this out.</p>
+   <h3 class="heading settled" data-level="2.4" id="monkey-patching-html"><span class="secno">2.4. </span><span class="content">HTML Integration</span><a class="self-link" href="#monkey-patching-html"></a></h3>
+   <p>At the end of the navigation algorithm, we’ll do the following:</p>
+   <ol>
+    <li data-md="">
+     <p>If we have a policy for the origin to which we’ve navigated (or we’re inheriting the
+  origin for an <code>about:blank</code> or <code>about:srcdoc</code> (or if we’re Firefox, <code>data:...</code>),
+  then we apply the policy to the document as defined in <a href="#apply-policy"></a> (which
+  I haven’t written yet.</p>
+   </ol>
+   <p>At the end of the "run a worker" algorithm, we’ll do the same thing.</p>
+   <p class="issue" id="issue-17286ff7"><a class="self-link" href="#issue-17286ff7"></a> Spell all of this out.</p>
    <h2 class="heading settled" data-level="3" id="specification"><span class="secno">3. </span><span class="content">Specification Considerations</span><a class="self-link" href="#specification"></a></h2>
    <h3 class="heading settled" data-level="3.1" id="fallback-vs-baseline"><span class="secno">3.1. </span><span class="content">Fallback vs Baseline</span><a class="self-link" href="#fallback-vs-baseline"></a></h3>
    <p>Perhaps this ought to be defined at a higher level of the manifest? It seems
@@ -1604,6 +1616,9 @@ user instructs it to clear cookies or cached data.</p>
    <p>Servers SHOULD set a long cache lifetime for the manifest file, using the version
 to change policy for an origin as opposed to changing the existing policy and
 relying on cache expiration.</p>
+   <h2 class="heading settled" data-level="5" id="iana"><span class="secno">5. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
+   <p class="issue" id="issue-2d5267cb"><a class="self-link" href="#issue-2d5267cb"></a> Register the header.</p>
+   <p class="issue" id="issue-0e90b225"><a class="self-link" href="#issue-0e90b225"></a> Register the well-known path.</p>
   </main>
 <script>
 (function() {
@@ -1798,7 +1813,9 @@ relying on cache expiration.</p>
    <div class="issue"> This might be a footgun?<a href="#issue-2123bd64"> ↵ </a></div>
    <div class="issue"> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?<a href="#issue-43a867ce"> ↵ </a></div>
-   <div class="issue"> Spell this out.<a href="#issue-440ca7b80"> ↵ </a></div>
+   <div class="issue"> Spell all of this out.<a href="#issue-17286ff7"> ↵ </a></div>
+   <div class="issue"> Register the header.<a href="#issue-2d5267cb"> ↵ </a></div>
+   <div class="issue"> Register the well-known path.<a href="#issue-0e90b225"> ↵ </a></div>
   </div>
   <aside class="dfn-panel" data-for="security-policy">
    <b><a href="#security-policy">#security-policy</a></b><b>Referenced in:</b>

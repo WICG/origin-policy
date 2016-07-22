@@ -226,7 +226,19 @@ In a somewhat hand-wavey way, we'll do the following when making a navigational 
     ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
     are scoped to the whole origin?
 
-ISSUE: Spell this out.
+HTML Integration {#monkey-patching-html}
+----------------
+
+At the end of the navigation algorithm, we'll do the following:
+
+1.  If we have a policy for the origin to which we've navigated (or we're inheriting the
+    origin for an `about:blank` or `about:srcdoc` (or if we're Firefox, `data:...`),
+    then we apply the policy to the document as defined in [[#apply-policy]] (which
+    I haven't written yet.
+
+At the end of the "run a worker" algorithm, we'll do the same thing.
+
+ISSUE: Spell all of this out.
 
 Specification Considerations {#specification}
 =============================
@@ -277,3 +289,10 @@ Performance {#perf}
 Servers SHOULD set a long cache lifetime for the manifest file, using the version
 to change policy for an origin as opposed to changing the existing policy and
 relying on cache expiration.
+
+IANA Considerations {#iana}
+===================
+
+ISSUE: Register the header.
+
+ISSUE: Register the well-known path.

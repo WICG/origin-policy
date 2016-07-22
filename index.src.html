@@ -1,0 +1,272 @@
+<pre class='metadata'>
+Title: Security Policy Manifest
+Status: DREAM
+Shortname: spm
+Level: None
+Editor: Mike West 56384, Google Inc., mkwst@google.com
+Group: webappsec
+Abstract:
+  This specification defines a delivery mechanism for a number of security
+  policies which are to be applied to an entire origin. It compliments
+  header-based delivery mechanisms for existing policies (Content Security
+  Policy, Referrer Policy, etc).
+Indent: 2
+Markup Shorthands: markdown on
+Boilerplate: omit conformance, omit feedback-header
+</pre>
+<pre class="link-defaults">
+spec:html; type:element; text:link
+</pre>
+<pre class="anchors">
+spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
+  type: dfn
+    text: CORS-preflight request
+</pre>
+
+Introduction {#intro}
+=====================
+
+[Insert clever introduction here.]
+
+Examples {#examples}
+--------------------
+
+<div class="example">
+MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+applied to each of the pages on `https://example.com`, while avoiding the
+overhead associated with large response headers, and the uncertainty that
+they've really covered everything that lives on the origin.
+
+When they see a request come in that contains a <a>`Security-Policy`</a>
+header, they can respond in kind, pointing the client to a manifest file
+in a well-known location on their server. That is, given the following
+request:
+
+<pre>
+GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a>Security-Policy</a>: 0
+...
+</pre>
+
+MegaCorp, Inc. can respond with:
+
+<pre>
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a>Security-Policy</a>: "v1"
+...
+</pre>
+
+The client will parse the response headers, and synchronously request
+`https://example.com/.well-known/security-policy/v1` before completing
+the navigation. The policies contained in that file will be cached
+according to the normal HTTP caching rules, and applied to pages on
+`https://example.com/` (including the current navigation).
+
+<pre>
+{
+  "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  ...
+}
+</pre>
+
+Subsequent requests from the same client will contain the version of
+the policy currently cached for the origin. In this case:
+
+<pre>
+GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a>Security-Policy</a>: "<strong>v1</strong>"
+...
+</pre>
+
+ISSUE: Maybe turn this into a `Link` header with special behavior?
+</div>
+
+<pre class="example">
+[Add an HTTP/2 server push example to speed this up.]
+</pre>
+
+Framework {#framework}
+======================
+
+The `Security-Policy` HTTP Header Field {#security-policy-header}
+-----------------------------------------------------------------
+
+The <dfn export>`Security-Policy`</dfn> HTTP header field is sent with
+navigational HTTP requests in order to advertise support generally for the
+security policy manifest mechanism defined in this document, and to inform
+the server which version of its security policy is cached locally.
+
+The same header is sent by the server in responses to such requests to
+inform the client that a security policy manifest is available to fetch.
+
+<pre class="abnf">
+  Security-Policy: 0 / quoted-string
+</pre>
+
+This header MUST be ignored if delivered over non-secure transport.
+
+The Security Policy Manifest File {#manifest-file}
+------------------------------------------------------
+
+The <dfn export local-lt="manifest">Security Policy Manifest</dfn> is a
+JSON-formatted document consisting of a top-level object with one or more
+members. Each member defines a specific aspect of an origin's security policy.
+
+<pre class="example">
+{
+    "<a>baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+}
+</pre>
+
+### The `baseline-csp` member {#baseline-csp-member}
+
+The <dfn export>`baseline-csp`</dfn> member defines a <a>Content Security
+Policy</a> [[!CSP3]] which will be applied to every resource delivered from the
+policy's origin.
+
+Its value MUST be a string. Any other type will be ignored.
+
+### The `fallback-csp` member {#fallback-csp-member}
+
+The <dfn export>`fallback-csp`</dfn> member defines a <a>Content Security
+Policy</a> [[!CSP3]] which will be applied to every document and worker
+delivered from the policy's origin which does not itself supply a
+<a>Content-Security-Policy</a> header.
+
+Its value MUST be a string. Any other type will be ignored.
+
+If a <a>manifest</a> contains both a <a>`baseline-csp`</a> and a
+<a>`fallback-csp`</a> member, the <a>`fallback-csp`</a> member MUST be ignored.
+
+### The `referrer` member {#referrer-member}
+
+The <dfn export>`referrer`</dfn> member defines a <a>Referrer Policy</a>
+[[!REFERRER-POLICY]] which will be applied to every resource delivered from
+the policy's origin.
+
+Its value MUST be a string. Any other type will be ignored.
+
+### The `cors-preflight` member {#cors-preflight-member}
+
+The <dfn export>`cors`</dfn> member asserts that an origin understands the
+CORS protocol, and that the user agent can therefore assume success for certain
+types of <a>CORS-preflight requests</a>.
+
+Note: This member does <em>not</em> set defaults for responses in general; it
+only allows the user agent to skip the `OPTIONS` preflight request for a
+defined set of requests.
+
+Its value MUST be a dictionary. Any other type will be ignored.
+
+#### Values {#cors-preflight-values}
+
+ISSUE: Spell this out.
+
+<pre class="example">
+  {
+    "cors-preflight": {
+      "allow-credentials": true,
+      "allow-headers": [ "x-application-specific-header" ],
+      "allow-origin": [ "https://not-example.com/" ]
+    }
+  }
+</pre>
+
+ISSUE: This might be a footgun?
+
+### The `hsts` member {#hsts}
+
+The <dfn export>`hsts`</dfn> member asserts Strict Transport Security for an
+origin [[!RFC6797]].
+
+### The `hpkp` member {#hpkp}
+
+The <dfn export>`hpkp`</dfn> member asserts a set of pinned public keys for an
+origin [[!RFC7469]].
+
+### The `nosniff` member {#nosniff}
+
+The <dfn export>`nosniff`</dfn> member asserts that resources served from an
+origin should rely only on their explicitly asserted `Content-Type`, and MUST
+not be sniffed into other types of content based on their contents.
+
+Fetch Integration {#monkey-patching-fetch}
+-----------------
+
+In a somewhat hand-wavey way, we'll do the following when making a navigational request:
+
+1.  Append `Security-Policy` to its header list with a value of `0` if no manifest is
+    cached for its URLs origin, or the verion of the manifest that is cached as a quoted
+    string otherwise (e.g. `"v1"`).
+
+2.  When we receive a response from the network, we'll sift through its headers, and
+    extract the `Security-Policy` header. If present, and its value does not match
+    the value of the locally cached manifest for the response's origin, we'll issue
+    a synchronous request for a resource located on the request's URL's origin at
+    `/.well-known/security-policy/{value}`.
+
+    ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
+    are scoped to the whole origin?
+
+ISSUE: Spell this out.
+
+Specification Considerations {#specification}
+=============================
+
+Fallback vs Baseline {#fallback-vs-baseline}
+--------------------
+
+Perhaps this ought to be defined at a higher level of the manifest? It seems
+like it might be a useful concept for things other than CSP.
+
+Relation to Web App Manifests {#app-manifest}
+-----------------------------
+
+It might make sense to combine this mechanism with the manifest notion
+defined in [[APPMANIFEST]]. There are a few distinctions, however, which
+lead to the current design:
+
+1.  The =Security Policy Manifest= is delivered synchronously during navigation,
+    which gives it a number of valuable security properties. The web app
+    manifest, on the other hand, is delivered inline via a <{link}> element,
+    which makes it less valuable from that perspective.
+
+2.  Web app manifests can live anywhere on an origin, and anywhere on any other
+    origin, for that matter. This might make sense for the feature set it wishes
+    to expose, but it would expose an origin to unnecessary risk to be quite so
+    loose with =security policy manifest= files.
+
+Nevertheless, we should consider ways to merge this policy with [[APPMANIFEST]].
+Perhaps if a certain set of attributes was parsed iff certain properties of the
+request are true (same-origin, specific path, etc). Something to look into. For
+now, we've done the simple thing as a strawman.
+    
+
+Privacy and Security Considerations {#privacy-and-security}
+===================================
+
+Tracking {#tracking}
+--------
+
+The <a>`Security-Policy`</a> header, as well as the manifest it represents, can
+be used to track users with only marginally less granularity and coverage than
+cookies allow. As such, the user agent MUST purge cached manifests whenever a
+user instructs it to clear cookies or cached data.
+
+Performance {#perf}
+-----------
+
+Servers SHOULD set a long cache lifetime for the manifest file, using the version
+to change policy for an origin as opposed to changing the existing policy and
+relying on cache expiration.

@@ -1,0 +1,632 @@
+<!doctype html><html lang="en">
+ <head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Security Policy Manifest</title>
+  <meta content="DREAM" name="w3c-status">
+  <link href="https://www.w3.org/StyleSheets/TR/2016/W3C-DREAM" rel="stylesheet" type="text/css">
+  <meta content="Bikeshed 1.0.0" name="generator">
+<style>/* style-md-lists */
+
+            /* This is a weird hack for me not yet following the commonmark spec
+               regarding paragraph and lists. */
+            [data-md] > :first-child {
+                margin-top: 0;
+            }
+            [data-md] > :last-child {
+                margin-bottom: 0;
+            }</style>
+<style>/* style-counters */
+
+            body {
+                counter-reset: example figure issue;
+            }
+            .issue {
+                counter-increment: issue;
+            }
+            .issue:not(.no-marker)::before {
+                content: "Issue " counter(issue);
+            }
+
+            .example {
+                counter-increment: example;
+            }
+            .example:not(.no-marker)::before {
+                content: "Example " counter(example);
+            }
+            .invalid.example:not(.no-marker)::before,
+            .illegal.example:not(.no-marker)::before {
+                content: "Invalid Example" counter(example);
+            }
+
+            figcaption {
+                counter-increment: figure;
+            }
+            figcaption:not(.no-marker)::before {
+                content: "Figure " counter(figure) " ";
+            }</style>
+<style>/* style-dfn-panel */
+
+        .dfn-panel {
+            position: absolute;
+            z-index: 35;
+            height: auto;
+            width: -webkit-fit-content;
+            width: fit-content;
+            max-width: 300px;
+            max-height: 500px;
+            overflow: auto;
+            padding: 0.5em 0.75em;
+            font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+            background: #DDDDDD;
+            color: black;
+            border: outset 0.2em;
+        }
+        .dfn-panel:not(.on) { display: none; }
+        .dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
+        .dfn-panel > b { display: block; }
+        .dfn-panel a { color: black; }
+        .dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+        .dfn-panel > b + b { margin-top: 0.25em; }
+        .dfn-panel ul { padding: 0; }
+        .dfn-panel li { list-style: inside; }
+        .dfn-panel.activated {
+            display: inline-block;
+            position: fixed;
+            left: .5em;
+            bottom: 2em;
+            margin: 0 auto;
+            max-width: calc(100vw - 1.5em - .4em - .5em);
+            max-height: 30vh;
+        }
+
+        .dfn-paneled { cursor: pointer; }
+        </style>
+<style>/* style-selflinks */
+
+            .heading, .issue, .note, .example, li, dt {
+                position: relative;
+            }
+            a.self-link {
+                position: absolute;
+                top: 0;
+                left: calc(-1 * (3.5rem - 26px));
+                width: calc(3.5rem - 26px);
+                height: 2em;
+                text-align: center;
+                border: none;
+                transition: opacity .2s;
+                opacity: .5;
+            }
+            a.self-link:hover {
+                opacity: 1;
+            }
+            .heading > a.self-link {
+                font-size: 83%;
+            }
+            li > a.self-link {
+                left: calc(-1 * (3.5rem - 26px) - 2em);
+            }
+            dfn > a.self-link {
+                top: auto;
+                left: auto;
+                opacity: 0;
+                width: 1.5em;
+                height: 1.5em;
+                background: gray;
+                color: white;
+                font-style: normal;
+                transition: opacity .2s, background-color .2s, color .2s;
+            }
+            dfn:hover > a.self-link {
+                opacity: 1;
+            }
+            dfn > a.self-link:hover {
+                color: black;
+            }
+
+            a.self-link::before            { content: "¶"; }
+            .heading > a.self-link::before { content: "§"; }
+            dfn > a.self-link::before      { content: "#"; }</style>
+<style>/* style-autolinks */
+
+            .css.css, .property.property, .descriptor.descriptor {
+                color: #005a9c;
+                font-size: inherit;
+                font-family: inherit;
+            }
+            .css::before, .property::before, .descriptor::before {
+                content: "‘";
+            }
+            .css::after, .property::after, .descriptor::after {
+                content: "’";
+            }
+            .property, .descriptor {
+                /* Don't wrap property and descriptor names */
+                white-space: nowrap;
+            }
+            .type { /* CSS value <type> */
+                font-style: italic;
+            }
+            pre .property::before, pre .property::after {
+                content: "";
+            }
+            [data-link-type="property"]::before,
+            [data-link-type="propdesc"]::before,
+            [data-link-type="descriptor"]::before,
+            [data-link-type="value"]::before,
+            [data-link-type="function"]::before,
+            [data-link-type="at-rule"]::before,
+            [data-link-type="selector"]::before,
+            [data-link-type="maybe"]::before {
+                content: "‘";
+            }
+            [data-link-type="property"]::after,
+            [data-link-type="propdesc"]::after,
+            [data-link-type="descriptor"]::after,
+            [data-link-type="value"]::after,
+            [data-link-type="function"]::after,
+            [data-link-type="at-rule"]::after,
+            [data-link-type="selector"]::after,
+            [data-link-type="maybe"]::after {
+                content: "’";
+            }
+
+            [data-link-type].production::before,
+            [data-link-type].production::after,
+            .prod [data-link-type]::before,
+            .prod [data-link-type]::after {
+                content: "";
+            }
+
+            [data-link-type=element],
+            [data-link-type=element-attr] {
+                font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+                font-size: .9em;
+            }
+            [data-link-type=element]::before { content: "<" }
+            [data-link-type=element]::after  { content: ">" }
+
+            [data-link-type=biblio] {
+                white-space: pre;
+            }</style>
+ <body class="h-entry">
+  <div class="head">
+   <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
+   <h1 class="p-name no-ref" id="title">Security Policy Manifest</h1>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-07-22">22 July 2016</time></span></h2>
+   <div data-fill-with="spec-metadata">
+    <dl>
+     <dt>Feedback:
+     <dd><span><a href="mailto:public-webappsec@w3.org?subject=%5Bspm%5D%20YOUR%20TOPIC%20HERE">public-webappsec@w3.org</a> with subject line “<kbd>[spm] <i data-lt="">… message topic …</i></kbd>” (<a href="http://lists.w3.org/Archives/Public/public-webappsec/" rel="discussion">archives</a>)</span>
+     <dt class="editor">Editor:
+     <dd class="editor p-author h-card vcard" data-editor-id="56384"><a class="p-name fn u-email email" href="mailto:mkwst@google.com">Mike West</a> (<span class="p-org org">Google Inc.</span>)
+    </dl>
+   </div>
+   <div data-fill-with="warning"></div>
+   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2016 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>®</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>, <a href="http://ev.buaa.edu.cn/">Beihang</a>). W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply. </p>
+   <hr title="Separator for header">
+  </div>
+  <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
+  <div class="p-summary" data-fill-with="abstract">
+   <p>This specification defines a delivery mechanism for a number of security
+
+policies which are to be applied to an entire origin. It compliments
+header-based delivery mechanisms for existing policies (Content Security
+Policy, Referrer Policy, etc).</p>
+  </div>
+  <h2 class="no-num no-toc no-ref heading settled" id="status"><span class="content">Status of this document</span></h2>
+  <div data-fill-with="status">
+   <p></p>
+  </div>
+  <div data-fill-with="at-risk"></div>
+  <nav data-fill-with="table-of-contents" id="toc">
+   <h2 class="no-num no-toc no-ref" id="contents">Table of Contents</h2>
+   <ol class="toc" role="directory">
+    <li>
+     <a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
+     <ol class="toc">
+      <li><a href="#examples"><span class="secno">1.1</span> <span class="content">Examples</span></a>
+     </ol>
+    <li>
+     <a href="#framework"><span class="secno">2</span> <span class="content">Framework</span></a>
+     <ol class="toc">
+      <li><a href="#security-policy-header"><span class="secno">2.1</span> <span class="content">The <code>Security-Policy</code> HTTP Header Field</span></a>
+      <li>
+       <a href="#manifest-file"><span class="secno">2.2</span> <span class="content">The Security Policy Manifest File</span></a>
+       <ol class="toc">
+        <li><a href="#baseline-csp-member"><span class="secno">2.2.1</span> <span class="content">The <code>baseline-csp</code> member {#baseline-csp-member}</span></a>
+        <li><a href="#fallback-csp-member"><span class="secno">2.2.2</span> <span class="content">The <code>fallback-csp</code> member {#fallback-csp-member}</span></a>
+        <li><a href="#referrer-member"><span class="secno">2.2.3</span> <span class="content">The <code>referrer</code> member {#referrer-member}</span></a>
+        <li>
+         <a href="#cors-preflight-member"><span class="secno">2.2.4</span> <span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span></a>
+         <ol class="toc">
+          <li><a href="#cors-preflight-values"><span class="secno">2.2.4.1</span> <span class="content">Values {#cors-preflight-values}</span></a>
+         </ol>
+        <li><a href="#hsts"><span class="secno">2.2.5</span> <span class="content">The <code>hsts</code> member {#hsts}</span></a>
+        <li><a href="#hpkp"><span class="secno">2.2.6</span> <span class="content">The <code>hpkp</code> member {#hpkp}</span></a>
+        <li><a href="#nosniff"><span class="secno">2.2.7</span> <span class="content">The <code>nosniff</code> member {#nosniff}</span></a>
+       </ol>
+      <li><a href="#monkey-patching-fetch"><span class="secno">2.3</span> <span class="content">Fetch Integration</span></a>
+     </ol>
+    <li>
+     <a href="#specification"><span class="secno">3</span> <span class="content">Specification Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#fallback-vs-baseline"><span class="secno">3.1</span> <span class="content">Fallback vs Baseline</span></a>
+      <li><a href="#app-manifest"><span class="secno">3.2</span> <span class="content">Relation to Web App Manifests</span></a>
+     </ol>
+    <li>
+     <a href="#privacy-and-security"><span class="secno">4</span> <span class="content">Privacy and Security Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#tracking"><span class="secno">4.1</span> <span class="content">Tracking</span></a>
+      <li><a href="#perf"><span class="secno">4.2</span> <span class="content">Performance</span></a>
+     </ol>
+    <li>
+     <a href="#conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
+     <ol class="toc">
+      <li><a href="#conventions"><span class="secno"></span> <span class="content">Document conventions</span></a>
+      <li><a href="#conformant-algorithms"><span class="secno"></span> <span class="content">Conformant Algorithms</span></a>
+     </ol>
+    <li>
+     <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
+     <ol class="toc">
+      <li><a href="#index-defined-here"><span class="secno"></span> <span class="content">Terms defined by this specification</span></a>
+      <li><a href="#index-defined-elsewhere"><span class="secno"></span> <span class="content">Terms defined by reference</span></a>
+     </ol>
+    <li>
+     <a href="#references"><span class="secno"></span> <span class="content">References</span></a>
+     <ol class="toc">
+      <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
+      <li><a href="#informative"><span class="secno"></span> <span class="content">Informative References</span></a>
+     </ol>
+    <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
+   </ol>
+  </nav>
+  <main>
+   <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
+   <p>[Insert clever introduction here.]</p>
+   <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
+   <div class="example" id="example-5448fbc0">
+    <a class="self-link" href="#example-5448fbc0"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+applied to each of the pages on <code>https://example.com</code>, while avoiding the
+overhead associated with large response headers, and the uncertainty that
+they’ve really covered everything that lives on the origin. 
+    <p>When they see a request come in that contains a <a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-1"><code>Security-Policy</code></a> header, they can respond in kind, pointing the client to a manifest file
+in a well-known location on their server. That is, given the following
+request:</p>
+<pre>GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-2">Security-Policy</a>: 0
+...
+</pre>
+    <p>MegaCorp, Inc. can respond with:</p>
+<pre>HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-3">Security-Policy</a>: "v1"
+...
+</pre>
+    <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/security-policy/v1</code> before completing
+the navigation. The policies contained in that file will be cached
+according to the normal HTTP caching rules, and applied to pages on <code>https://example.com/</code> (including the current navigation).</p>
+<pre>{
+  "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-1">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+  ...
+}
+</pre>
+    <p>Subsequent requests from the same client will contain the version of
+the policy currently cached for the origin. In this case:</p>
+<pre>GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-4">Security-Policy</a>: "<strong>v1</strong>"
+...
+</pre>
+    <p class="issue" id="issue-e4da3694"><a class="self-link" href="#issue-e4da3694"></a> Maybe turn this into a <code>Link</code> header with special behavior?</p>
+   </div>
+<pre class="example" id="example-73553e9a"><a class="self-link" href="#example-73553e9a"></a>[Add an HTTP/2 server push example to speed this up.]
+</pre>
+   <h2 class="heading settled" data-level="2" id="framework"><span class="secno">2. </span><span class="content">Framework</span><a class="self-link" href="#framework"></a></h2>
+   <h3 class="heading settled" data-level="2.1" id="security-policy-header"><span class="secno">2.1. </span><span class="content">The <code>Security-Policy</code> HTTP Header Field</span><a class="self-link" href="#security-policy-header"></a></h3>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="security-policy"><code>Security-Policy</code></dfn> HTTP header field is sent with
+navigational HTTP requests in order to advertise support generally for the
+security policy manifest mechanism defined in this document, and to inform
+the server which version of its security policy is cached locally.</p>
+   <p>The same header is sent by the server in responses to such requests to
+inform the client that a security policy manifest is available to fetch.</p>
+<pre class="abnf">Security-Policy: 0 / quoted-string
+</pre>
+   <p>This header MUST be ignored if delivered over non-secure transport.</p>
+   <h3 class="heading settled" data-level="2.2" id="manifest-file"><span class="secno">2.2. </span><span class="content">The Security Policy Manifest File</span><a class="self-link" href="#manifest-file"></a></h3>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="security-policy-manifest">Security Policy Manifest</dfn> is a
+JSON-formatted document consisting of a top-level object with one or more
+members. Each member defines a specific aspect of an origin’s security policy.</p>
+<pre class="example" id="example-1202a0dc"><a class="self-link" href="#example-1202a0dc"></a>{
+    "<a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-2">baseline-csp</a>": "script-src 'self' https://cdn.example.com; object-src 'none'",
+}
+</pre>
+   <h4 class="heading settled" data-level="2.2.1" id="baseline-csp-member"><span class="secno">2.2.1. </span><span class="content">The <code>baseline-csp</code> member {#baseline-csp-member}</span><a class="self-link" href="#baseline-csp-member"></a></h4>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="baseline-csp"><code>baseline-csp</code></dfn> member defines a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy">Content Security
+Policy</a> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a> which will be applied to every resource delivered from the
+policy’s origin.</p>
+   <p>Its value MUST be a string. Any other type will be ignored.</p>
+   <h4 class="heading settled" data-level="2.2.2" id="fallback-csp-member"><span class="secno">2.2.2. </span><span class="content">The <code>fallback-csp</code> member {#fallback-csp-member}</span><a class="self-link" href="#fallback-csp-member"></a></h4>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="fallback-csp"><code>fallback-csp</code></dfn> member defines a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy">Content Security
+Policy</a> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a> which will be applied to every document and worker
+delivered from the policy’s origin which does not itself supply a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a> header.</p>
+   <p>Its value MUST be a string. Any other type will be ignored.</p>
+   <p>If a <a data-link-type="dfn" href="#security-policy-manifest" id="ref-for-security-policy-manifest-1">manifest</a> contains both a <a data-link-type="dfn" href="#baseline-csp" id="ref-for-baseline-csp-3"><code>baseline-csp</code></a> and a <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-1"><code>fallback-csp</code></a> member, the <a data-link-type="dfn" href="#fallback-csp" id="ref-for-fallback-csp-2"><code>fallback-csp</code></a> member MUST be ignored.</p>
+   <h4 class="heading settled" data-level="2.2.3" id="referrer-member"><span class="secno">2.2.3. </span><span class="content">The <code>referrer</code> member {#referrer-member}</span><a class="self-link" href="#referrer-member"></a></h4>
+   <p>The <dfn data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code><a class="self-link" href="#referrer"></a></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
+the policy’s origin.</p>
+   <p>Its value MUST be a string. Any other type will be ignored.</p>
+   <h4 class="heading settled" data-level="2.2.4" id="cors-preflight-member"><span class="secno">2.2.4. </span><span class="content">The <code>cors-preflight</code> member {#cors-preflight-member}</span><a class="self-link" href="#cors-preflight-member"></a></h4>
+   <p>The <dfn data-dfn-type="dfn" data-export="" id="cors"><code>cors</code><a class="self-link" href="#cors"></a></dfn> member asserts that an origin understands the
+CORS protocol, and that the user agent can therefore assume success for certain
+types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight requests</a>.</p>
+   <p class="note" role="note">Note: This member does <em>not</em> set defaults for responses in general; it
+only allows the user agent to skip the <code>OPTIONS</code> preflight request for a
+defined set of requests.</p>
+   <p>Its value MUST be a dictionary. Any other type will be ignored.</p>
+   <h5 class="heading settled" data-level="2.2.4.1" id="cors-preflight-values"><span class="secno">2.2.4.1. </span><span class="content">Values {#cors-preflight-values}</span><a class="self-link" href="#cors-preflight-values"></a></h5>
+   <p class="issue" id="issue-440ca7b8"><a class="self-link" href="#issue-440ca7b8"></a> Spell this out.</p>
+<pre class="example" id="example-7ffae137"><a class="self-link" href="#example-7ffae137"></a>{
+  "cors-preflight": {
+    "allow-credentials": true,
+    "allow-headers": [ "x-application-specific-header" ],
+    "allow-origin": [ "https://not-example.com/" ]
+  }
+}
+</pre>
+   <p class="issue" id="issue-2123bd64"><a class="self-link" href="#issue-2123bd64"></a> This might be a footgun?</p>
+   <h4 class="heading settled" data-level="2.2.5" id="hsts"><span class="secno">2.2.5. </span><span class="content">The <code>hsts</code> member {#hsts}</span><a class="self-link" href="#hsts"></a></h4>
+   <p>The <dfn data-dfn-type="dfn" data-export="" id="hsts0"><code>hsts</code><a class="self-link" href="#hsts0"></a></dfn> member asserts Strict Transport Security for an
+origin <a data-link-type="biblio" href="#biblio-rfc6797">[RFC6797]</a>.</p>
+   <h4 class="heading settled" data-level="2.2.6" id="hpkp"><span class="secno">2.2.6. </span><span class="content">The <code>hpkp</code> member {#hpkp}</span><a class="self-link" href="#hpkp"></a></h4>
+   <p>The <dfn data-dfn-type="dfn" data-export="" id="hpkp0"><code>hpkp</code><a class="self-link" href="#hpkp0"></a></dfn> member asserts a set of pinned public keys for an
+origin <a data-link-type="biblio" href="#biblio-rfc7469">[RFC7469]</a>.</p>
+   <h4 class="heading settled" data-level="2.2.7" id="nosniff"><span class="secno">2.2.7. </span><span class="content">The <code>nosniff</code> member {#nosniff}</span><a class="self-link" href="#nosniff"></a></h4>
+   <p>The <dfn data-dfn-type="dfn" data-export="" id="nosniff0"><code>nosniff</code><a class="self-link" href="#nosniff0"></a></dfn> member asserts that resources served from an
+origin should rely only on their explicitly asserted <code>Content-Type</code>, and MUST
+not be sniffed into other types of content based on their contents.</p>
+   <h3 class="heading settled" data-level="2.3" id="monkey-patching-fetch"><span class="secno">2.3. </span><span class="content">Fetch Integration</span><a class="self-link" href="#monkey-patching-fetch"></a></h3>
+   <p>In a somewhat hand-wavey way, we’ll do the following when making a navigational request:</p>
+   <ol>
+    <li data-md="">
+     <p>Append <code>Security-Policy</code> to its header list with a value of <code>0</code> if no manifest is
+  cached for its URLs origin, or the verion of the manifest that is cached as a quoted
+  string otherwise (e.g. <code>"v1"</code>).</p>
+    <li data-md="">
+     <p>When we receive a response from the network, we’ll sift through its headers, and
+  extract the <code>Security-Policy</code> header. If present, and its value does not match
+  the value of the locally cached manifest for the response’s origin, we’ll issue
+  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/security-policy/{value}</code>.</p>
+     <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
+  are scoped to the whole origin?</p>
+   </ol>
+   <p class="issue" id="issue-440ca7b80"><a class="self-link" href="#issue-440ca7b80"></a> Spell this out.</p>
+   <h2 class="heading settled" data-level="3" id="specification"><span class="secno">3. </span><span class="content">Specification Considerations</span><a class="self-link" href="#specification"></a></h2>
+   <h3 class="heading settled" data-level="3.1" id="fallback-vs-baseline"><span class="secno">3.1. </span><span class="content">Fallback vs Baseline</span><a class="self-link" href="#fallback-vs-baseline"></a></h3>
+   <p>Perhaps this ought to be defined at a higher level of the manifest? It seems
+like it might be a useful concept for things other than CSP.</p>
+   <h3 class="heading settled" data-level="3.2" id="app-manifest"><span class="secno">3.2. </span><span class="content">Relation to Web App Manifests</span><a class="self-link" href="#app-manifest"></a></h3>
+   <p>It might make sense to combine this mechanism with the manifest notion
+defined in <a data-link-type="biblio" href="#biblio-appmanifest">[APPMANIFEST]</a>. There are a few distinctions, however, which
+lead to the current design:</p>
+   <ol>
+    <li data-md="">
+     <p>The =Security Policy Manifest= is delivered synchronously during navigation,
+  which gives it a number of valuable security properties. The web app
+  manifest, on the other hand, is delivered inline via a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element,
+  which makes it less valuable from that perspective.</p>
+    <li data-md="">
+     <p>Web app manifests can live anywhere on an origin, and anywhere on any other
+  origin, for that matter. This might make sense for the feature set it wishes
+  to expose, but it would expose an origin to unnecessary risk to be quite so
+  loose with =security policy manifest= files.</p>
+   </ol>
+   <p>Nevertheless, we should consider ways to merge this policy with <a data-link-type="biblio" href="#biblio-appmanifest">[APPMANIFEST]</a>.
+Perhaps if a certain set of attributes was parsed iff certain properties of the
+request are true (same-origin, specific path, etc). Something to look into. For
+now, we’ve done the simple thing as a strawman.</p>
+   <h2 class="heading settled" data-level="4" id="privacy-and-security"><span class="secno">4. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
+   <h3 class="heading settled" data-level="4.1" id="tracking"><span class="secno">4.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
+   <p>The <a data-link-type="dfn" href="#security-policy" id="ref-for-security-policy-5"><code>Security-Policy</code></a> header, as well as the manifest it represents, can
+be used to track users with only marginally less granularity and coverage than
+cookies allow. As such, the user agent MUST purge cached manifests whenever a
+user instructs it to clear cookies or cached data.</p>
+   <h3 class="heading settled" data-level="4.2" id="perf"><span class="secno">4.2. </span><span class="content">Performance</span><a class="self-link" href="#perf"></a></h3>
+   <p>Servers SHOULD set a long cache lifetime for the manifest file, using the version
+to change policy for an origin as opposed to changing the existing policy and
+relying on cache expiration.</p>
+  </main>
+  <h2 class="no-ref no-num heading settled" id="conformance"><span class="content">Conformance</span><a class="self-link" href="#conformance"></a></h2>
+  <h3 class="no-ref no-num heading settled" id="conventions"><span class="content">Document conventions</span><a class="self-link" href="#conventions"></a></h3>
+  <p>Conformance requirements are expressed with a combination of
+    descriptive assertions and RFC 2119 terminology. The key words “MUST”,
+    “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”,
+    “RECOMMENDED”, “MAY”, and “OPTIONAL” in the normative parts of this
+    document are to be interpreted as described in RFC 2119.
+    However, for readability, these words do not appear in all uppercase
+    letters in this specification. </p>
+  <p>All of the text of this specification is normative except sections
+    explicitly marked as non-normative, examples, and notes. <a data-link-type="biblio" href="#biblio-rfc2119">[RFC2119]</a></p>
+  <p>Examples in this specification are introduced with the words “for example”
+    or are set apart from the normative text with <code>class="example"</code>,
+    like this: </p>
+  <div class="example" id="example-f839f6c8">
+   <a class="self-link" href="#example-f839f6c8"></a> 
+   <p>This is an example of an informative example.</p>
+  </div>
+  <p>Informative notes begin with the word “Note” and are set apart from the
+    normative text with <code>class="note"</code>, like this: </p>
+  <p class="note" role="note">Note, this is an informative note.</p>
+  <h3 class="no-ref no-num heading settled" id="conformant-algorithms"><span class="content">Conformant Algorithms</span><a class="self-link" href="#conformant-algorithms"></a></h3>
+  <p>Requirements phrased in the imperative as part of algorithms (such as
+    "strip any leading space characters" or "return false and abort these
+    steps") are to be interpreted with the meaning of the key word ("must",
+    "should", "may", etc) used in introducing the algorithm.</p>
+  <p>Conformance requirements phrased as algorithms or specific steps can be
+    implemented in any manner, so long as the end result is equivalent. In
+    particular, the algorithms defined in this specification are intended to
+    be easy to understand and are not intended to be performant. Implementers
+    are encouraged to optimize.</p>
+<script src="https://www.w3.org/scripts/TR/2016/fixup.js"></script>
+  <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
+  <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
+  <ul class="index">
+   <li><a href="#baseline-csp">baseline-csp</a><span>, in §2.2.1</span>
+   <li><a href="#cors">cors</a><span>, in §2.2.4</span>
+   <li><a href="#fallback-csp">fallback-csp</a><span>, in §2.2.2</span>
+   <li><a href="#hpkp0">hpkp</a><span>, in §2.2.6</span>
+   <li><a href="#hsts0">hsts</a><span>, in §2.2.5</span>
+   <li><a href="#security-policy-manifest">manifest</a><span>, in §2.2</span>
+   <li><a href="#nosniff0">nosniff</a><span>, in §2.2.7</span>
+   <li><a href="#referrer">referrer</a><span>, in §2.2.3</span>
+   <li><a href="#security-policy">Security-Policy</a><span>, in §2.1</span>
+   <li><a href="#security-policy-manifest">Security Policy Manifest</a><span>, in §2.2</span>
+  </ul>
+  <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
+  <ul class="index">
+   <li>
+    <a data-link-type="biblio">[FETCH]</a> defines the following terms:
+    <ul>
+     <li><a href="https://fetch.spec.whatwg.org/#cors-preflight-request">cors-preflight request</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[CSP1]</a> defines the following terms:
+    <ul>
+     <li><a href="https://w3c.github.io/webappsec-csp/#content-security-policy">content security policy</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[HTML]</a> defines the following terms:
+    <ul>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">referrer policy</a>
+    </ul>
+  </ul>
+  <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
+  <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
+  <dl>
+   <dt id="biblio-csp1">[CSP1]
+   <dd>Brandon Sterne; Adam Barth. <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">Content Security Policy 1.0</a>. 19 February 2015. NOTE. URL: <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html</a>
+   <dt id="biblio-csp3">[CSP3]
+   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. 21 June 2016. WD. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
+   <dt id="biblio-fetch">[FETCH]
+   <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/">Fetch Standard</a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
+   <dt id="biblio-html">[HTML]
+   <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-referrer-policy">[REFERRER-POLICY]
+   <dd>Jochen Eisinger; Mike West. <a href="https://w3c.github.io/webappsec/specs/referrer-policy/">Referrer Policy</a>. 1 June 2016. WD. URL: <a href="https://w3c.github.io/webappsec/specs/referrer-policy/">https://w3c.github.io/webappsec/specs/referrer-policy/</a>
+   <dt id="biblio-rfc2119">[RFC2119]
+   <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
+   <dt id="biblio-rfc6797">[RFC6797]
+   <dd>J. Hodges; C. Jackson; A. Barth. <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security (HSTS)</a>. November 2012. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc6797">https://tools.ietf.org/html/rfc6797</a>
+   <dt id="biblio-rfc7469">[RFC7469]
+   <dd>C. Evans; C. Palmer; R. Sleevi. <a href="https://tools.ietf.org/html/rfc7469">Public Key Pinning Extension for HTTP</a>. April 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7469">https://tools.ietf.org/html/rfc7469</a>
+  </dl>
+  <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
+  <dl>
+   <dt id="biblio-appmanifest">[APPMANIFEST]
+   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. 14 July 2016. WD. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
+  </dl>
+  <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
+  <div style="counter-reset:issue">
+   <div class="issue"> Maybe turn this into a <code>Link</code> header with special behavior?<a href="#issue-e4da3694"> ↵ </a></div>
+   <div class="issue"> Spell this out.<a href="#issue-440ca7b8"> ↵ </a></div>
+   <div class="issue"> This might be a footgun?<a href="#issue-2123bd64"> ↵ </a></div>
+   <div class="issue"> Should we allow service workers to intercept/set policy? Maybe only if they
+  are scoped to the whole origin?<a href="#issue-43a867ce"> ↵ </a></div>
+   <div class="issue"> Spell this out.<a href="#issue-440ca7b80"> ↵ </a></div>
+  </div>
+  <aside class="dfn-panel" data-for="security-policy">
+   <b><a href="#security-policy">#security-policy</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-security-policy-1">1.1. Examples</a> <a href="#ref-for-security-policy-2">(2)</a> <a href="#ref-for-security-policy-3">(3)</a> <a href="#ref-for-security-policy-4">(4)</a>
+    <li><a href="#ref-for-security-policy-5">4.1. Tracking</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="security-policy-manifest">
+   <b><a href="#security-policy-manifest">#security-policy-manifest</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-security-policy-manifest-1">2.2.2. The fallback-csp member {#fallback-csp-member}</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="baseline-csp">
+   <b><a href="#baseline-csp">#baseline-csp</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-baseline-csp-1">1.1. Examples</a>
+    <li><a href="#ref-for-baseline-csp-2">2.2. The Security Policy Manifest File</a>
+    <li><a href="#ref-for-baseline-csp-3">2.2.2. The fallback-csp member {#fallback-csp-member}</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="fallback-csp">
+   <b><a href="#fallback-csp">#fallback-csp</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-fallback-csp-1">2.2.2. The fallback-csp member {#fallback-csp-member}</a> <a href="#ref-for-fallback-csp-2">(2)</a>
+   </ul>
+  </aside>
+<script>/* script-dfn-panel */
+
+        document.body.addEventListener("click", function(e) {
+            var queryAll = function(sel) { return [].slice.call(document.querySelectorAll(sel)); }
+            // Find the dfn element or panel, if any, that was clicked on.
+            var el = e.target;
+            var target;
+            var hitALink = false;
+            while(el.parentElement) {
+                if(el.tagName == "A") {
+                    // Clicking on a link in a <dfn> shouldn't summon the panel
+                    hitALink = true;
+                }
+                if(el.classList.contains("dfn-paneled")) {
+                    target = "dfn";
+                    break;
+                }
+                if(el.classList.contains("dfn-panel")) {
+                    target = "dfn-panel";
+                    break;
+                }
+                el = el.parentElement;
+            }
+            if(target != "dfn-panel") {
+                // Turn off any currently "on" or "activated" panels.
+                queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(function(el){
+                    el.classList.remove("on");
+                    el.classList.remove("activated");
+                });
+            }
+            if(target == "dfn" && !hitALink) {
+                // open the panel
+                var dfnPanel = document.querySelector(".dfn-panel[data-for='" + el.id + "']");
+                if(dfnPanel) {
+                    console.log(dfnPanel);
+                    dfnPanel.classList.add("on");
+                    var rect = el.getBoundingClientRect();
+                    dfnPanel.style.left = window.scrollX + rect.right + 5 + "px";
+                    dfnPanel.style.top = window.scrollY + rect.top + "px";
+                    var panelRect = dfnPanel.getBoundingClientRect();
+                    var panelWidth = panelRect.right - panelRect.left;
+                    if(panelRect.right > document.body.scrollWidth && (rect.left - (panelWidth + 5)) > 0) {
+                        // Reposition, because the panel is overflowing
+                        dfnPanel.style.left = window.scrollX + rect.left - (panelWidth + 5) + "px";
+                    }
+                } else {
+                    console.log("Couldn't find .dfn-panel[data-for='" + el.id + "']");
+                }
+            } else if(target == "dfn-panel") {
+                // Switch it to "activated" state, which pins it.
+                el.classList.add("activated");
+                el.style.left = null;
+                el.style.top = null;
+            }
+
+        });
+        </script>

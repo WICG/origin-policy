@@ -179,6 +179,17 @@ Its value MUST be either a single dictionary, or a list of dictionaries. Each
 dictionary MUST have a "`policy`" member, and MAY have "`mode`" and "`type`"
 members.
 
+:   <dfn export for="csp">policy</dfn>
+::  The CSP to be applied.
+:   <dfn export for="csp">mode</dfn>
+::  "`enforce`" or "`report`". If not specified, "`enforce`".
+:   <dfn export for="csp">type</dfn>
+::  "`baseline`" or "`fallback`". If the former, the given `policy` will be
+    applied to every resource on an origin. If the latter, the given `policy`
+    will be applied only to the resources on an origin that don't themselves
+    deliver a `Content-Security-Policy` or `Content-Security-Policy-Report-Only`
+    header (as appropriate for the `mode`).
+
 Any non-conforming value will be ignored.
 
 ### The `referrer` member {#referrer-member}

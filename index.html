@@ -1559,6 +1559,22 @@ manifest’s origin.</p>
    <p>Its value MUST be either a single dictionary, or a list of dictionaries. Each
 dictionary MUST have a "<code>policy</code>" member, and MAY have "<code>mode</code>" and "<code>type</code>"
 members.</p>
+   <dl>
+    <dt data-md="">
+     <p><dfn data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-policy">policy<a class="self-link" href="#csp-policy"></a></dfn></p>
+    <dd data-md="">
+     <p>The CSP to be applied.</p>
+    <dt data-md="">
+     <p><dfn data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-mode">mode<a class="self-link" href="#csp-mode"></a></dfn></p>
+    <dd data-md="">
+     <p>"<code>enforce</code>" or "<code>report</code>". If not specified, "<code>enforce</code>".</p>
+    <dt data-md="">
+     <p><dfn data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-type">type<a class="self-link" href="#csp-type"></a></dfn></p>
+    <dd data-md="">
+     <p>"<code>baseline</code>" or "<code>fallback</code>". If the former, the given <code>policy</code> will be
+  applied to every resource on an origin. If the latter, the given <code>policy</code> will be applied only to the resources on an origin that don’t themselves
+  deliver a <code>Content-Security-Policy</code> or <code>Content-Security-Policy-Report-Only</code> header (as appropriate for the <code>mode</code>).</p>
+   </dl>
    <p>Any non-conforming value will be ignored.</p>
    <h4 class="heading settled" data-level="2.2.2" id="referrer-member"><span class="secno">2.2.2. </span><span class="content">The <code>referrer</code> member {#referrer-member}</span><a class="self-link" href="#referrer-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
@@ -1866,15 +1882,22 @@ relying on cache expiration.</p>
      <li><a href="#policy-manifest">dfn for policy</a><span>, in §2.1</span>
      <li><a href="#origin-policy-manifest">definition of</a><span>, in §2.2</span>
     </ul>
+   <li><a href="#csp-mode">mode</a><span>, in §2.2.1</span>
    <li><a href="#nosniff">nosniff</a><span>, in §2.2.6</span>
    <li><a href="#origin-policy">Origin-Policy</a><span>, in §2.1</span>
    <li><a href="#origin-policy-manifest">Origin Policy Manifest</a><span>, in §2.2</span>
    <li><a href="#origin-policy-store">Origin Policy Store</a><span>, in §2.1</span>
-   <li><a href="#policy">policy</a><span>, in §2.1</span>
+   <li>
+    policy
+    <ul>
+     <li><a href="#policy">definition of</a><span>, in §2.1</span>
+     <li><a href="#csp-policy">dfn for csp</a><span>, in §2.2.1</span>
+    </ul>
    <li><a href="#fetch-prepare-request">Prepare request with Origin Policy.</a><span>, in §3.2</span>
    <li><a href="#fetch-parse-response">Process response for Origin Policy.</a><span>, in §3.2.1</span>
    <li><a href="#referrer">referrer</a><span>, in §2.2.2</span>
    <li><a href="#version-for-origin">Retrieve origin’s manifest version.</a><span>, in §3</span>
+   <li><a href="#csp-type">type</a><span>, in §2.2.1</span>
    <li><a href="#policy-version">version</a><span>, in §2.1</span>
   </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>

@@ -1,10 +1,10 @@
 <pre class='metadata'>
 Title: Security Policy Manifest
 Status: DREAM
+ED: https://mikewest.github.io/security-policy-manifest/
 Shortname: spm
 Level: None
 Editor: Mike West 56384, Google Inc., mkwst@google.com
-Group: webappsec
 Abstract:
   This specification defines a delivery mechanism for a number of security
   policies which are to be applied to an entire origin. It compliments
@@ -185,17 +185,17 @@ ISSUE: Spell this out.
 
 ISSUE: This might be a footgun?
 
-### The `hsts` member {#hsts}
+### The `hsts` member {#hsts-member}
 
 The <dfn export>`hsts`</dfn> member asserts Strict Transport Security for an
 origin [[!RFC6797]].
 
-### The `hpkp` member {#hpkp}
+### The `hpkp` member {#hpkp-member}
 
 The <dfn export>`hpkp`</dfn> member asserts a set of pinned public keys for an
 origin [[!RFC7469]].
 
-### The `nosniff` member {#nosniff}
+### The `nosniff` member {#nosniff-member}
 
 The <dfn export>`nosniff`</dfn> member asserts that resources served from an
 origin should rely only on their explicitly asserted `Content-Type`, and MUST

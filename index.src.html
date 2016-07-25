@@ -21,6 +21,12 @@ spec:html; type:element; text:link
 spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
   type: dfn
     text: CORS-preflight request
+<!--
+   -   ABNF
+   -->
+type: grammar
+  text: base64-value; url: https://w3c.github.io/webappsec-csp/#grammardef-base64-value; spec: CSP3
+  text: DQUOTE; url: https://tools.ietf.org/html/rfc5234#appendix-B.1; spec: RFC5234
 </pre>
 
 Introduction {#intro}
@@ -113,6 +119,21 @@ ISSUE: Maybe turn this into a `Link` header with special behavior?
 Framework {#framework}
 ======================
 
+Concepts {#concepts}
+--------
+
+An <dfn>origin policy object</dfn> is a tuple of a string
+(<dfn for="policy">version</dfn>), and the contents of an
+<a>origin policy manifest</a>.
+
+User agents have a <dfn export>Origin Policy Store</dfn>, which is a key
+value store mapping <a>origin policy objects</a> to <a>origins</a>.
+
+When asked to <dfn algorithm>retrieve an Origin Policy for an origin</dfn>,
+an <a>Origin Policy Store</a> will return either a single <a>origin policy
+object</a> (if one is stored for the given origin), or `null` (if nothing is
+stored for the given origin).
+
 The `Origin-Policy` HTTP Header Field {#origin-policy-header}
 -----------------------------------------------------------------
 
@@ -122,18 +143,18 @@ origin policy manifest mechanism defined in this document, and to inform
 the server which version of its origin policy is cached locally.
 
 The same header is sent by the server in responses to such requests to
-inform the client that a origin policy manifest is available to fetch.
+inform the client that a origin policy manifest is available to fetch. Its
+value MUST be either `0` or a base64-encoded value, wrapped in double-quotes.
+The following ABNF defines that more formally:
 
-<pre class="abnf">
-  Origin-Policy: 0 / DQUOTE *( DIGIT / ALPHA / "_" / "-" ) DQUOTE 
+<pre class="abnf" dfn-type="grammar" link-type="grammar">
+  Origin-Policy: 0 / <a>manifest-name</a>
+  <dfn>manifest-name</dfn>: <a>DQUOTE</a> <a>base64-value</a> <a>DQUOTE</a>
+  ; base64-value is defined in [[!CSP3]]
+  ; DQUOTE is defined in [[!RFC5234]]
 </pre>
 
 This header MUST be ignored if delivered over non-secure transport.
-
-User agents have a <dfn export>Origin Policy Store</dfn>, which is a key
-value store which can hold a single <dfn>policy</dfn> for each origin.
-Each <a>policy</a> is a (<dfn for="policy">version</dfn>,
-<dfn for="policy">manifest</dfn>) tuple.
 
 The Origin Policy Manifest File {#manifest-file}
 ------------------------------------------------------
@@ -168,6 +189,24 @@ specs in some kind of extension model. That is, the parsing algorithm could
 have a hook for the member name that other specs could latch onto. Not sure
 if that's worth the effort, but it might be a more rational way to define
 behavior, since we're otherwise hooking into a different spec for each bit.
+
+### The `origin-policy` well-known location {#origin-policy-well-known}
+
+<a>Origin Policy Manifest</a> files for a given origin MUST be located as
+suffixes to the well-known location `/.well-known/origin-policy` [[RFC5785]].
+Their names MUST be double-quoted strings of characters matching the
+<a grammar>base64-value</a> grammar. That is, `/.well-known/origin-policy/a`
+might point to one <a>Origin Policy Manifest</a> file, while
+`/.well-known/origin-policy/b` might point to another.
+
+Servers MUST respond to a `GET` request to `/.well-known/origin-policy` with a
+302 redirect whose `Location` header points to the origin's current <a>Origin
+Policy Manifest</a>, or with a 404 response if no such policy is available.
+
+Note: This redirect can be used as a discovery mechanism. User agents might
+prefetch such manifest files for origins a user is likely to visit, testing
+services might give developers automated feedback on their origin's manifest,
+etc.
 
 ### The `csp` member {#csp-member}
 
@@ -391,7 +430,41 @@ Nevertheless, we should consider ways to merge this policy with [[APPMANIFEST]].
 Perhaps if a certain set of attributes was parsed iff certain properties of the
 request are true (same-origin, specific path, etc). Something to look into. For
 now, we've done the simple thing as a strawman.
-    
+
+Why `.well-known`? {#why-well-known}
+------------------
+
+This document forces the manifest to live as a resource accessible under a
+"well-known location" specific to Origin Policy manifests. It would increase
+flexibility of deployment and implementation if we allowed a developer to point
+to any location on an origin instead. Perhaps something like the following:
+
+```
+  Origin-Policy: /path/to/manifest.json
+```
+
+This would allow developers who control an application, but not the server on
+which the application runs, to define policy for themselves without bothering
+the sysadmins and filing internal tickets to get a `.well-known` directory
+created, populated, and mapped to something externally accessible.
+
+So why does this document force a well-known location?
+
+In short, this document posits that setting a policy for an origin is an action
+that should, in fact, involve the folks responsible for running the origin's
+server, as it has cross-cutting effects upon <em>every</em> application hosted
+on an origin. Unlike a response-specific `Content-Security-Policy` header, the
+<a>`csp`</a> member can apply a baseline policy to <em>all</em> the responses an
+origin emits. This can be hugely benificial, but also hugely destructive.
+
+Consider, for example, MegaCorp, Inc.'s `https://example.com`, which
+hosts a mail application, a mapping application, a document editing application,
+and so on. It would be unfortunate indeed if one of these applications
+accidentally pinned a policy to the entire origin which didn't account for the
+rest of the origin's contents. To mitigate that risk, this document forces the
+manifest to live in a shared location for an origin. The goal is explicitly to
+eilicit the kind of discussion and compromise within an origin that needs to
+happen in order to deploy an Origin Policy safely.
 
 Privacy and Security Considerations {#privacy-and-security}
 ===================================
@@ -416,4 +489,23 @@ IANA Considerations {#iana}
 
 ISSUE: Register the header.
 
-ISSUE: Register the well-known path.
+Creation of the well-known location `origin-policy` {#iana-well-known}
+---------------------------------------------------
+
+This document defines a well-known location at which <a>Origin Policy
+manifests</a> may be found. In accordance with [[RFC5758]], the following
+registration should be made if and when the proposal in this document gains
+acceptance and implementation:
+
+:   URI Suffix
+::  `origin-policy`
+:   Change Controller
+::  W3C
+:   Specification document
+::  This document (see [[#origin-policy-well-known]])
+:   Related information
+::  The suffix `origin-policy` is expected to be followed by an additional path
+    component which names a specific <a>Origin Policy manifest</a> (e.g.
+    `/.well-known/origin-policy/name`). A request to
+    `/.well-known/origin-policy` can be expected to redirect to the most current
+    policy for an origin.

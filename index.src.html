@@ -24,6 +24,9 @@ spec: CSP3; urlPrefix: https://w3c.github.io/webappsec-csp/
 spec: HTML; urlPrefix: https://html.spec.whatwg.org/
   type: dfn
     text: origin; url: concept-origin
+spec: RFC7540; urlPrefix: https://tools.ietf.org/html/rfc7540
+  type: dfn
+    text: server push; url: section-8.2
 <!--
    -   WHATWG
    -->
@@ -83,7 +86,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Origin-Policy</a>: "v1"
+<a>Origin-Policy</a>: "policy-1"
 ...
 </pre>
 
@@ -110,7 +113,7 @@ according to the normal HTTP caching rules, and applied to pages on
   "<a>referrer</a>": "origin-when-cross-origin",
   "<a>cors</a>": { "allow-credentials": true },
   "<a>nosniff</a>": true,
-  "<a>hsts</a>": true,
+  "<a>hsts</a>": "max-age=10886400; includeSubDomains; preload",
 }
 </pre>
 
@@ -122,16 +125,74 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: "<strong>v1</strong>"
+<a>Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
+
+Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
+pushing the current manifest down to the client along with the initial response.
+See [[#server-push]] for details.
 
 ISSUE: Maybe turn this into a `Link` header with special behavior?
 </div>
 
-<pre class="example">
-[Add an HTTP/2 server push example to speed this up.]
+<div class="example">
+MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
+It can do so by setting an appropriate `Origin-Policy` header in the response.
+That is, given the following request: 
+
+<pre>
+GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a>Origin-Policy</a>: "<strong>policy-1</strong>"
+...
 </pre>
+
+MegaCorp, Inc. can respond with:
+
+<pre>
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a>Origin-Policy</a>: "policy-2"
+...
+</pre>
+
+The client will process the header, download and process the `policy-2` manifest,
+and apply it to the response.
+</div>
+
+<div class="example">
+MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
+It can do so by setting an `Origin-Policy` header with a value of `0` in the
+response:
+
+<pre>
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a>Origin-Policy</a>: 0
+...
+</pre>
+
+The client will process the header, and evict any origin policy for the
+response's origin.
+
+Note: The manifest itself will be removed, but some of the policies it set may
+still be effective. For example, if the <a>`hsts`</a> member was set, the
+`maxage` property it contained may still force TLS on any connection to the
+origin's host. Those kinds of behaviors will need to be cleared individually,
+as appropriate for the feature. For example, to remove HSTS, the server could
+send `Strict-Transport-Security: maxage=0`.
+</div>
 
 Framework {#framework}
 ======================
@@ -609,6 +670,19 @@ Servers SHOULD set a long cache lifetime for the manifest file, using the versio
 to change policy for an origin as opposed to changing the existing policy and
 relying on cache expiration.
 
+Server Push {#server-push}
+-----------
+
+To speed up the initial, synchronous request for the manifest file, servers
+SHOULD use the <a>Server Push</a> mechanism defined in [[RFC7540]] to get the
+manifest down to the client as quickly as possible.
+
+1.  Send a `PUSH_PROMISE` frame with a minimal request for the manifest,
+    aligning with the request generated in [[#fetch-manifest]].
+
+2.  Begin delivering the response to the `PUSH_PROMISE` request.
+
+ISSUE: Spell this out with an example.
 
 Privacy and Security Considerations {#privacy-and-security}
 ===================================

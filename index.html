@@ -1435,6 +1435,7 @@ Referrer Policy, etc).</p>
      <a href="#authoring"><span class="secno">5</span> <span class="content">Authoring Considerations</span></a>
      <ol class="toc">
       <li><a href="#perf"><span class="secno">5.1</span> <span class="content">Performance</span></a>
+      <li><a href="#server-push"><span class="secno">5.2</span> <span class="content">Server Push</span></a>
      </ol>
     <li>
      <a href="#privacy-and-security"><span class="secno">6</span> <span class="content">Privacy and Security Considerations</span></a>
@@ -1466,8 +1467,8 @@ Referrer Policy, etc).</p>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
    <p>[Insert clever introduction here.]</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-9c21882c">
-    <a class="self-link" href="#example-9c21882c"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-d73781b4">
+    <a class="self-link" href="#example-d73781b4"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1488,7 +1489,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-3">Origin-Policy</a>: "v1"
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-3">Origin-Policy</a>: "policy-1"
 ...
 </pre>
     <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/origin-policy/v1</code> before completing
@@ -1510,7 +1511,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
   "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-1">referrer</a>": "origin-when-cross-origin",
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-1">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-1">nosniff</a>": true,
-  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-1">hsts</a>": true,
+  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-1">hsts</a>": "max-age=10886400; includeSubDomains; preload",
 }
 </pre>
     <p>Subsequent requests from the same client will contain the version of
@@ -1519,13 +1520,59 @@ the policy currently cached for the origin. In this case:</p>
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-4">Origin-Policy</a>: "<strong>v1</strong>"
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-4">Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
+    <p class="note" role="note">Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
+pushing the current manifest down to the client along with the initial response.
+See <a href="#server-push">§5.2 Server Push</a> for details.</p>
     <p class="issue" id="issue-e4da3694"><a class="self-link" href="#issue-e4da3694"></a> Maybe turn this into a <code>Link</code> header with special behavior?</p>
    </div>
-<pre class="example" id="example-73553e9a"><a class="self-link" href="#example-73553e9a"></a>[Add an HTTP/2 server push example to speed this up.]
+   <div class="example" id="example-9ab576be">
+    <a class="self-link" href="#example-9ab576be"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
+It can do so by setting an appropriate <code>Origin-Policy</code> header in the response.
+That is, given the following request: 
+<pre>GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-5">Origin-Policy</a>: "<strong>policy-1</strong>"
+...
 </pre>
+    <p>MegaCorp, Inc. can respond with:</p>
+<pre>HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-6">Origin-Policy</a>: "policy-2"
+...
+</pre>
+    <p>The client will process the header, download and process the <code>policy-2</code> manifest,
+and apply it to the response.</p>
+   </div>
+   <div class="example" id="example-80524a12">
+    <a class="self-link" href="#example-80524a12"></a> MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
+It can do so by setting an <code>Origin-Policy</code> header with a value of <code>0</code> in the
+response: 
+<pre>HTTP/1.1 200 OK
+Content-Encoding: gzip
+Accept-Ranges: bytes
+Cache-Control: max-age=604800
+Content-Type: text/html
+...
+<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-7">Origin-Policy</a>: 0
+...
+</pre>
+    <p>The client will process the header, and evict any origin policy for the
+response’s origin.</p>
+    <p class="note" role="note">Note: The manifest itself will be removed, but some of the policies it set may
+still be effective. For example, if the <a data-link-type="dfn" href="#hsts" id="ref-for-hsts-2"><code>hsts</code></a> member was set, the <code>maxage</code> property it contained may still force TLS on any connection to the
+origin’s host. Those kinds of behaviors will need to be cleared individually,
+as appropriate for the feature. For example, to remove HSTS, the server could
+send <code>Strict-Transport-Security: maxage=0</code>.</p>
+   </div>
    <h2 class="heading settled" data-level="2" id="framework"><span class="secno">2. </span><span class="content">Framework</span><a class="self-link" href="#framework"></a></h2>
    <h3 class="heading settled" data-level="2.1" id="concepts"><span class="secno">2.1. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h3>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="origin-policy-object">origin policy object</dfn> is a tuple of a string
@@ -1572,7 +1619,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
   "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-2">referrer</a>": "origin-when-cross-origin",
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-2">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-2">nosniff</a>": true,
-  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-2">hsts</a>": true,
+  "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-3">hsts</a>": true,
 }
 </pre>
    <p class="issue" id="issue-d435325f"><a class="self-link" href="#issue-d435325f"></a> Perhaps the various members should be pushed out into various other
@@ -1820,7 +1867,7 @@ manifest it points to will be retrieved and cached locally:</p>
          </ol>
        </ol>
       <dt data-md="">
-       <p><a data-link-type="dfn" href="#hsts" id="ref-for-hsts-3"><code>hsts</code></a></p>
+       <p><a data-link-type="dfn" href="#hsts" id="ref-for-hsts-4"><code>hsts</code></a></p>
       <dd data-md="">
        <ol>
         <li data-md="">
@@ -1917,9 +1964,21 @@ happen in order to deploy an Origin Policy safely.</p>
    <p>Servers SHOULD set a long cache lifetime for the manifest file, using the version
 to change policy for an origin as opposed to changing the existing policy and
 relying on cache expiration.</p>
+   <h3 class="heading settled" data-level="5.2" id="server-push"><span class="secno">5.2. </span><span class="content">Server Push</span><a class="self-link" href="#server-push"></a></h3>
+   <p>To speed up the initial, synchronous request for the manifest file, servers
+SHOULD use the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7540#section-8.2">Server Push</a> mechanism defined in <a data-link-type="biblio" href="#biblio-rfc7540">[RFC7540]</a> to get the
+manifest down to the client as quickly as possible.</p>
+   <ol>
+    <li data-md="">
+     <p>Send a <code>PUSH_PROMISE</code> frame with a minimal request for the manifest,
+  aligning with the request generated in <a href="#fetch-manifest" id="ref-for-fetch-manifest-3">§3.4.3 Fetch an Origin Policy manifest version for origin.</a>.</p>
+    <li data-md="">
+     <p>Begin delivering the response to the <code>PUSH_PROMISE</code> request.</p>
+   </ol>
+   <p class="issue" id="issue-7cbc18d1"><a class="self-link" href="#issue-7cbc18d1"></a> Spell this out with an example.</p>
    <h2 class="heading settled" data-level="6" id="privacy-and-security"><span class="secno">6. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
    <h3 class="heading settled" data-level="6.1" id="tracking"><span class="secno">6.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
-   <p>The <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-5"><code>Origin-Policy</code></a> header, as well as the manifest it represents, can
+   <p>The <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-8"><code>Origin-Policy</code></a> header, as well as the manifest it represents, can
 be used to track users with only marginally less granularity and coverage than
 cookies allow. As such, the user agent MUST purge cached manifests whenever a
 user instructs it to clear cookies or cached data.</p>
@@ -2173,6 +2232,11 @@ acceptance and implementation:</p>
      <li><a href="https://tools.ietf.org/html/rfc5234#appendix-B.1">dquote</a>
     </ul>
    <li>
+    <a data-link-type="biblio">[RFC7540]</a> defines the following terms:
+    <ul>
+     <li><a href="https://tools.ietf.org/html/rfc7540#section-8.2">server push</a>
+    </ul>
+   <li>
     <a data-link-type="biblio">[WHATWG-URL]</a> defines the following terms:
     <ul>
      <li><a href="https://url.spec.whatwg.org/#concept-url-parser">url parser</a>
@@ -2203,6 +2267,8 @@ acceptance and implementation:</p>
    <dd>J. Hodges; C. Jackson; A. Barth. <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security (HSTS)</a>. November 2012. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc6797">https://tools.ietf.org/html/rfc6797</a>
    <dt id="biblio-rfc7469">[RFC7469]
    <dd>C. Evans; C. Palmer; R. Sleevi. <a href="https://tools.ietf.org/html/rfc7469">Public Key Pinning Extension for HTTP</a>. April 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7469">https://tools.ietf.org/html/rfc7469</a>
+   <dt id="biblio-rfc7540">[RFC7540]
+   <dd>M. Belshe; R. Peon; M. Thomson, Ed.. <a href="https://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>. May 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7540">https://tools.ietf.org/html/rfc7540</a>
    <dt id="biblio-whatwg-url">[WHATWG-URL]
    <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
   </dl>
@@ -2234,6 +2300,7 @@ behavior, since we’re otherwise hooking into a different spec for each bit.<a 
     syntax as CSP?<a href="#issue-d16b0222"> ↵ </a></div>
    <div class="issue"> Spell this out. JSON schema? It must be a list of dictionaries
     with <code>policy</code> members. <code>mode</code> and <code>type</code> members may also be present.<a href="#issue-0d4d8f290"> ↵ </a></div>
+   <div class="issue"> Spell this out with an example.<a href="#issue-7cbc18d1"> ↵ </a></div>
   </div>
   <aside class="dfn-panel" data-for="origin-policy-object">
    <b><a href="#origin-policy-object">#origin-policy-object</a></b><b>Referenced in:</b>
@@ -2283,8 +2350,8 @@ behavior, since we’re otherwise hooking into a different spec for each bit.<a 
   <aside class="dfn-panel" data-for="origin-policy">
    <b><a href="#origin-policy">#origin-policy</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-origin-policy-1">1.1. Examples</a> <a href="#ref-for-origin-policy-2">(2)</a> <a href="#ref-for-origin-policy-3">(3)</a> <a href="#ref-for-origin-policy-4">(4)</a>
-    <li><a href="#ref-for-origin-policy-5">6.1. Tracking</a>
+    <li><a href="#ref-for-origin-policy-1">1.1. Examples</a> <a href="#ref-for-origin-policy-2">(2)</a> <a href="#ref-for-origin-policy-3">(3)</a> <a href="#ref-for-origin-policy-4">(4)</a> <a href="#ref-for-origin-policy-5">(5)</a> <a href="#ref-for-origin-policy-6">(6)</a> <a href="#ref-for-origin-policy-7">(7)</a>
+    <li><a href="#ref-for-origin-policy-8">6.1. Tracking</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="grammardef-manifest-name">
@@ -2332,9 +2399,9 @@ behavior, since we’re otherwise hooking into a different spec for each bit.<a 
   <aside class="dfn-panel" data-for="hsts">
    <b><a href="#hsts">#hsts</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-hsts-1">1.1. Examples</a>
-    <li><a href="#ref-for-hsts-2">2.3. The Origin Policy Manifest File</a>
-    <li><a href="#ref-for-hsts-3">3.4.4. 
+    <li><a href="#ref-for-hsts-1">1.1. Examples</a> <a href="#ref-for-hsts-2">(2)</a>
+    <li><a href="#ref-for-hsts-3">2.3. The Origin Policy Manifest File</a>
+    <li><a href="#ref-for-hsts-4">3.4.4. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
@@ -2392,6 +2459,7 @@ behavior, since we’re otherwise hooking into a different spec for each bit.<a 
     <li><a href="#ref-for-fetch-manifest-1">3.4. Fetch Integration</a>
     <li><a href="#ref-for-fetch-manifest-2">3.4.2. 
   Process response for Origin Policy. </a>
+    <li><a href="#ref-for-fetch-manifest-3">5.2. Server Push</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="fetch-apply-policy">

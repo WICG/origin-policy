@@ -1,7 +1,7 @@
 <!doctype html><html lang="en">
  <head>
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-  <title>Origin Policy Manifest</title>
+  <title>Origin Policy</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 <style data-fill-with="stylesheet">/******************************************************************************
  *                   Style sheet for the W3C specifications                   *
@@ -1346,12 +1346,12 @@ Possible extra rowspan handling
   <input id="hidedel" style="display:none" type="checkbox">
   <div class="head">
    <p data-fill-with="logo"></p>
-   <h1 class="p-name no-ref" id="title">Origin Policy Manifest</h1>
+   <h1 class="p-name no-ref" id="title">Origin Policy</h1>
    <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-07-26">26 July 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
-     <dd><a class="u-url" href="https://mikewest.github.io/origin-policy-manifest/">https://mikewest.github.io/origin-policy-manifest/</a>
+     <dd><a class="u-url" href="https://mikewest.github.io/origin-policy/">https://mikewest.github.io/origin-policy/</a>
      <dt class="editor">Editor:
      <dd class="editor p-author h-card vcard" data-editor-id="56384"><a class="p-name fn u-email email" href="mailto:mkwst@google.com">Mike West</a> (<span class="p-org org">Google Inc.</span>)
      <dt>Toggle Diffs:
@@ -1511,8 +1511,8 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-961114bd">
-    <a class="self-link" href="#example-961114bd"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-49063da7">
+    <a class="self-link" href="#example-49063da7"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1556,7 +1556,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
       "policy": "origin-when-cross-origin",
       "type": "fallback"
   },
-  "<a data-link-type="dfn" href="#cors" id="ref-for-cors-1">cors</a>": { "allow-credentials": true },
+  "<a data-link-type="dfn" href="#cors-preflight" id="ref-for-cors-preflight-1">cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-1">nosniff</a>": true,
   "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-1">hsts</a>": "max-age=10886400; includeSubDomains; preload",
 }
@@ -1650,7 +1650,7 @@ The following ABNF defines that more formally:</p>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin’s policy.</p>
-<pre class="example" id="example-1580dca4"><a class="self-link" href="#example-1580dca4"></a>{
+<pre class="example" id="example-9ba133d0"><a class="self-link" href="#example-9ba133d0"></a>{
   "<a data-link-type="dfn" href="#csp" id="ref-for-csp-2">csp</a>": [
     {
       "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
@@ -1667,7 +1667,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
       "policy": "origin-when-cross-origin",
       "type": "fallback"
   },
-  "<a data-link-type="dfn" href="#cors" id="ref-for-cors-2">cors</a>": { "allow-credentials": true },
+  "<a data-link-type="dfn" href="#cors-preflight" id="ref-for-cors-preflight-2">cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-2">nosniff</a>": true,
   "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-3">hsts</a>": true,
 }
@@ -1677,6 +1677,10 @@ specs in some kind of extension model. That is, the parsing algorithm could
 have a hook for the member name that other specs could latch onto. Not sure
 if that’s worth the effort, but it might be a more rational way to define
 behavior, since we’re otherwise hooking into a different spec for each bit.</p>
+   <p class="issue" id="issue-d4fb1394"><a class="self-link" href="#issue-d4fb1394"></a> Mark’s <a data-link-type="biblio" href="#biblio-site-wide-headers">[SITE-WIDE-HEADERS]</a> gives an
+interesting alternative syntax for the bits and pieces which already define
+themselves via headers. This should probably end up refactoring in that
+direction. <a href="https://github.com/mikewest/origin-policy/issues/4">&lt;https://github.com/mikewest/origin-policy/issues/4></a></p>
    <h4 class="heading settled" data-level="2.3.1" id="origin-policy-well-known"><span class="secno">2.3.1. </span><span class="content">The <code>origin-policy</code> well-known location</span><a class="self-link" href="#origin-policy-well-known"></a></h4>
    <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-3">Origin Policy Manifest</a> files for a given origin MUST be located as
 suffixes to the well-known location <code>/.well-known/origin-policy</code> <a data-link-type="biblio" href="#biblio-rfc5785">[RFC5785]</a>.
@@ -1711,9 +1715,6 @@ members.</p>
   applied to every resource on an origin. If the latter, the given <code>policy</code> will be applied only to the resources on an origin that don’t themselves
   deliver a <code>Content-Security-Policy</code> or <code>Content-Security-Policy-Report-Only</code> header (as appropriate for the <code>mode</code>).</p>
    </dl>
-   <p class="issue" id="issue-c02cd042"><a class="self-link" href="#issue-c02cd042"></a> The policies created by this
-mechanism are static. This makes it potentially confusing to incorporate
-dynamic elements like nonces. But maybe combining <code>baseline</code> and <code>fallback</code> policies isn’t so bad? <a href="https://github.com/mikewest/security-policy-manifest/issues/2">&lt;https://github.com/mikewest/security-policy-manifest/issues/2></a></p>
    <h4 class="heading settled" data-level="2.3.3" id="referrer-member"><span class="secno">2.3.3. </span><span class="content">The <code>referrer</code> member</span><a class="self-link" href="#referrer-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
 the policy’s origin.</p>
@@ -1732,15 +1733,16 @@ the policy’s origin.</p>
   deliver a <code>Referrer-Policy</code> header.</p>
    </dl>
    <h4 class="heading settled" data-level="2.3.4" id="cors-preflight-member"><span class="secno">2.3.4. </span><span class="content">The <code>cors-preflight</code> member</span><a class="self-link" href="#cors-preflight-member"></a></h4>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="cors"><code>cors</code></dfn> member asserts that an origin understands the
-CORS protocol, and that the user agent can therefore assume success for certain
-types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight requests</a>.</p>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="cors-preflight"><code>cors-preflight</code></dfn> member asserts that an origin understands
+the CORS protocol, and that the user agent can therefore assume success for
+certain types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight requests</a>.</p>
    <p class="note" role="note">Note: This member does <em>not</em> set defaults for responses in general; it
 only allows the user agent to skip the <code>OPTIONS</code> preflight request for a
 defined set of requests.</p>
    <p>Its value MUST be a dictionary. Any other type will be ignored.</p>
    <h5 class="heading settled" data-level="2.3.4.1" id="cors-preflight-values"><span class="secno">2.3.4.1. </span><span class="content">Values</span><a class="self-link" href="#cors-preflight-values"></a></h5>
-   <p class="issue" id="issue-440ca7b8"><a class="self-link" href="#issue-440ca7b8"></a> Spell this out.</p>
+   <p class="issue" id="issue-7beddbc7"><a class="self-link" href="#issue-7beddbc7"></a> Spell this out in some sane way. Maybe
+like the following? <a href="https://github.com/mikewest/origin-policy/issues/3">&lt;https://github.com/mikewest/origin-policy/issues/3></a></p>
 <pre class="example" id="example-7ffae137"><a class="self-link" href="#example-7ffae137"></a>{
   "cors-preflight": {
     "allow-credentials": true,
@@ -1749,7 +1751,6 @@ defined set of requests.</p>
   }
 }
 </pre>
-   <p class="issue" id="issue-2123bd64"><a class="self-link" href="#issue-2123bd64"></a> This might be a footgun?</p>
    <h4 class="heading settled" data-level="2.3.5" id="hsts-member"><span class="secno">2.3.5. </span><span class="content">The <code>hsts</code> member</span><a class="self-link" href="#hsts-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="hsts"><code>hsts</code></dfn> member asserts Strict Transport Security for an
 origin <a data-link-type="biblio" href="#biblio-rfc6797">[RFC6797]</a>.</p>
@@ -2263,7 +2264,7 @@ coming up with.</p>
    <li><a href="#fetch-apply-policy">Apply an Origin Policy to response.</a><span>, in §3.4.3</span>
    <li><a href="#html-apply-policy">Apply Origin Policy to settings.</a><span>, in §3.3</span>
    <li><a href="#origin-policy-object-body">body</a><span>, in §2.1</span>
-   <li><a href="#cors">cors</a><span>, in §2.3.4</span>
+   <li><a href="#cors-preflight">cors-preflight</a><span>, in §2.3.4</span>
    <li><a href="#csp">csp</a><span>, in §2.3.2</span>
    <li><a href="#evict-an-origin-policy-for-an-origin">evict an Origin policy for an origin</a><span>, in §2.1</span>
    <li><a href="#evict-for-origin">Evict origin’s cached manifest.</a><span>, in §3.1</span>
@@ -2396,11 +2397,12 @@ specs in some kind of extension model. That is, the parsing algorithm could
 have a hook for the member name that other specs could latch onto. Not sure
 if that’s worth the effort, but it might be a more rational way to define
 behavior, since we’re otherwise hooking into a different spec for each bit.<a href="#issue-d435325f"> ↵ </a></div>
-   <div class="issue"> The policies created by this
-mechanism are static. This makes it potentially confusing to incorporate
-dynamic elements like nonces. But maybe combining <code>baseline</code> and <code>fallback</code> policies isn’t so bad? <a href="https://github.com/mikewest/security-policy-manifest/issues/2">&lt;https://github.com/mikewest/security-policy-manifest/issues/2></a><a href="#issue-c02cd042"> ↵ </a></div>
-   <div class="issue"> Spell this out.<a href="#issue-440ca7b8"> ↵ </a></div>
-   <div class="issue"> This might be a footgun?<a href="#issue-2123bd64"> ↵ </a></div>
+   <div class="issue"> Mark’s <a data-link-type="biblio" href="#biblio-site-wide-headers">[SITE-WIDE-HEADERS]</a> gives an
+interesting alternative syntax for the bits and pieces which already define
+themselves via headers. This should probably end up refactoring in that
+direction. <a href="https://github.com/mikewest/origin-policy/issues/4">&lt;https://github.com/mikewest/origin-policy/issues/4></a><a href="#issue-d4fb1394"> ↵ </a></div>
+   <div class="issue"> Spell this out in some sane way. Maybe
+like the following? <a href="https://github.com/mikewest/origin-policy/issues/3">&lt;https://github.com/mikewest/origin-policy/issues/3></a><a href="#issue-7beddbc7"> ↵ </a></div>
    <div class="issue"> Write this algorithm.<a href="#issue-7275c976"> ↵ </a></div>
    <div class="issue"> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?<a href="#issue-43a867ce"> ↵ </a></div>
@@ -2514,11 +2516,11 @@ dynamic elements like nonces. But maybe combining <code>baseline</code> and <cod
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="cors">
-   <b><a href="#cors">#cors</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="cors-preflight">
+   <b><a href="#cors-preflight">#cors-preflight</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-cors-1">1.1. Examples</a>
-    <li><a href="#ref-for-cors-2">2.3. The Origin Policy Manifest File</a>
+    <li><a href="#ref-for-cors-preflight-1">1.1. Examples</a>
+    <li><a href="#ref-for-cors-preflight-2">2.3. The Origin Policy Manifest File</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="hsts">

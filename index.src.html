@@ -168,7 +168,7 @@ according to the normal HTTP caching rules, and applied to pages on
       "policy": "origin-when-cross-origin",
       "type": "fallback"
   },
-  "<a>cors</a>": { "allow-credentials": true },
+  "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
   "<a>nosniff</a>": true,
   "<a>hsts</a>": "max-age=10886400; includeSubDomains; preload",
 }
@@ -320,7 +320,7 @@ members. Each member defines a specific aspect of an origin's policy.
       "policy": "origin-when-cross-origin",
       "type": "fallback"
   },
-  "<a>cors</a>": { "allow-credentials": true },
+  "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
   "<a>nosniff</a>": true,
   "<a>hsts</a>": true,
 }
@@ -331,6 +331,11 @@ specs in some kind of extension model. That is, the parsing algorithm could
 have a hook for the member name that other specs could latch onto. Not sure
 if that's worth the effort, but it might be a more rational way to define
 behavior, since we're otherwise hooking into a different spec for each bit.
+
+ISSUE(mikewest/origin-policy#4): Mark's [[SITE-WIDE-HEADERS]] gives an
+interesting alternative syntax for the bits and pieces which already define
+themselves via headers. This should probably end up refactoring in that
+direction.
 
 ### The `origin-policy` well-known location ### {#origin-policy-well-known}
 
@@ -390,9 +395,9 @@ Its value MUST be a single dictionary with a "`policy`" member, and an optional
 
 ### The `cors-preflight` member ### {#cors-preflight-member}
 
-The <dfn export>`cors`</dfn> member asserts that an origin understands the
-CORS protocol, and that the user agent can therefore assume success for certain
-types of <a>CORS-preflight requests</a>.
+The <dfn export>`cors-preflight`</dfn> member asserts that an origin understands
+the CORS protocol, and that the user agent can therefore assume success for
+certain types of <a>CORS-preflight requests</a>.
 
 Note: This member does <em>not</em> set defaults for responses in general; it
 only allows the user agent to skip the `OPTIONS` preflight request for a
@@ -402,7 +407,8 @@ Its value MUST be a dictionary. Any other type will be ignored.
 
 #### Values #### {#cors-preflight-values}
 
-ISSUE: Spell this out.
+ISSUE(mikewest/origin-policy#3): Spell this out in some sane way. Maybe
+like the following?
 
 <pre class="example">
   {
@@ -413,8 +419,6 @@ ISSUE: Spell this out.
     }
   }
 </pre>
-
-ISSUE: This might be a footgun?
 
 ### The `hsts` member ### {#hsts-member}
 

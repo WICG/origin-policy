@@ -1357,15 +1357,12 @@ Possible extra rowspan handling
      <dt>Toggle Diffs:
      <dd>
       <label for="hidedel" id="hidedel-label">Hide deleted text</label>
+     <dt>Participate:
+     <dd><span><a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/mikewest/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/mikewest/origin-policy/issues">open issues</a>)</span>
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="http://creativecommons.org/publicdomain/zero/1.0/" rel="license"><img alt="CC0" src="https://licensebuttons.net/p/zero/1.0/80x15.png"></a> To the extent possible under law, the editors have waived all copyright
-and related or neighboring rights to this work.
-In addition, as of 26 July 2016,
-the editors have made this specification available under the <a href="http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0" rel="license">Open Web Foundation Agreement Version 1.0</a>,
-which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
-Parts of this work may be from another specification document.  If so, those parts are instead covered by the license of that specification document. </p>
+   <p class="copyright" data-fill-with="copyright">©2016 Google, Inc.</p>
    <hr title="Separator for header">
   </div>
   <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
@@ -1492,7 +1489,7 @@ setting a single policy which is delivered for an entire application.</p>
      <p>Servers are required to repeat themselves. Unerringly. When policy applies
   strictly to a resource, and not to the origin, then a server must send that
   policy down with every response. If the developer forgets a page (which is
-  actually a very common occurance: when’s the last time you thought about
+  actually a very common occurence: when’s the last time you thought about
   your 404 error page? How about your 417? Or 505?), then the policy’s
   protections don’t apply to that resource, leaving an exploitable hole.</p>
    </ol>
@@ -1508,8 +1505,8 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-da569053">
-    <a class="self-link" href="#example-da569053"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-a0450940">
+    <a class="self-link" href="#example-a0450940"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1538,7 +1535,7 @@ the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on <code>https://example.com/</code> (including the current navigation).</p>
 <pre>{
   "<a data-link-type="dfn" href="#headers" id="ref-for-headers-1">headers</a>": {
-    "fallback": [
+    "<a data-link-type="dfn" href="#fallback" id="ref-for-fallback-1">fallback</a>": [
       {
         "name": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
         "value": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a> 'self' https://cdn.example.com"
@@ -1548,7 +1545,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
         "value": "origin-when-cross-origin"
       }
     ],
-    "baseline": [
+    "<a data-link-type="dfn" href="#baseline" id="ref-for-baseline-1">baseline</a>": [
       {
         "name": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
         "value": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a> 'none'; <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a> 'none'"
@@ -1578,7 +1575,6 @@ Connection: keep-alive
     <p class="note" role="note">Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See <a href="#server-push">§5.3 Server Push</a> for details.</p>
-    <p class="issue" id="issue-e4da3694"><a class="self-link" href="#issue-e4da3694"></a> Maybe turn this into a <code>Link</code> header with special behavior?</p>
    </div>
    <div class="example" id="example-187e70f6">
     <a class="self-link" href="#example-187e70f6"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
@@ -1707,9 +1703,12 @@ resources which don’t themselves deliver the header.</p>
    <p>The <a data-link-type="dfn" href="#headers" id="ref-for-headers-3"><code>headers</code></a> member’s value MUST be a dictionary which contains either
 a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="baseline"><code>baseline</code></dfn> member, a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="fallback"><code>fallback</code></dfn> member, or
 both. Any additional members will be ignored.</p>
-   <p>The <a data-link-type="dfn" href="#headers" id="ref-for-headers-4"><code>headers</code></a> member will be ignored entirely if it contains neither a <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-1"><code>baseline</code></a> member nor a <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-1"><code>fallback</code></a> member.</p>
-   <p>Both the <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-2"><code>baseline</code></a> and <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-2"><code>fallback</code></a> members' values MUST be lists
+   <p>The <a data-link-type="dfn" href="#headers" id="ref-for-headers-4"><code>headers</code></a> member will be ignored entirely if it contains neither a <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-2"><code>baseline</code></a> member nor a <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-2"><code>fallback</code></a> member.</p>
+   <p>Both the <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-3"><code>baseline</code></a> and <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-3"><code>fallback</code></a> members' values MUST be lists
 of dictionaries containing both <code>name</code> and <code>value</code> members. Members other than <code>name</code> and <code>value</code> will be ignored. List items that do not have both <code>name</code> and <code>value</code> members will be ignored.</p>
+   <p class="issue" id="issue-a997f997"><a class="self-link" href="#issue-a997f997"></a> It may be a dangerous (or at least confusing) footgun to allow certain
+headers to be set on an origin (consider <code>Content-Type</code> or <code>Content-Length</code>,
+for instance). Perhaps it would be reasonable to limit the <a data-link-type="dfn" href="#headers" id="ref-for-headers-5"><code>headers</code></a> member to some whitelist of expected headers?</p>
    <h4 class="heading settled" data-level="2.3.3" id="cors-preflight-member"><span class="secno">2.3.3. </span><span class="content">The <code>cors-preflight</code> member</span><a class="self-link" href="#cors-preflight-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="cors-preflight"><code>cors-preflight</code></dfn> member asserts that an origin understands
 the CORS protocol, and that the user agent can therefore assume success for
@@ -1859,7 +1858,7 @@ manifest it points to will be retrieved and cached locally:</p>
   the matching statement below:</p>
      <dl>
       <dt data-md="">
-       <p><a data-link-type="dfn" href="#headers" id="ref-for-headers-5"><code>headers</code></a></p>
+       <p><a data-link-type="dfn" href="#headers" id="ref-for-headers-6"><code>headers</code></a></p>
       <dd data-md="">
        <ol>
         <li data-md="">
@@ -1870,7 +1869,7 @@ manifest it points to will be retrieved and cached locally:</p>
           <li data-md="">
            <p>Let <var>headers</var> be an empty list.</p>
           <li data-md="">
-           <p>If <var>member</var>’s value has a <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-3"><code>fallback</code></a> member (<var>fallback</var>),
+           <p>If <var>member</var>’s value has a <a data-link-type="dfn" href="#fallback" id="ref-for-fallback-4"><code>fallback</code></a> member (<var>fallback</var>),
   then for each <var>header</var> in <var>fallback</var>’s value:</p>
            <ol>
             <li data-md="">
@@ -1882,7 +1881,7 @@ manifest it points to will be retrieved and cached locally:</p>
              <p>Append <var>header</var>’s value to <var>headers</var>.</p>
            </ol>
           <li data-md="">
-           <p>If <var>member</var>’s value has a <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-3"><code>baseline</code></a> member (<var>baseline</var>),
+           <p>If <var>member</var>’s value has a <a data-link-type="dfn" href="#baseline" id="ref-for-baseline-4"><code>baseline</code></a> member (<var>baseline</var>),
   then append each <var>header</var> in <var>baseline</var>’s value, to <var>headers</var>.</p>
           <li data-md="">
            <p>For each <var>header</var> in <var>headers</var>:</p>
@@ -1893,6 +1892,9 @@ manifest it points to will be retrieved and cached locally:</p>
              <p>Append a header named <var>name</var> with a value of <var>value</var> to <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
            </ol>
          </ol>
+         <p class="note" role="note">Note: Once a policy is cached for an origin, the headers it applies
+will never change. User agents are encouraged to implement more
+performant algorithms making use of this invariant.</p>
        </ol>
      </dl>
    </ol>
@@ -1914,9 +1916,9 @@ lead to the current design:</p>
   loose with =security policy manifest= files.</p>
    </ol>
    <p>Nevertheless, we should consider ways to merge this policy with <a data-link-type="biblio" href="#biblio-appmanifest">[APPMANIFEST]</a>.
-Perhaps if a certain set of attributes was parsed iff certain properties of the
-request are true (same-origin, specific path, etc). Something to look into. For
-now, we’ve done the simple thing as a strawman.</p>
+Perhaps we could accept a certain set of attributes was parsed iff certain
+properties of the request are true (same-origin, specific path, etc). Something
+to look into. For now, we’ve done the simple thing as a strawman.</p>
    <h3 class="heading settled" data-level="4.2" id="why-well-known"><span class="secno">4.2. </span><span class="content">Why <code>.well-known</code>?</span><a class="self-link" href="#why-well-known"></a></h3>
    <p>This document forces the manifest to live as a resource accessible under a
 "well-known location" specific to Origin Policy manifests. It would increase
@@ -1932,7 +1934,7 @@ created, populated, and mapped to something externally accessible.</p>
    <p>In short, this document posits that setting a policy for an origin is an action
 that should, in fact, involve the folks responsible for running the origin’s
 server, as it has cross-cutting effects upon <em>every</em> application hosted
-on an origin. Unlike a response-specific <code>Content-Security-Policy</code> header, the <a data-link-type="dfn" href="#headers" id="ref-for-headers-6"><code>headers</code></a> member can apply a baseline policy to <em>all</em> the responses
+on an origin. Unlike a response-specific <code>Content-Security-Policy</code> header, the <a data-link-type="dfn" href="#headers" id="ref-for-headers-7"><code>headers</code></a> member can apply a baseline policy to <em>all</em> the responses
 an origin emits. This can be hugely benificial, but also hugely destructive.</p>
    <p>Consider, for example, MegaCorp, Inc.'s <code>https://example.com</code>, which
 hosts a mail application, a mapping application, a document editing application,
@@ -1986,14 +1988,14 @@ the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-po
     <p>That is, the manifest file might contain the following JSON:</p>
 <pre>{
   ...
-  "<a data-link-type="dfn" href="#headers" id="ref-for-headers-7">headers</a>": {
-    "<a data-link-type="dfn" href="#fallback" id="ref-for-fallback-4">fallback</a>": [
+  "<a data-link-type="dfn" href="#headers" id="ref-for-headers-8">headers</a>": {
+    "<a data-link-type="dfn" href="#fallback" id="ref-for-fallback-5">fallback</a>": [
       {
         "name": "Content-Security-Policy",
         "value": "script-src 'none'"
       }
     ],
-    "<a data-link-type="dfn" href="#baseline" id="ref-for-baseline-4">baseline</a>": [
+    "<a data-link-type="dfn" href="#baseline" id="ref-for-baseline-5">baseline</a>": [
       {
         "name": "Content-Security-Policy",
         "value": "object-src 'none'; frame-ancestors 'self'"
@@ -2072,7 +2074,7 @@ acceptance and implementation:</p>
    <h2 class="heading settled" data-level="8" id="ack"><span class="secno">8. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
    <p>Mark Nottingham came up with more or less the same idea at more or less the
 same time (after waiting ~years for me to write this up) <a data-link-type="biblio" href="#biblio-site-wide-headers">[SITE-WIDE-HEADERS]</a>.
-I’ve swiped large swaths of his introduction, and turned a mess of a syntax into <a data-link-type="dfn" href="#headers" id="ref-for-headers-8"><code>headers</code></a>, as it’s better than what I was coming up with.</p>
+I’ve swiped large swaths of his introduction, and turned a mess of a syntax into <a data-link-type="dfn" href="#headers" id="ref-for-headers-9"><code>headers</code></a>, as it’s better than what I was coming up with.</p>
   </main>
 <script>
 (function() {
@@ -2334,7 +2336,9 @@ I’ve swiped large swaths of his introduction, and turned a mess of a syntax in
   </dl>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> Maybe turn this into a <code>Link</code> header with special behavior?<a href="#issue-e4da3694"> ↵ </a></div>
+   <div class="issue"> It may be a dangerous (or at least confusing) footgun to allow certain
+headers to be set on an origin (consider <code>Content-Type</code> or <code>Content-Length</code>,
+for instance). Perhaps it would be reasonable to limit the <a data-link-type="dfn" href="#headers"><code>headers</code></a> member to some whitelist of expected headers?<a href="#issue-a997f997"> ↵ </a></div>
    <div class="issue"> Spell this out in some sane way. Maybe
 like the following? <a href="https://github.com/mikewest/origin-policy/issues/3">&lt;https://github.com/mikewest/origin-policy/issues/3></a><a href="#issue-7beddbc7"> ↵ </a></div>
    <div class="issue"> Write this algorithm.<a href="#issue-7275c976"> ↵ </a></div>
@@ -2419,12 +2423,12 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
    <ul>
     <li><a href="#ref-for-headers-1">1.1. Examples</a>
     <li><a href="#ref-for-headers-2">2.3. The Origin Policy Manifest File</a>
-    <li><a href="#ref-for-headers-3">2.3.2. The headers member</a> <a href="#ref-for-headers-4">(2)</a>
-    <li><a href="#ref-for-headers-5">3.4.4. 
+    <li><a href="#ref-for-headers-3">2.3.2. The headers member</a> <a href="#ref-for-headers-4">(2)</a> <a href="#ref-for-headers-5">(3)</a>
+    <li><a href="#ref-for-headers-6">3.4.4. 
   Apply an Origin Policy to response. </a>
-    <li><a href="#ref-for-headers-6">4.2. Why .well-known?</a>
-    <li><a href="#ref-for-headers-7">5.4. CSP: Nonces and 'strict-dynamic'</a>
-    <li><a href="#ref-for-headers-8">8. Acknowledgements</a>
+    <li><a href="#ref-for-headers-7">4.2. Why .well-known?</a>
+    <li><a href="#ref-for-headers-8">5.4. CSP: Nonces and 'strict-dynamic'</a>
+    <li><a href="#ref-for-headers-9">8. Acknowledgements</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="baseline-headers">
@@ -2437,19 +2441,21 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
   <aside class="dfn-panel" data-for="baseline">
    <b><a href="#baseline">#baseline</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-baseline-1">2.3.2. The headers member</a> <a href="#ref-for-baseline-2">(2)</a>
-    <li><a href="#ref-for-baseline-3">3.4.4. 
+    <li><a href="#ref-for-baseline-1">1.1. Examples</a>
+    <li><a href="#ref-for-baseline-2">2.3.2. The headers member</a> <a href="#ref-for-baseline-3">(2)</a>
+    <li><a href="#ref-for-baseline-4">3.4.4. 
   Apply an Origin Policy to response. </a>
-    <li><a href="#ref-for-baseline-4">5.4. CSP: Nonces and 'strict-dynamic'</a>
+    <li><a href="#ref-for-baseline-5">5.4. CSP: Nonces and 'strict-dynamic'</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="fallback">
    <b><a href="#fallback">#fallback</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-fallback-1">2.3.2. The headers member</a> <a href="#ref-for-fallback-2">(2)</a>
-    <li><a href="#ref-for-fallback-3">3.4.4. 
+    <li><a href="#ref-for-fallback-1">1.1. Examples</a>
+    <li><a href="#ref-for-fallback-2">2.3.2. The headers member</a> <a href="#ref-for-fallback-3">(2)</a>
+    <li><a href="#ref-for-fallback-4">3.4.4. 
   Apply an Origin Policy to response. </a>
-    <li><a href="#ref-for-fallback-4">5.4. CSP: Nonces and 'strict-dynamic'</a>
+    <li><a href="#ref-for-fallback-5">5.4. CSP: Nonces and 'strict-dynamic'</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="cors-preflight">

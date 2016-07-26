@@ -13,7 +13,9 @@ Abstract:
 Indent: 2
 Markup Shorthands: markdown on
 Boilerplate: omit conformance, omit feedback-header
+!Participate: <a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/mikewest/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/mikewest/origin-policy/issues">open issues</a>)
 </pre>
+<pre boilerplate="copyright">&copy;2016 Google, Inc.</pre>
 <pre class="link-defaults">
 spec:html; type:element; text:link
 </pre>
@@ -99,7 +101,7 @@ A number of implications follow:
 2.  Servers are required to repeat themselves. Unerringly. When policy applies
     strictly to a resource, and not to the origin, then a server must send that
     policy down with every response. If the developer forgets a page (which is
-    actually a very common occurance: when's the last time you thought about
+    actually a very common occurence: when's the last time you thought about
     your 404 error page? How about your 417? Or 505?), then the policy's
     protections don't apply to that resource, leaving an exploitable hole.
 
@@ -160,7 +162,7 @@ according to the normal HTTP caching rules, and applied to pages on
 <pre>
 {
   "<a>headers</a>": {
-    "fallback": [
+    "<a>fallback</a>": [
       {
         "name": "<a>Content-Security-Policy</a>",
         "value": "<a>script-src</a> 'self' https://cdn.example.com"
@@ -170,7 +172,7 @@ according to the normal HTTP caching rules, and applied to pages on
         "value": "origin-when-cross-origin"
       }
     ],
-    "baseline": [
+    "<a>baseline</a>": [
       {
         "name": "<a>Content-Security-Policy</a>",
         "value": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'"
@@ -204,8 +206,6 @@ Connection: keep-alive
 Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See [[#server-push]] for details.
-
-ISSUE: Maybe turn this into a `Link` header with special behavior?
 </div>
 
 <div class="example">
@@ -388,6 +388,11 @@ Both the <a>`baseline`</a> and <a>`fallback`</a> members' values MUST be lists
 of dictionaries containing both `name` and `value` members. Members other than
 `name` and `value` will be ignored. List items that do not have both `name`
 and `value` members will be ignored.
+
+ISSUE: It may be a dangerous (or at least confusing) footgun to allow certain
+headers to be set on an origin (consider `Content-Type` or `Content-Length`,
+for instance). Perhaps it would be reasonable to limit the <a>`headers`</a>
+member to some whitelist of expected headers?
 
 ### The `cors-preflight` member ### {#cors-preflight-member}
 
@@ -612,6 +617,11 @@ Given a response (|response|), the following algorithm applies the relevant
             2.  Append a header named |name| with a value of |value| to
                 |response|'s <a for="response">header list</a>.
 
+        Note: Once a policy is cached for an origin, the headers it applies
+        will never change. User agents are encouraged to implement more
+        performant algorithms making use of this invariant.
+
+
 Specification Considerations {#specification}
 =============================
 
@@ -633,9 +643,9 @@ lead to the current design:
     loose with =security policy manifest= files.
 
 Nevertheless, we should consider ways to merge this policy with [[APPMANIFEST]].
-Perhaps if a certain set of attributes was parsed iff certain properties of the
-request are true (same-origin, specific path, etc). Something to look into. For
-now, we've done the simple thing as a strawman.
+Perhaps we could accept a certain set of attributes was parsed iff certain
+properties of the request are true (same-origin, specific path, etc). Something
+to look into. For now, we've done the simple thing as a strawman.
 
 Why `.well-known`? {#why-well-known}
 ------------------

@@ -1,7 +1,7 @@
 <pre class='metadata'>
-Title: Origin Policy Manifest
+Title: Origin Policy
 Status: DREAM
-ED: https://mikewest.github.io/origin-policy-manifest/
+ED: https://mikewest.github.io/origin-policy/
 Shortname: origin-policy
 Level: None
 Editor: Mike West 56384, Google Inc., mkwst@google.com
@@ -371,11 +371,6 @@ members.
     deliver a `Content-Security-Policy` or `Content-Security-Policy-Report-Only`
     header (as appropriate for the `mode`).
 
-ISSUE(mikewest/security-policy-manifest#2): The policies created by this
-mechanism are static. This makes it potentially confusing to incorporate
-dynamic elements like nonces. But maybe combining `baseline` and `fallback`
-policies isn't so bad?
-
 ### The `referrer` member ### {#referrer-member}
 
 The <dfn export>`referrer`</dfn> member defines a <a>Referrer Policy</a>
@@ -607,7 +602,7 @@ Given a response (|response|), the following algorithm applies the relevant
 
             ISSUE: Spell this out. JSON schema? It must be a list of dictionaries
             with `policy` members. `mode` and `type` members may also be present.
-      
+
         2.  For each |item| in |member|'s value:
 
             1.  Let |policy| be |item|'s `policy` member's value; |mode|
@@ -746,6 +741,57 @@ manifest down to the client as quickly as possible.
 2.  Begin delivering the response to the `PUSH_PROMISE` request.
 
 ISSUE: Spell this out with an example.
+
+CSP: Nonces and `'strict-dynamic'` {#strict-dynamic}
+----------------------------------
+
+Content Security Policy has introduced some dynamic mechanisms that are quite
+valuable in terms of encouraging deployment. Nonces, along with the
+<a grammar>`'strict-dynamic'`</a> expression are a good example of an
+implementation which requires a server to send a fresh value down with each
+response. Origin Policy can support such deployments via the "`fallback`"
+mechanism as follows:
+
+<div class="example">
+MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
+plugins and framing altogether, but which uses `'strict-dynamic'` along with a
+fresh nonce for each resource in order to reduce the risk of cross-site
+scripting. It can do so by combining a "`baseline`" and "`fallback`" policy in
+the <a>Origin Policy Manifest</a>, and delivering a `Content-Security-Policy`
+header along with each response.
+
+That is, the manifest file might contain the following JSON:
+
+<pre>
+{
+  ...
+  "<a>csp</a>": [
+    {
+      "<a for="csp">policy</a>": "script-src 'none'",
+      "<a for="csp">type</a>": "fallback"
+    },
+    {
+      "<a for="csp">policy</a>": "object-src 'none'; frame-ancestors 'self'",
+      "<a for="csp">type</a>": "baseline"
+    }
+  ],
+  ...
+}
+</pre>
+
+And each resource's response might contain the following header:
+
+<pre>
+  <a>Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
+</pre>
+
+The baseline policy will be applied to every response, blocking plugins and
+restricting framing regardless of the response's other headers.
+
+The fallback policy will be applied iff the response doesn't itself provide a
+Content Security Policy, meaning that the resource's policy will be applied,
+the nonce will be active, and script will execute as expected.
+</div>
 
 Privacy and Security Considerations {#privacy-and-security}
 ===================================

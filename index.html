@@ -1436,6 +1436,7 @@ Referrer Policy, etc).</p>
      <ol class="toc">
       <li><a href="#perf"><span class="secno">5.1</span> <span class="content">Performance</span></a>
       <li><a href="#server-push"><span class="secno">5.2</span> <span class="content">Server Push</span></a>
+      <li><a href="#strict-dynamic"><span class="secno">5.3</span> <span class="content">CSP: Nonces and <code>'strict-dynamic'</code></span></a>
      </ol>
     <li>
      <a href="#privacy-and-security"><span class="secno">6</span> <span class="content">Privacy and Security Considerations</span></a>
@@ -1696,7 +1697,7 @@ dictionary MUST have a "<code>policy</code>" member, and MAY have "<code>mode</c
 members.</p>
    <dl>
     <dt data-md="">
-     <p><dfn data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-policy">policy<a class="self-link" href="#csp-policy"></a></dfn></p>
+     <p><dfn class="dfn-paneled" data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-policy">policy</dfn></p>
     <dd data-md="">
      <p>The CSP to be applied.</p>
     <dt data-md="">
@@ -1704,7 +1705,7 @@ members.</p>
     <dd data-md="">
      <p>"<code>enforce</code>" or "<code>report</code>". If not specified, "<code>enforce</code>".</p>
     <dt data-md="">
-     <p><dfn data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-type">type<a class="self-link" href="#csp-type"></a></dfn></p>
+     <p><dfn class="dfn-paneled" data-dfn-for="csp" data-dfn-type="dfn" data-export="" id="csp-type">type</dfn></p>
     <dd data-md="">
      <p>"<code>baseline</code>" or "<code>fallback</code>". If the former, the given <code>policy</code> will be
   applied to every resource on an origin. If the latter, the given <code>policy</code> will be applied only to the resources on an origin that don’t themselves
@@ -2027,6 +2028,43 @@ manifest down to the client as quickly as possible.</p>
      <p>Begin delivering the response to the <code>PUSH_PROMISE</code> request.</p>
    </ol>
    <p class="issue" id="issue-7cbc18d1"><a class="self-link" href="#issue-7cbc18d1"></a> Spell this out with an example.</p>
+   <h3 class="heading settled" data-level="5.3" id="strict-dynamic"><span class="secno">5.3. </span><span class="content">CSP: Nonces and <code>'strict-dynamic'</code></span><a class="self-link" href="#strict-dynamic"></a></h3>
+   <p>Content Security Policy has introduced some dynamic mechanisms that are quite
+valuable in terms of encouraging deployment. Nonces, along with the <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic"><code>'strict-dynamic'</code></a> expression are a good example of an
+implementation which requires a server to send a fresh value down with each
+response. Origin Policy can support such deployments via the "<code>fallback</code>"
+mechanism as follows:</p>
+   <div class="example" id="example-795055ce">
+    <a class="self-link" href="#example-795055ce"></a> MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
+plugins and framing altogether, but which uses <code>'strict-dynamic'</code> along with a
+fresh nonce for each resource in order to reduce the risk of cross-site
+scripting. It can do so by combining a "<code>baseline</code>" and "<code>fallback</code>" policy in
+the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a>, and delivering a <code>Content-Security-Policy</code> header along with each response. 
+    <p>That is, the manifest file might contain the following JSON:</p>
+<pre>{
+  ...
+  "<a data-link-type="dfn" href="#csp" id="ref-for-csp-5">csp</a>": [
+    {
+      "<a data-link-type="dfn" href="#csp-policy" id="ref-for-csp-policy-1">policy</a>": "script-src 'none'",
+      "<a data-link-type="dfn" href="#csp-type" id="ref-for-csp-type-1">type</a>": "fallback"
+    },
+    {
+      "<a data-link-type="dfn" href="#csp-policy" id="ref-for-csp-policy-2">policy</a>": "object-src 'none'; frame-ancestors 'self'",
+      "<a data-link-type="dfn" href="#csp-type" id="ref-for-csp-type-2">type</a>": "baseline"
+    }
+  ],
+  ...
+}
+</pre>
+    <p>And each resource’s response might contain the following header:</p>
+<pre><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
+</pre>
+    <p>The baseline policy will be applied to every response, blocking plugins and
+restricting framing regardless of the response’s other headers.</p>
+    <p>The fallback policy will be applied iff the response doesn’t itself provide a
+Content Security Policy, meaning that the resource’s policy will be applied,
+the nonce will be active, and script will execute as expected.</p>
+   </div>
    <h2 class="heading settled" data-level="6" id="privacy-and-security"><span class="secno">6. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
    <h3 class="heading settled" data-level="6.1" id="tracking"><span class="secno">6.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
    <p>The <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-8"><code>Origin-Policy</code></a> header, as well as the manifest it represents, can
@@ -2060,7 +2098,7 @@ with the following registration: <a data-link-type="biblio" href="#biblio-rfc386
      <p>This specification (see <a href="#origin-policy-header">§2.2 The Origin-Policy HTTP Header Field</a>)</p>
    </dl>
    <h3 class="heading settled" data-level="7.2" id="iana-well-known"><span class="secno">7.2. </span><span class="content">Creation of the well-known location <code>origin-policy</code></span><a class="self-link" href="#iana-well-known"></a></h3>
-   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy
+   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-7">Origin Policy
 manifests</a> may be found. In accordance with <a data-link-type="biblio" href="#biblio-rfc5758">[RFC5758]</a>, the following
 registration should be made if and when the proposal in this document gains
 acceptance and implementation:</p>
@@ -2081,7 +2119,7 @@ acceptance and implementation:</p>
      <p>Related information</p>
     <dd data-md="">
      <p>The suffix <code>origin-policy</code> is expected to be followed by an additional path
-  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-7">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
+  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-8">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
   policy for an origin.</p>
    </dl>
    <h2 class="heading settled" data-level="8" id="ack"><span class="secno">8. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
@@ -2298,6 +2336,12 @@ coming up with.</p>
      <li><a href="https://url.spec.whatwg.org/#concept-url-parser">url parser</a>
     </ul>
    <li>
+    <a data-link-type="biblio">[CSP1]</a> defines the following terms:
+    <ul>
+     <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic">'strict-dynamic'</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
+    </ul>
+   <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
@@ -2308,6 +2352,8 @@ coming up with.</p>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
+   <dt id="biblio-csp1">[CSP1]
+   <dd>Brandon Sterne; Adam Barth. <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">Content Security Policy 1.0</a>. 19 February 2015. NOTE. URL: <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html</a>
    <dt id="biblio-csp3">[CSP3]
    <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. 21 June 2016. WD. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
    <dt id="biblio-fetch">[FETCH]
@@ -2432,7 +2478,8 @@ dynamic elements like nonces. But maybe combining <code>baseline</code> and <cod
     <li><a href="#ref-for-origin-policy-manifest-1">1. Introduction</a>
     <li><a href="#ref-for-origin-policy-manifest-2">2.1. Concepts</a>
     <li><a href="#ref-for-origin-policy-manifest-3">2.3.1. The origin-policy well-known location</a> <a href="#ref-for-origin-policy-manifest-4">(2)</a> <a href="#ref-for-origin-policy-manifest-5">(3)</a>
-    <li><a href="#ref-for-origin-policy-manifest-6">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-7">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest-6">5.3. CSP: Nonces and 'strict-dynamic'</a>
+    <li><a href="#ref-for-origin-policy-manifest-7">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-8">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="csp">
@@ -2443,6 +2490,19 @@ dynamic elements like nonces. But maybe combining <code>baseline</code> and <cod
     <li><a href="#ref-for-csp-3">3.4.4. 
   Apply an Origin Policy to response. </a>
     <li><a href="#ref-for-csp-4">4.2. Why .well-known?</a>
+    <li><a href="#ref-for-csp-5">5.3. CSP: Nonces and 'strict-dynamic'</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="csp-policy">
+   <b><a href="#csp-policy">#csp-policy</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-csp-policy-1">5.3. CSP: Nonces and 'strict-dynamic'</a> <a href="#ref-for-csp-policy-2">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="csp-type">
+   <b><a href="#csp-type">#csp-type</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-csp-type-1">5.3. CSP: Nonces and 'strict-dynamic'</a> <a href="#ref-for-csp-type-2">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="referrer">

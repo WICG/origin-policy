@@ -48,11 +48,65 @@ type: grammar
   text: base64-value; url: https://w3c.github.io/webappsec-csp/#grammardef-base64-value; spec: CSP3
   text: DQUOTE; url: https://tools.ietf.org/html/rfc5234#appendix-B.1; spec: RFC5234
 </pre>
+<pre class="biblio">
+{
+  "SITE-WIDE-HEADERS": {
+      "href": "https://mnot.github.io/I-D/site-wide-headers/",
+      "title": "Site-Wide HTTP Headers",
+      "authors": [ "Mark Nottingham" ]
+  }
+}
+</pre>
 
 Introduction {#intro}
 =====================
 
-[Insert clever introduction here.]
+Developers set a number of properties associated with resources on an origin
+by delivering resource-specific HTTP response headers and <{meta}> elements.
+This is becoming more common over time, and it's quite normal these days to see
+multiple kilobytes at the beginning of every response dedicated to such
+metadata. Setting this metadata is valuable indeed, as it can have a large
+impact on performance, security, and privacy.
+
+However, the existing delivery mechanism is ill-suited to the task, suffering
+from a clear mismatch between the resource-specific nature of the metadata
+declarations on the one hand, and the origin-wide intent of the metadata on the
+other. Take `Strict-Transport-Security` [[RFC6797]] and `Public-Key-Pins`
+[[RFC7469]], for example. These headers explicitly alters the state of an entire
+Moreover, many headers are deployed in such a way as to be practically static
+across all resources that an origin serves. `Content-Security-Policy` [[CSP3]],
+for instance, can be very granular indeed, but is commonly implemented by
+setting a single policy which is delivered for an entire application.
+
+A number of implications follow:
+
+1.  Servers are required to repeat themselves. At length.
+    `Content-Security-Policy` alone can easily eat multiple kilobytes of each
+    navigational response, bandwidth which could instead be dedicated to content
+    a user might care about. This has obvious and direct impact on the delay a
+    user experiences when navigating, but has less obvious knock-on effects that
+    reduce performance further. HTTP/2's HPACK [[RFC7541]] header compression
+    is limited to ~4k of state for processing, for instance, meaning that these
+    verbose headers can greatly reduce its effectiveness
+
+2.  Servers are required to repeat themselves. Unerringly. When policy applies
+    strictly to a resource, and not to the origin, then a server must send that
+    policy down with every response. If the developer forgets a page (which is
+    actually a very common occurance: when's the last time you thought about
+    your 404 error page? How about your 417? Or 505?), then the policy's
+    protections don't apply to that resource, leaving an exploitable hole.
+
+This document introduces a new delivery mechanism for policies which are meant
+to apply to an entire origin. In short, a server will provide an <a>Origin
+Policy Manifest</a> file at a well-known location. This file contains all of the
+metadata the server would like to set for each response. User agents can be
+instructed to synchronously download and process this manifest before completing
+a navigation to an origin's resources, ensuring that the policy contained therin
+will be safely applied to each resource, and allowing the server to skip the
+overhead of including the relevant headers with each response. Typically, the
+server can speed things up even more by using HTTP/2 Server Push ([[RFC7540]],
+section 8.2) to proactively send the manifest file along with the response to
+the user agent's first request.
 
 Examples {#examples}
 --------------------
@@ -744,3 +798,11 @@ acceptance and implementation:
     `/.well-known/origin-policy/name`). A request to
     `/.well-known/origin-policy` can be expected to redirect to the most current
     policy for an origin.
+
+Acknowledgements {#ack}
+================
+
+Mark Nottingham came up with more or less the same idea at more or less the
+same time (after waiting ~years for me to write this up) [[SITE-WIDE-HEADERS]].
+I've swiped large swaths of his introduction, as it's better than what I was
+coming up with.

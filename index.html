@@ -1448,6 +1448,7 @@ Referrer Policy, etc).</p>
       <li><a href="#iana-header"><span class="secno">7.1</span> <span class="content">The <code>Origin-Policy</code> header</span></a>
       <li><a href="#iana-well-known"><span class="secno">7.2</span> <span class="content">Creation of the well-known location <code>origin-policy</code></span></a>
      </ol>
+    <li><a href="#ack"><span class="secno">8</span> <span class="content">Acknowledgements</span></a>
     <li>
      <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
      <ol class="toc">
@@ -1465,7 +1466,49 @@ Referrer Policy, etc).</p>
   </nav>
   <main>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
-   <p>[Insert clever introduction here.]</p>
+   <p>Developers set a number of properties associated with resources on an origin
+by delivering resource-specific HTTP response headers and <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#meta">meta</a></code> elements.
+This is becoming more common over time, and it’s quite normal these days to see
+multiple kilobytes at the beginning of every response dedicated to such
+metadata. Setting this metadata is valuable indeed, as it can have a large
+impact on performance, security, and privacy.</p>
+   <p>However, the existing delivery mechanism is ill-suited to the task, suffering
+from a clear mismatch between the resource-specific nature of the metadata
+declarations on the one hand, and the origin-wide intent of the metadata on the
+other. Take <code>Strict-Transport-Security</code> <a data-link-type="biblio" href="#biblio-rfc6797">[RFC6797]</a> and <code>Public-Key-Pins</code> <a data-link-type="biblio" href="#biblio-rfc7469">[RFC7469]</a>, for example. These headers explicitly alters the state of an entire
+Moreover, many headers are deployed in such a way as to be practically static
+across all resources that an origin serves. <code>Content-Security-Policy</code> <a data-link-type="biblio" href="#biblio-csp3">[CSP3]</a>,
+for instance, can be very granular indeed, but is commonly implemented by
+setting a single policy which is delivered for an entire application.</p>
+   <p>A number of implications follow:</p>
+   <ol>
+    <li data-md="">
+     <p>Servers are required to repeat themselves. At length. <code>Content-Security-Policy</code> alone can easily eat multiple kilobytes of each
+  navigational response, bandwidth which could instead be dedicated to content
+  a user might care about. This has obvious and direct impact on the delay a
+  user experiences when navigating, but has less obvious knock-on effects that
+  reduce performance further. HTTP/2’s HPACK <a data-link-type="biblio" href="#biblio-rfc7541">[RFC7541]</a> header compression
+  is limited to ~4k of state for processing, for instance, meaning that these
+  verbose headers can greatly reduce its effectiveness</p>
+    <li data-md="">
+     <p>Servers are required to repeat themselves. Unerringly. When policy applies
+  strictly to a resource, and not to the origin, then a server must send that
+  policy down with every response. If the developer forgets a page (which is
+  actually a very common occurance: when’s the last time you thought about
+  your 404 error page? How about your 417? Or 505?), then the policy’s
+  protections don’t apply to that resource, leaving an exploitable hole.</p>
+   </ol>
+   <p>This document introduces a new delivery mechanism for policies which are meant
+to apply to an entire origin. In short, a server will provide an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-1">Origin
+Policy Manifest</a> file at a well-known location. This file contains all of the
+metadata the server would like to set for each response. User agents can be
+instructed to synchronously download and process this manifest before completing
+a navigation to an origin’s resources, ensuring that the policy contained therin
+will be safely applied to each resource, and allowing the server to skip the
+overhead of including the relevant headers with each response. Typically, the
+server can speed things up even more by using HTTP/2 Server Push (<a data-link-type="biblio" href="#biblio-rfc7540">[RFC7540]</a>,
+section 8.2) to proactively send the manifest file along with the response to
+the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
    <div class="example" id="example-961114bd">
     <a class="self-link" href="#example-961114bd"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
@@ -1579,7 +1622,7 @@ send <code>Strict-Transport-Security: maxage=0</code>.</p>
    <h2 class="heading settled" data-level="2" id="framework"><span class="secno">2. </span><span class="content">Framework</span><a class="self-link" href="#framework"></a></h2>
    <h3 class="heading settled" data-level="2.1" id="concepts"><span class="secno">2.1. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h3>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="origin-policy-object">origin policy object</dfn> is a tuple of a string
-(<dfn data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-version">version<a class="self-link" href="#origin-policy-object-version"></a></dfn>), and the contents of an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-1">origin policy manifest</a> (<dfn class="dfn-paneled" data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-body">body</dfn>).</p>
+(<dfn data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-version">version<a class="self-link" href="#origin-policy-object-version"></a></dfn>), and the contents of an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-2">origin policy manifest</a> (<dfn class="dfn-paneled" data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-body">body</dfn>).</p>
    <p>User agents have a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy-store">Origin Policy Store</dfn>, which is a key
 value store mapping <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-1">origin policy objects</a> to <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-origin">origins</a>.</p>
    <p>When asked to <dfn class="dfn-paneled" data-algorithm="retrieve an Origin Policy for an origin" data-dfn-type="dfn" data-local-lt="get-policy-from-store" data-lt="retrieve an Origin Policy for an origin" data-noexport="" id="retrieve-an-origin-policy-for-an-origin">retrieve an Origin
@@ -1634,11 +1677,11 @@ have a hook for the member name that other specs could latch onto. Not sure
 if that’s worth the effort, but it might be a more rational way to define
 behavior, since we’re otherwise hooking into a different spec for each bit.</p>
    <h4 class="heading settled" data-level="2.3.1" id="origin-policy-well-known"><span class="secno">2.3.1. </span><span class="content">The <code>origin-policy</code> well-known location</span><a class="self-link" href="#origin-policy-well-known"></a></h4>
-   <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-2">Origin Policy Manifest</a> files for a given origin MUST be located as
+   <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-3">Origin Policy Manifest</a> files for a given origin MUST be located as
 suffixes to the well-known location <code>/.well-known/origin-policy</code> <a data-link-type="biblio" href="#biblio-rfc5785">[RFC5785]</a>.
-Their names MUST be double-quoted strings of characters matching the <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a> grammar. That is, <code>/.well-known/origin-policy/a</code> might point to one <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-3">Origin Policy Manifest</a> file, while <code>/.well-known/origin-policy/b</code> might point to another.</p>
+Their names MUST be double-quoted strings of characters matching the <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a> grammar. That is, <code>/.well-known/origin-policy/a</code> might point to one <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-4">Origin Policy Manifest</a> file, while <code>/.well-known/origin-policy/b</code> might point to another.</p>
    <p>Servers MUST respond to a <code>GET</code> request to <code>/.well-known/origin-policy</code> with a
-302 redirect whose <code>Location</code> header points to the origin’s current <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-4">Origin
+302 redirect whose <code>Location</code> header points to the origin’s current <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-5">Origin
 Policy Manifest</a>, or with a 404 response if no such policy is available.</p>
    <p class="note" role="note">Note: This redirect can be used as a discovery mechanism. User agents might
 prefetch such manifest files for origins a user is likely to visit, testing
@@ -2017,7 +2060,7 @@ with the following registration: <a data-link-type="biblio" href="#biblio-rfc386
      <p>This specification (see <a href="#origin-policy-header">§2.2 The Origin-Policy HTTP Header Field</a>)</p>
    </dl>
    <h3 class="heading settled" data-level="7.2" id="iana-well-known"><span class="secno">7.2. </span><span class="content">Creation of the well-known location <code>origin-policy</code></span><a class="self-link" href="#iana-well-known"></a></h3>
-   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-5">Origin Policy
+   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy
 manifests</a> may be found. In accordance with <a data-link-type="biblio" href="#biblio-rfc5758">[RFC5758]</a>, the following
 registration should be made if and when the proposal in this document gains
 acceptance and implementation:</p>
@@ -2038,9 +2081,14 @@ acceptance and implementation:</p>
      <p>Related information</p>
     <dd data-md="">
      <p>The suffix <code>origin-policy</code> is expected to be followed by an additional path
-  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
+  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-7">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
   policy for an origin.</p>
    </dl>
+   <h2 class="heading settled" data-level="8" id="ack"><span class="secno">8. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
+   <p>Mark Nottingham came up with more or less the same idea at more or less the
+same time (after waiting ~years for me to write this up) <a data-link-type="biblio" href="#biblio-site-wide-headers">[SITE-WIDE-HEADERS]</a>.
+I’ve swiped large swaths of his introduction, as it’s better than what I was
+coming up with.</p>
   </main>
 <script>
 (function() {
@@ -2253,6 +2301,7 @@ acceptance and implementation:</p>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#meta">meta</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">referrer policy</a>
     </ul>
   </ul>
@@ -2288,6 +2337,10 @@ acceptance and implementation:</p>
    <dd>Q. Dang; et al. <a href="https://tools.ietf.org/html/rfc5758">Internet X.509 Public Key Infrastructure: Additional Algorithms and Identifiers for DSA and ECDSA</a>. January 2010. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc5758">https://tools.ietf.org/html/rfc5758</a>
    <dt id="biblio-rfc5785">[RFC5785]
    <dd>M. Nottingham; E. Hammer-Lahav. <a href="https://tools.ietf.org/html/rfc5785">Defining Well-Known Uniform Resource Identifiers (URIs)</a>. April 2010. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc5785">https://tools.ietf.org/html/rfc5785</a>
+   <dt id="biblio-rfc7541">[RFC7541]
+   <dd>R. Peon; H. Ruellan. <a href="https://tools.ietf.org/html/rfc7541">HPACK: Header Compression for HTTP/2</a>. May 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7541">https://tools.ietf.org/html/rfc7541</a>
+   <dt id="biblio-site-wide-headers">[SITE-WIDE-HEADERS]
+   <dd>Mark Nottingham. <a href="https://mnot.github.io/I-D/site-wide-headers/">Site-Wide HTTP Headers</a>. URL: <a href="https://mnot.github.io/I-D/site-wide-headers/">https://mnot.github.io/I-D/site-wide-headers/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
@@ -2376,9 +2429,10 @@ dynamic elements like nonces. But maybe combining <code>baseline</code> and <cod
   <aside class="dfn-panel" data-for="origin-policy-manifest">
    <b><a href="#origin-policy-manifest">#origin-policy-manifest</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-origin-policy-manifest-1">2.1. Concepts</a>
-    <li><a href="#ref-for-origin-policy-manifest-2">2.3.1. The origin-policy well-known location</a> <a href="#ref-for-origin-policy-manifest-3">(2)</a> <a href="#ref-for-origin-policy-manifest-4">(3)</a>
-    <li><a href="#ref-for-origin-policy-manifest-5">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-6">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest-1">1. Introduction</a>
+    <li><a href="#ref-for-origin-policy-manifest-2">2.1. Concepts</a>
+    <li><a href="#ref-for-origin-policy-manifest-3">2.3.1. The origin-policy well-known location</a> <a href="#ref-for-origin-policy-manifest-4">(2)</a> <a href="#ref-for-origin-policy-manifest-5">(3)</a>
+    <li><a href="#ref-for-origin-policy-manifest-6">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-7">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="csp">

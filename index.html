@@ -1528,8 +1528,8 @@ pushing the current manifest down to the client along with the initial response.
 See <a href="#server-push">§5.2 Server Push</a> for details.</p>
     <p class="issue" id="issue-e4da3694"><a class="self-link" href="#issue-e4da3694"></a> Maybe turn this into a <code>Link</code> header with special behavior?</p>
    </div>
-   <div class="example" id="example-9ab576be">
-    <a class="self-link" href="#example-9ab576be"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
+   <div class="example" id="example-187e70f6">
+    <a class="self-link" href="#example-187e70f6"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
 It can do so by setting an appropriate <code>Origin-Policy</code> header in the response.
 That is, given the following request: 
 <pre>GET / HTTP/1.1
@@ -1661,7 +1661,9 @@ members.</p>
   applied to every resource on an origin. If the latter, the given <code>policy</code> will be applied only to the resources on an origin that don’t themselves
   deliver a <code>Content-Security-Policy</code> or <code>Content-Security-Policy-Report-Only</code> header (as appropriate for the <code>mode</code>).</p>
    </dl>
-   <p>Any non-conforming value will be ignored.</p>
+   <p class="issue" id="issue-c02cd042"><a class="self-link" href="#issue-c02cd042"></a> The policies created by this
+mechanism are static. This makes it potentially confusing to incorporate
+dynamic elements like nonces. But maybe combining <code>baseline</code> and <code>fallback</code> policies isn’t so bad? <a href="https://github.com/mikewest/security-policy-manifest/issues/2">&lt;https://github.com/mikewest/security-policy-manifest/issues/2></a></p>
    <h4 class="heading settled" data-level="2.3.3" id="referrer-member"><span class="secno">2.3.3. </span><span class="content">The <code>referrer</code> member</span><a class="self-link" href="#referrer-member"></a></h4>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="referrer"><code>referrer</code></dfn> member defines a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">Referrer Policy</a> <a data-link-type="biblio" href="#biblio-referrer-policy">[REFERRER-POLICY]</a> which will be applied to every resource delivered from
 the policy’s origin.</p>
@@ -2289,6 +2291,9 @@ specs in some kind of extension model. That is, the parsing algorithm could
 have a hook for the member name that other specs could latch onto. Not sure
 if that’s worth the effort, but it might be a more rational way to define
 behavior, since we’re otherwise hooking into a different spec for each bit.<a href="#issue-d435325f"> ↵ </a></div>
+   <div class="issue"> The policies created by this
+mechanism are static. This makes it potentially confusing to incorporate
+dynamic elements like nonces. But maybe combining <code>baseline</code> and <code>fallback</code> policies isn’t so bad? <a href="https://github.com/mikewest/security-policy-manifest/issues/2">&lt;https://github.com/mikewest/security-policy-manifest/issues/2></a><a href="#issue-c02cd042"> ↵ </a></div>
    <div class="issue"> Spell this out.<a href="#issue-440ca7b8"> ↵ </a></div>
    <div class="issue"> This might be a footgun?<a href="#issue-2123bd64"> ↵ </a></div>
    <div class="issue"> Write this algorithm.<a href="#issue-7275c976"> ↵ </a></div>

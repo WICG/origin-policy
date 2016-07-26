@@ -139,7 +139,7 @@ ISSUE: Maybe turn this into a `Link` header with special behavior?
 <div class="example">
 MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
 It can do so by setting an appropriate `Origin-Policy` header in the response.
-That is, given the following request: 
+That is, given the following request:
 
 <pre>
 GET / HTTP/1.1
@@ -311,7 +311,10 @@ members.
     deliver a `Content-Security-Policy` or `Content-Security-Policy-Report-Only`
     header (as appropriate for the `mode`).
 
-Any non-conforming value will be ignored.
+ISSUE(mikewest/security-policy-manifest#2): The policies created by this
+mechanism are static. This makes it potentially confusing to incorporate
+dynamic elements like nonces. But maybe combining `baseline` and `fallback`
+policies isn't so bad?
 
 ### The `referrer` member ### {#referrer-member}
 

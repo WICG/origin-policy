@@ -110,7 +110,10 @@ according to the normal HTTP caching rules, and applied to pages on
       "type": "baseline"
     }
   ],
-  "<a>referrer</a>": "origin-when-cross-origin",
+  "<a>referrer</a>": {
+      "policy": "origin-when-cross-origin",
+      "type": "fallback"
+  },
   "<a>cors</a>": { "allow-credentials": true },
   "<a>nosniff</a>": true,
   "<a>hsts</a>": "max-age=10886400; includeSubDomains; preload",
@@ -259,7 +262,10 @@ members. Each member defines a specific aspect of an origin's policy.
       "type": "baseline"
     }
   ],
-  "<a>referrer</a>": "origin-when-cross-origin",
+  "<a>referrer</a>": {
+      "policy": "origin-when-cross-origin",
+      "type": "fallback"
+  },
   "<a>cors</a>": { "allow-credentials": true },
   "<a>nosniff</a>": true,
   "<a>hsts</a>": true,

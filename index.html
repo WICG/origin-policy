@@ -1467,8 +1467,8 @@ Referrer Policy, etc).</p>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
    <p>[Insert clever introduction here.]</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-d73781b4">
-    <a class="self-link" href="#example-d73781b4"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-961114bd">
+    <a class="self-link" href="#example-961114bd"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1508,7 +1508,10 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
       "type": "baseline"
     }
   ],
-  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-1">referrer</a>": "origin-when-cross-origin",
+  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-1">referrer</a>": {
+      "policy": "origin-when-cross-origin",
+      "type": "fallback"
+  },
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-1">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-1">nosniff</a>": true,
   "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-1">hsts</a>": "max-age=10886400; includeSubDomains; preload",
@@ -1603,7 +1606,7 @@ The following ABNF defines that more formally:</p>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin’s policy.</p>
-<pre class="example" id="example-adec858a"><a class="self-link" href="#example-adec858a"></a>{
+<pre class="example" id="example-1580dca4"><a class="self-link" href="#example-1580dca4"></a>{
   "<a data-link-type="dfn" href="#csp" id="ref-for-csp-2">csp</a>": [
     {
       "policy": "script-src 'self' https://cdn.example.com; object-src 'none'",
@@ -1616,7 +1619,10 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
       "type": "baseline"
     }
   ],
-  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-2">referrer</a>": "origin-when-cross-origin",
+  "<a data-link-type="dfn" href="#referrer" id="ref-for-referrer-2">referrer</a>": {
+      "policy": "origin-when-cross-origin",
+      "type": "fallback"
+  },
   "<a data-link-type="dfn" href="#cors" id="ref-for-cors-2">cors</a>": { "allow-credentials": true },
   "<a data-link-type="dfn" href="#nosniff" id="ref-for-nosniff-2">nosniff</a>": true,
   "<a data-link-type="dfn" href="#hsts" id="ref-for-hsts-3">hsts</a>": true,

@@ -272,7 +272,7 @@ have a hook for the member name that other specs could latch onto. Not sure
 if that's worth the effort, but it might be a more rational way to define
 behavior, since we're otherwise hooking into a different spec for each bit.
 
-### The `origin-policy` well-known location {#origin-policy-well-known}
+### The `origin-policy` well-known location ### {#origin-policy-well-known}
 
 <a>Origin Policy Manifest</a> files for a given origin MUST be located as
 suffixes to the well-known location `/.well-known/origin-policy` [[RFC5785]].
@@ -290,7 +290,7 @@ prefetch such manifest files for origins a user is likely to visit, testing
 services might give developers automated feedback on their origin's manifest,
 etc.
 
-### The `csp` member {#csp-member}
+### The `csp` member ### {#csp-member}
 
 The <dfn export>`csp`</dfn> member defines a set of <a>Content Security
 Policies</a> [[!CSP3]] which will be applied to every resource delivered from the
@@ -313,7 +313,7 @@ members.
 
 Any non-conforming value will be ignored.
 
-### The `referrer` member {#referrer-member}
+### The `referrer` member ### {#referrer-member}
 
 The <dfn export>`referrer`</dfn> member defines a <a>Referrer Policy</a>
 [[!REFERRER-POLICY]] which will be applied to every resource delivered from
@@ -330,7 +330,7 @@ Its value MUST be a single dictionary with a "`policy`" member, and an optional
     will be applied only to the resources on an origin that don't themselves
     deliver a `Referrer-Policy` header.
 
-### The `cors-preflight` member {#cors-preflight-member}
+### The `cors-preflight` member ### {#cors-preflight-member}
 
 The <dfn export>`cors`</dfn> member asserts that an origin understands the
 CORS protocol, and that the user agent can therefore assume success for certain
@@ -342,7 +342,7 @@ defined set of requests.
 
 Its value MUST be a dictionary. Any other type will be ignored.
 
-#### Values {#cors-preflight-values}
+#### Values #### {#cors-preflight-values}
 
 ISSUE: Spell this out.
 
@@ -358,17 +358,17 @@ ISSUE: Spell this out.
 
 ISSUE: This might be a footgun?
 
-### The `hsts` member {#hsts-member}
+### The `hsts` member ### {#hsts-member}
 
 The <dfn export>`hsts`</dfn> member asserts Strict Transport Security for an
 origin [[!RFC6797]].
 
-### The `hpkp` member {#hpkp-member}
+### The `hpkp` member ### {#hpkp-member}
 
 The <dfn export>`hpkp`</dfn> member asserts a set of pinned public keys for an
 origin [[!RFC7469]].
 
-### The `nosniff` member {#nosniff-member}
+### The `nosniff` member ### {#nosniff-member}
 
 The <dfn export>`nosniff`</dfn> member asserts that resources served from an
 origin should rely only on their explicitly asserted `Content-Type`, and MUST

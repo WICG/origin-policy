@@ -11,7 +11,7 @@ Abstract:
   delivery mechanisms for existing policies (Content Security Policy,
   Referrer Policy, etc).
 Indent: 2
-Markup Shorthands: markdown on
+Markup Shorthands: css off, markdown on
 Boilerplate: omit conformance, omit feedback-header
 !Participate: <a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/mikewest/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/mikewest/origin-policy/issues">open issues</a>)
 </pre>
@@ -23,10 +23,11 @@ spec:html; type:element; text:link
 spec: CSP3; urlPrefix: https://w3c.github.io/webappsec-csp/
   type: dfn
     text: Content Security Policy
-spec: HTML; urlPrefix: https://html.spec.whatwg.org/
+spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/
   type: dfn
-    text: origin; url: concept-origin
-    text: opaque origin; url: concept-opaque-origin
+    urlPrefix: browsers.html
+      text: origin; url: concept-origin
+      text: opaque origin; url: concept-opaque-origin
 spec: REFERRER-POLICY; urlPrefix: https://w3c.github.io/webappsec-referrer-policy/
   type: dfn
     text: referrer-policy; url: referrer-policy-header
@@ -44,6 +45,11 @@ spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
     text: CORS-preflight request
     text: ok status
     text: network error; url: concept-network-error
+    text: CORS-safelisted method
+    text: CORS-safelisted request-header
+    text: header; url: concept-header
+    for: header
+      text: name; url: concept-header-name
     text: header list; url: concept-header-list
     for: header list
       text: extract a MIME type; url: concept-header-extract-mime-type
@@ -55,8 +61,12 @@ spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
       text: destination; url: concept-request-destination
       text: mode; url: concept-request-mode
       text: client; url: concept-request-client
+      text: origin; url: concept-request-origin
       text: skip-service-worker flag
-      text: redirect mode; url: concept-redirect-mode
+      text: redirect mode; url: concept-request-redirect-mode
+      text: method; url: concept-request-method
+      text: credentials mode; url: concept-request-credentials-mode
+      text: header list; url: concept-request-header-list
     for: response
       text: header list; url: concept-response-header-list
       text: CSP list; url: concept-response-csp-list
@@ -183,32 +193,33 @@ according to the normal HTTP caching rules, and applied to pages on
 
 <pre>
 {
-  "<a>headers</a>": {
-    "<a>fallback</a>": [
-      {
-        "name": "<a>Content-Security-Policy</a>",
-        "value": "<a>script-src</a> 'self' https://cdn.example.com"
-      },
-      {
-        "name": "<a>Referrer-Policy</a>",
-        "value": "origin-when-cross-origin"
-      }
-    ],
-    "<a>baseline</a>": [
-      {
-        "name": "<a>Content-Security-Policy</a>",
-        "value": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'"
-      },
-      {
-        "name": "<a>Strict-Transport-Security</a>",
-        "value": "max-age=10886400; includeSubDomains; preload"
-      },
-      {
-        "name": "<a>X-Content-Type-Options</a>",
-        "value": "nosniff"
-      }
-    ]
-  },
+  "<a>headers</a>": [
+    {
+      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
+      "<a idl>type</a>": "<a idl>fallback</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>Referrer-Policy</a>",
+      "<a idl>value</a>": "origin-when-cross-origin",
+      "<a idl>type</a>": "<a idl>fallback</a>"
+    }
+    {
+      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
+      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
+      "<a idl>value</a>": "nosniff",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    }
+  ],
   "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
 }
 </pre>
@@ -343,32 +354,33 @@ members. Each member defines a specific aspect of an origin's policy.
 
 <pre class="example">
 {
-  "<a>headers</a>": {
-    "fallback": [
-      {
-        "name": "<a>Content-Security-Policy</a>",
-        "value": "<a>script-src</a> 'self' https://cdn.example.com"
-      },
-      {
-        "name": "<a>Referrer-Policy</a>",
-        "value": "origin-when-cross-origin"
-      }
-    ],
-    "baseline": [
-      {
-        "name": "<a>Content-Security-Policy</a>",
-        "value": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'"
-      },
-      {
-        "name": "<a>Strict-Transport-Security</a>",
-        "value": "max-age=10886400; includeSubDomains; preload"
-      },
-      {
-        "name": "<a>X-Content-Type-Options</a>",
-        "value": "nosniff"
-      }
-    ]
-  },
+  "<a>headers</a>": [
+    {
+      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
+      "<a idl>type</a>": "<a idl>fallback</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>Referrer-Policy</a>",
+      "<a idl>value</a>": "origin-when-cross-origin",
+      "<a idl>type</a>": "<a idl>fallback</a>"
+    }
+    {
+      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
+      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    },
+    {
+      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
+      "<a idl>value</a>": "nosniff",
+      "<a idl>type</a>": "<a idl>baseline</a>"
+    }
+  ],
   "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
 }
 </pre>
@@ -400,49 +412,92 @@ origin. The headers specified in this member's value are categorized either as
 the origin, or as <dfn>fallback headers</dfn> which are appended only to those
 resources which don't themselves deliver the header.
 
-The <a>`headers`</a> member's value MUST be a dictionary which contains either
-a <dfn export>`baseline`</dfn> member, a <dfn export>`fallback`</dfn> member, or
-both. Any additional members will be ignored.
+The `headers` member's value MUST be a sequence of {{HTTPHeader}} dictionaries,
+each containing the following members:
 
-The <a>`headers`</a> member will be ignored entirely if it contains neither a
-<a>`baseline`</a> member nor a <a>`fallback`</a> member.
+:   <dfn for="HTTPHeader" dict-member>name</dfn>
+::  A string representing the header's name: "`Content-Security-Policy`", for
+    example. This member is required.
+:   <dfn for="HTTPHeader" dict-member>value</dfn>
+::  A string representing the header's value: "script-src 'none'", for example.
+    This member is required.
+:   <dfn for="HTTPHeader" dict-member>type</dfn>
+::  Either "<dfn for="HTTPHeaderType" enum-value>`baseline`</dfn>" or
+    "<dfn for="HTTPHeaderType" enum-value>`fallback`</dfn>", designating this header as
+    either a <a>baseline header</a> or <a>fallback header</a> respectively. If
+    this member is not explicitly present, it defaults to "`baseline`".
 
-Both the <a>`baseline`</a> and <a>`fallback`</a> members' values MUST be lists
-of dictionaries containing both `name` and `value` members. Members other than
-`name` and `value` will be ignored. List items that do not have both `name`
-and `value` members will be ignored.
+Members other than those specified here will be ignored, and will not cause
+parse failures.
 
 ISSUE: It may be a dangerous (or at least confusing) footgun to allow certain
 headers to be set on an origin (consider `Content-Type` or `Content-Length`,
 for instance). Perhaps it would be reasonable to limit the <a>`headers`</a>
 member to some whitelist of expected headers?
 
-### The `cors-preflight` member ### {#cors-preflight-member}
+### The `cors-preflight` and `unsafe-cors-preflight-with-credentials` members ### {#cors-preflight-member}
 
-The <dfn export>`cors-preflight`</dfn> member asserts that an origin understands
-the CORS protocol, and that the user agent can therefore assume success for
-certain types of <a>CORS-preflight requests</a>.
+The <dfn export>`cors-preflight`</dfn> and
+<dfn export>`unsafe-cors-preflight-with-credentials`</dfn> members assert that
+an origin understands the CORS protocol, and that the user agent can therefore
+assume success for certain types of <a>CORS-preflight requests</a>. The former
+governs uncredentialed requests, the latter credentialed.
 
-Note: This member does <em>not</em> set defaults for responses in general; it
-only allows the user agent to skip the `OPTIONS` preflight request for a
+Both members values MUST be a {{CORSOptions}} dictionary, with the following
+members:
+
+:   <dfn for="CORSOptions" dict-member>origins</dfn>
+::  Either the string "<dfn for="Wildcard" enum-value>`*`</dfn>" or a sequence
+    of strings, representing the origins for which <a>CORS-preflight
+    requests</a> may be bypassed. This member is required.
+:   <dfn for="CORSOptions" dict-member>methods</dfn>
+::  Either the string "{{*}}" or a sequence
+    of strings, representing the non-<a>CORS-safelisted method</a>
+    <a for="request">methods</a> for which <a>CORS-preflight request</a> may
+    be bypassed. This member is optional.
+:   <dfn for="CORSOptions" dict-member>headers</dfn>
+::  Either the string "{{*}}" or a sequence
+    of strings, representing the non-<a>CORS-safelisted request-header</a>
+    <a>headers</a> which <a>CORS-preflight request</a> may be bypassed. This
+    member is optional.
+
+Note: This member does <em>not</em> set CORS headers for responses in general;
+it only allows the user agent to skip the `OPTIONS` preflight request for a
 defined set of requests.
 
-Its value MUST be a dictionary. Any other type will be ignored.
+### Syntax ### {#syntax}
 
-#### Values #### {#cors-preflight-values}
+<pre class="idl">
+  //
+  // `header` member:
+  //
+  enum HTTPHeaderType { "baseline", "fallback" };
 
-ISSUE(mikewest/origin-policy#3): Spell this out in some sane way. Maybe
-like the following?
+  dictionary HTTPHeader {
+    required USVString name;
+    required USVString value;
+    HTTPHeaderType type = "baseline"; 
+  };
 
-<pre class="example">
-  {
-    "cors-preflight": {
-      "allow-credentials": true,
-      "allow-headers": [ "x-application-specific-header" ],
-      "allow-origin": [ "https://not-example.com/" ]
-    }
-  }
+
+  //
+  // `cors-preflight` and `unsafe-cors-preflight-with-credentials`
+  //
+  enum Wildcard { "*" };
+  typedef (Wildcard or sequence&lt;USVString&gt;) CORSOptionList;
+
+  dictionary CORSOptions {
+    CORSOptionList origins;
+    CORSOptionList? methods;
+    CORSOptionList? headers; 
+  };
 </pre>
+
+ISSUE: WebIDL is almost certainly the wrong way to describe the way the
+<a>`Origin-Policy`</a> header's value is constructed. Still, it makes writing
+the spec quite a bit simpler, so. We'll come up with something better
+later. Possibly as part of the JSON HTTP Header Field encoding work
+ongoing in the HTTP WG.
 
 Algorithms {#algorithms}
 ==========
@@ -518,6 +573,12 @@ During a navigation request, Fetch will hook into this specification in two ways
 
 3.  Directly after Fetch calls into [[#fetch-parse-response]], it will call into
     [[#fetch-apply-policy]] to apply any cached policy to the response.
+
+4.  Before issuing a <a>CORS-preflight request</a>, Fetch will call into
+    [[#fetch-bypass-preflight]] in order to determine whether the preflight is
+    necessary. If that algorithm returns "`Bypass`", Fetch will not issue a
+    preflight request, but instead proceed as though the preflight succeeded.
+    Otherwise, the preflight will be issued as usual.
 
 <h4 algorithm dfn id="fetch-prepare-request">
   Prepare |request| with Origin Policy.
@@ -648,33 +709,74 @@ Given a response (|response|), the following algorithm applies the relevant
 
         2.  Let |headers| be an empty list.
 
-        3.  If |member|'s value has a <a>`fallback`</a> member (|fallback|),
-            then for each |header| in |fallback|'s value:
+        3.  For each |header| in |member|'s value:
 
-            1.  If the result of <a for="header list">parsing</a> |header| in
+            1.  Let |name| be |header|'s {{HTTPHeader/name}}, and |value| be
+                |header|'s {{HTTPHeader/value}}.
+
+            2.  If |header|'s {{HTTPHeader/type}} is "`fallback`", and the
+                result of <a for="header list">parsing</a> |name| in
                 |response|'s <a for="response">header list</a> is not `null`,
                 skip the remaining substep, and proceed to the next |header|.
 
-                Note: We check the header's presence before applying <a>baseline
-                headers</a> to |response|.
+                Note: We check the header's presence <em>before</em> applying
+                <a>baseline headers</a> to |response|.
 
-            2.  Append |header|'s value to |headers|.
-
-        4.  If |member|'s value has a <a>`baseline`</a> member (|baseline|),
-            then append each |header| in |baseline|'s value, to |headers|.
-
-        5.  For each |header| in |headers|:
-
-            1.  Let |name| be |header|'s `name` member's value, and |value|
-                be |header|'s `value` mamber's value.
-
-            2.  Append a header named |name| with a value of |value| to
-                |response|'s <a for="response">header list</a>.
+            3.  Append |header|'s value to |headers|.
 
         Note: Once a policy is cached for an origin, the headers it applies
         will never change. User agents are encouraged to implement more
         performant algorithms making use of this invariant.
 
+<h4 algorithm dfn id="fetch-bypass-preflight">
+  Does Origin Policy bypass |request|'s CORS-preflight request?
+</h4>
+
+Given a request (|request|), this algorithm returns "`Bypass`" if the
+<a>CORS-preflight request</a> required for |request| can be fulfilled by
+examining the target origin's <a>Origin Policy Manifest</a>, and "`Does Not
+Bypass`" if the preflight is required:
+
+1.  Let |manifest| be the result of <a lt="get-policy-from-store">retrieving
+    an Origin Policy</a> for |request|'s <a for="request">url</a>'s
+    <a for="url">origin</a>.
+
+2.  If |manifest| is `null`, return "`Does Not Bypass`".
+
+3.  Set |manifest| to |manifest|'s <a for="origin policy object">body</a>.
+
+3.  Let |options| be |manifest|'s <a>`cors-preflight`</a> member's value if
+    |request|'s <a for="request">credentials mode</a> is "`omit`", and
+    |manifest|'s <a>`unsafe-cors-preflight-with-credentials`</a> member's value
+    otherwise.
+
+4.  Return "`Does Not Bypass`" if any of the following are true:
+
+    1.  |options| is not a {{CORSOptions}} object.
+
+    2.  |request|'s <a for="request">credentials mode</a> is "`include`", and
+        any of |options|'s {{CORSOptions/origins}}, {{CORSOptions/methods}},
+        or {{CORSOptions/headers}} member's values are "{{*}}".
+
+    3.  |options|'s {{CORSOptions/origins}} is not "{{*}}", and the
+        <a lt="unicode serialisation of an origin">serialization</a> of
+        |request|'s <a for="request">origin</a> is not an <a>case-sensitive</a>
+        match for any of the items in |options|'s {{CORSOptions/origins}}
+        sequence.
+
+    4.  |request|'s <a for="request">method</a> (|method|) is not a
+        <a>CORS-safelisted method</a>, and |options|'s {{CORSOptions/methods}}
+        is not "{{*}}", and |method| is not a <a>case-sensitive</a> match for
+        any of the items in |options|'s {{CORSOptions/methods}} sequence.
+
+    5.  |request|'s <a for="request">header list</a> (|list|) contains headers
+        which are not <a>CORS-safelisted request-headers</a>, and |options|'s
+        {{CORSOptions/headers}} is not "{{*}}", and one or more of |list|'s
+        non-<a>CORS-safelisted request-headers</a>' <a for="header">names</a>
+        is not an <a>ASCII case-insensitive</a> match for any of the items in
+        |options|'s {{CORSOptions/headers}} sequence.
+
+5.  Return "`Bypass`".
 
 Specification Considerations {#specification}
 =============================
@@ -795,19 +897,17 @@ That is, the manifest file might contain the following JSON:
 <pre>
 {
   ...
-  "<a>headers</a>": {
-    "<a>fallback</a>": [
-      {
-        "name": "Content-Security-Policy",
-        "value": "script-src 'none'"
-      }
-    ],
-    "<a>baseline</a>": [
-      {
-        "name": "Content-Security-Policy",
-        "value": "object-src 'none'; frame-ancestors 'self'"
-      }
-    ]
+  "<a>headers</a>": [
+    {
+      "<a idl>name</a>": "Content-Security-Policy",
+      "<a idl>value</a>": "script-src 'none'",
+      "<a idl>type</a>": "fallback"
+    },
+    {
+      "<a idl>name</a>": "Content-Security-Policy",
+      "<a idl>value</a>": "object-src 'none'; frame-ancestors 'self'",
+      "<a idl>type</a>": "baseline"
+    }
   },
   ...
 }

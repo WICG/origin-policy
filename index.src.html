@@ -94,6 +94,11 @@ type: grammar
       "href": "https://mnot.github.io/I-D/site-wide-headers/",
       "title": "Site-Wide HTTP Headers",
       "authors": [ "Mark Nottingham" ]
+  },
+  "ORIGIN-WIDE-CORS": {
+      "href": "https://github.com/tyoshino/origin-wide-cors/blob/master/README.md",
+      "title": "Origin-Wide CORS",
+      "authors": [ "Takeshi Yoshino" ]
   }
 }
 </pre>
@@ -1045,6 +1050,9 @@ Acknowledgements {#ack}
 Mark Nottingham came up with more or less the same idea at more or less the
 same time (after waiting ~years for me to write this up) [[SITE-WIDE-HEADERS]].
 I've swiped large swaths of his introduction, and turned a mess of a syntax into
-<a>`headers`</a>, as it's better than what I was coming up with. Mike O'Neill
-and Brad Hill helped mitigate the privacy implications of an earlier design for
-the feature-advertising request header.
+<a>`headers`</a>, as it's better than what I was coming up with. Likewise,
+Takeshi Yoshino's [[ORIGIN-WIDE-CORS]] proposal covers similar ground.
+
+Mike O'Neill and Brad Hill helped mitigate the privacy implications of an
+earlier design for the feature-advertising request header. Anne van Kesteren
+helped ensure that the CORS-request preflight bits were sane.

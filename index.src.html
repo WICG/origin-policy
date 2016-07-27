@@ -176,7 +176,7 @@ Content-Type: text/html
 </pre>
 
 The client will parse the response headers, and synchronously request
-`https://example.com/.well-known/origin-policy/v1` before completing
+`https://example.com/.well-known/origin-policy/policy-1` before completing
 the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on
 `https://example.com/` (including the current navigation).
@@ -377,7 +377,7 @@ members. Each member defines a specific aspect of an origin's policy.
 
 <a>Origin Policy Manifest</a> files for a given origin MUST be located as
 suffixes to the well-known location `/.well-known/origin-policy` [[RFC5785]].
-Their names MUST be double-quoted strings of characters matching the
+Their names MUST be strings of characters matching the
 <a grammar>base64-value</a> grammar. That is, `/.well-known/origin-policy/a`
 might point to one <a>Origin Policy Manifest</a> file, while
 `/.well-known/origin-policy/b` might point to another.
@@ -500,7 +500,7 @@ During a navigation request, Fetch will hook into this specification in two ways
     [[#fetch-prepare-request]] in order to append `Origin-Policy` to the
     request's header list with a value of `0` if no manifest is cached for its
     URL's origin, or a value of the verion of the manifest that is cached  (e.g.
-    `"v1"`).
+    `"policy-1"`).
 
 2.  When a response is received during HTTP-network fetch algorithm, Fetch will
     call into [[#fetch-parse-response]] to sift through its headers, and

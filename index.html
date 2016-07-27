@@ -1494,8 +1494,8 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-a0450940">
-    <a class="self-link" href="#example-a0450940"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-e94862ed">
+    <a class="self-link" href="#example-e94862ed"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1519,7 +1519,7 @@ Content-Type: text/html
 <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-3">Origin-Policy</a>: "policy-1"
 ...
 </pre>
-    <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/origin-policy/v1</code> before completing
+    <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/origin-policy/policy-1</code> before completing
 the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on <code>https://example.com/</code> (including the current navigation).</p>
 <pre>{
@@ -1675,7 +1675,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
    <h4 class="heading settled" data-level="2.3.1" id="origin-policy-well-known"><span class="secno">2.3.1. </span><span class="content">The <code>origin-policy</code> well-known location</span><a class="self-link" href="#origin-policy-well-known"></a></h4>
    <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-3">Origin Policy Manifest</a> files for a given origin MUST be located as
 suffixes to the well-known location <code>/.well-known/origin-policy</code> <a data-link-type="biblio" href="#biblio-rfc5785">[RFC5785]</a>.
-Their names MUST be double-quoted strings of characters matching the <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a> grammar. That is, <code>/.well-known/origin-policy/a</code> might point to one <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-4">Origin Policy Manifest</a> file, while <code>/.well-known/origin-policy/b</code> might point to another.</p>
+Their names MUST be strings of characters matching the <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a> grammar. That is, <code>/.well-known/origin-policy/a</code> might point to one <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-4">Origin Policy Manifest</a> file, while <code>/.well-known/origin-policy/b</code> might point to another.</p>
    <p>Servers MUST respond to a <code>GET</code> request to <code>/.well-known/origin-policy</code> with a
 302 redirect whose <code>Location</code> header points to the origin’s current <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-5">Origin
 Policy Manifest</a>, or with a 404 response if no such policy is available.</p>
@@ -1755,7 +1755,7 @@ user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-o
     <li data-md="">
      <p>At the top of the basic fetch algorithm, Fetch will call <a href="#fetch-prepare-request" id="ref-for-fetch-prepare-request-1">§3.4.1 Prepare request with Origin Policy.</a> in order to append <code>Origin-Policy</code> to the
   request’s header list with a value of <code>0</code> if no manifest is cached for its
-  URL’s origin, or a value of the verion of the manifest that is cached  (e.g. <code>"v1"</code>).</p>
+  URL’s origin, or a value of the verion of the manifest that is cached  (e.g. <code>"policy-1"</code>).</p>
     <li data-md="">
      <p>When a response is received during HTTP-network fetch algorithm, Fetch will
   call into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-1">§3.4.2 Process response for Origin Policy.</a> to sift through its headers, and

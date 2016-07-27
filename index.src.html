@@ -222,7 +222,9 @@ according to the normal HTTP caching rules, and applied to pages on
       "<a idl>type</a>": "<a idl>baseline</a>"
     }
   ],
-  "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
+  "<a>cors-preflight</a>": {
+    "<a for="CORSOptions" idl>origins</a>": "*"
+  }
 }
 </pre>
 
@@ -372,7 +374,9 @@ members. Each member defines a specific aspect of an origin's policy.
       "<a idl>type</a>": "<a idl>baseline</a>"
     }
   ],
-  "<a>cors-preflight</a>": { /* TODO(mkwst): Syntax? */ },
+  "<a>cors-preflight</a>": {
+    "<a for="CORSOptions" idl>origins</a>": "*"
+  }
 }
 </pre>
 
@@ -441,16 +445,25 @@ members:
 ::  Either the string "<dfn for="Wildcard" enum-value>`*`</dfn>" or a sequence
     of strings, representing the origins for which <a>CORS-preflight
     requests</a> may be bypassed. This member is required.
+
+    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
+    its value MUST not be "{{*}}".
 :   <dfn for="CORSOptions" dict-member>methods</dfn>
 ::  Either the string "{{*}}" or a sequence
     of strings, representing the non-<a>CORS-safelisted method</a>
     <a for="request">methods</a> for which <a>CORS-preflight request</a> may
     be bypassed. This member is optional.
+
+    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
+    its value MUST not be "{{*}}".
 :   <dfn for="CORSOptions" dict-member>headers</dfn>
 ::  Either the string "{{*}}" or a sequence
     of strings, representing the non-<a>CORS-safelisted request-header</a>
     <a>headers</a> which <a>CORS-preflight request</a> may be bypassed. This
     member is optional.
+
+    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
+    its value MUST not be "{{*}}".
 
 Note: This member does <em>not</em> set CORS headers for responses in general;
 it only allows the user agent to skip the `OPTIONS` preflight request for a

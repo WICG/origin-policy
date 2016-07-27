@@ -48,6 +48,7 @@ spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
     text: CORS-safelisted method
     text: CORS-safelisted request-header
     text: Basic safe CORS protocol setup
+    text: navigation request
     text: header; url: concept-header
     for: header
       text: name; url: concept-header-name
@@ -169,7 +170,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: 0
+<a>Origin-Policy</a>: 1
 ...
 </pre>
 
@@ -225,18 +226,6 @@ according to the normal HTTP caching rules, and applied to pages on
 }
 </pre>
 
-Subsequent requests from the same client will contain the version of
-the policy currently cached for the origin. In this case:
-
-<pre>
-GET / HTTP/1.1
-Host: example.com
-Connection: keep-alive
-...
-<a>Origin-Policy</a>: "<strong>policy-1</strong>"
-...
-</pre>
-
 Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See [[#server-push]] for details.
@@ -252,7 +241,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: "<strong>policy-1</strong>"
+<a>Origin-Policy</a>: 1
 ...
 </pre>
 
@@ -269,8 +258,9 @@ Content-Type: text/html
 ...
 </pre>
 
-The client will process the header, download and process the `policy-2` manifest,
-and apply it to the response.
+The client will process the header, replace the `policy-1` manifest it downloaded
+in the previous example with the newly specified `policy-2` manifest, and apply
+the latter to the response.
 </div>
 
 <div class="example">
@@ -328,8 +318,8 @@ The `Origin-Policy` HTTP Header Field {#origin-policy-header}
 
 The <dfn export>`Origin-Policy`</dfn> HTTP header field is sent with
 navigational HTTP requests in order to advertise support generally for the
-origin policy manifest mechanism defined in this document, and to inform
-the server which version of its origin policy is cached locally.
+origin policy manifest mechanism defined in this document. Its value
+MUST be `1`.
 
 The same header is sent by the server in responses to such requests to
 inform the client that a origin policy manifest is available to fetch. Its
@@ -337,7 +327,7 @@ value MUST be either `0` or a base64-encoded value, wrapped in double-quotes.
 The following ABNF defines that more formally:
 
 <pre class="abnf" dfn-type="grammar" link-type="grammar">
-  Origin-Policy: 0 / <a>manifest-name</a>
+  Origin-Policy: 0 / 1 / <a>manifest-name</a>
   <dfn>manifest-name</dfn>: <a>DQUOTE</a> <a>base64-value</a> <a>DQUOTE</a>
   ; base64-value is defined in [[!CSP3]]
   ; DQUOTE is defined in [[!RFC5234]]
@@ -544,7 +534,7 @@ defined set of requests.
   dictionary HTTPHeader {
     required USVString name;
     required USVString value;
-    HTTPHeaderType type = "baseline"; 
+    HTTPHeaderType type = "baseline";
   };
 
 
@@ -557,7 +547,7 @@ defined set of requests.
   dictionary CORSOptions {
     CORSOptionList origins;
     CORSOptionList? methods;
-    CORSOptionList? headers; 
+    CORSOptionList? headers;
   };
 </pre>
 
@@ -621,9 +611,7 @@ During a navigation request, Fetch will hook into this specification in two ways
 
 1.  At the top of the basic fetch algorithm, Fetch will call
     [[#fetch-prepare-request]] in order to append `Origin-Policy` to the
-    request's header list with a value of `0` if no manifest is cached for its
-    URL's origin, or a value of the verion of the manifest that is cached  (e.g.
-    `"policy-1"`).
+    request's header list with a value of `1`.
 
 2.  When a response is received during HTTP-network fetch algorithm, Fetch will
     call into [[#fetch-parse-response]] to sift through its headers, and
@@ -659,11 +647,8 @@ client's active policy:
     [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
     executed upon |request|'s <a for="request">url</a>, then abort these steps.
 
-2.  Let |version| be the result of executing [[#version-for-origin]] on
-    |request|'s URL's origin.
-
-3.  Append a header named `Origin-Policy` with a value of |version| to
-    |request|'s header list.
+2.  Append a header named `Origin-Policy` with a value of `1` to |request|'s
+    header list.
 
 <h4 algorithm dfn id="fetch-parse-response">
   Process |response| for Origin Policy.
@@ -694,7 +679,7 @@ fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
     2.  [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
         executed upon |url|.
 
-4.  Assert: |url| is not an <a>opaque origin</a>.    
+4.  Assert: |url| is not an <a>opaque origin</a>.
 
 5.  Return "`Failure`" if |version| does not match the
     <a grammar>manifest-name</a> grammar.
@@ -702,7 +687,7 @@ fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
 6.  If |version| is `0`:
 
     1.  Execute [[#evict-for-origin]] upon |url|'s <a for="url">origin</a>.
-    
+
     2.  Return "`Success`".
 
 7.  Replace |url|'s <a for="url">path</a> with the concatenation of
@@ -998,13 +983,7 @@ the nonce will be active, and script will execute as expected.
 Privacy and Security Considerations {#privacy-and-security}
 ===================================
 
-Tracking {#tracking}
---------
-
-The <a>`Origin-Policy`</a> header, as well as the manifest it represents, can
-be used to track users with only marginally less granularity and coverage than
-cookies allow. As such, the user agent MUST purge an origin's cached manifests
-whenever a user instructs it to clear cookies or cached data for that origin.
+ISSUE: Add some considerations here.
 
 IANA Considerations {#iana}
 ===================
@@ -1053,4 +1032,6 @@ Acknowledgements {#ack}
 Mark Nottingham came up with more or less the same idea at more or less the
 same time (after waiting ~years for me to write this up) [[SITE-WIDE-HEADERS]].
 I've swiped large swaths of his introduction, and turned a mess of a syntax into
-<a>`headers`</a>, as it's better than what I was coming up with.
+<a>`headers`</a>, as it's better than what I was coming up with. Mike O'Neill
+and Brad Hill helped mitigate the privacy implications of an earlier design for
+the feature-advertising request header.

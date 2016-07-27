@@ -26,6 +26,7 @@ spec: CSP3; urlPrefix: https://w3c.github.io/webappsec-csp/
 spec: HTML; urlPrefix: https://html.spec.whatwg.org/
   type: dfn
     text: origin; url: concept-origin
+    text: opaque origin; url: concept-opaque-origin
 spec: REFERRER-POLICY; urlPrefix: https://w3c.github.io/webappsec-referrer-policy/
   type: dfn
     text: referrer-policy; url: referrer-policy-header
@@ -41,14 +42,32 @@ spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
 spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
   type: dfn
     text: CORS-preflight request
+    text: ok status
+    text: network error; url: concept-network-error
     text: header list; url: concept-header-list
+    for: header list
+      text: extract a MIME type; url: concept-header-extract-mime-type
     text: parsing; for: header list; url: concept-header-parse
+    for: body
+      text: wait; url: concept-body-wait
+    for: request
+      text: url; url: concept-request-url
+      text: destination; url: concept-request-destination
+      text: mode; url: concept-request-mode
+      text: client; url: concept-request-client
+      text: skip-service-worker flag
+      text: redirect mode; url: concept-redirect-mode
     for: response
       text: header list; url: concept-response-header-list
       text: CSP list; url: concept-response-csp-list
+      text: URL; url: concept-response-url
+      text: status; url: concept-response-status
+      text: body; url: concept-response-body
     text: X-Content-Type-Options; url: x-content-type-options-header
 spec: URL; urlPrefix: https://url.spec.whatwg.org/
   type: dfn
+    text: origin; for: url; url: concept-url-origin
+    text: path; for: url; url: concept-url-path
     text: URL parser; url: concept-url-parser
 <!--
    -   ABNF
@@ -279,8 +298,9 @@ An <dfn>origin policy object</dfn> is a tuple of a string
 (<dfn for="origin policy object">version</dfn>), and the contents of an
 <a>origin policy manifest</a> (<dfn for="origin policy object">body</dfn>).
 
-User agents have a <dfn export>Origin Policy Store</dfn>, which is a key
-value store mapping <a>origin policy objects</a> to <a>origins</a>.
+User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
+store that constitutes a 1:1 mapping between <a>origin policy objects</a> and
+<a for="">origins</a>.
 
 When asked to <dfn algorithm local-lt="get-policy-from-store">retrieve an Origin
 Policy for an origin</dfn>, an <a>Origin Policy Store</a> will return either a
@@ -487,7 +507,11 @@ During a navigation request, Fetch will hook into this specification in two ways
     extract the `Origin-Policy` header. If present, and its value does not match
     the value of the locally cached manifest for the response's origin, we'll issue
     a synchronous request for a resource located on the request's URL's origin at
-    `/.well-known/origin-policy/{value}`, as defined in [[#fetch-manifest]].
+    `/.well-known/origin-policy/{value}`, as defined in [[#fetch-parse-response]].
+
+    The manifest request will fail in a draconian fashion: if
+    [[#fetch-parse-response]] returns "`Failure`", the response to the request
+    which triggered the manifest request will be set to a <a>network error</a>.
 
     ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
     are scoped to the whole origin?
@@ -502,7 +526,9 @@ During a navigation request, Fetch will hook into this specification in two ways
 Given a request |request|, add appropriate headers to inform a server about a
 client's active policy:
 
-1.  If |request| is not a navigation request, or if  abort these steps and return.
+1.  If |request| is not a navigation request, or if
+    [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
+    executed upon |request|'s <a for="request">url</a>, then abort these steps.
 
 2.  Let |version| be the result of executing [[#version-for-origin]] on
     |request|'s URL's origin.
@@ -514,56 +540,81 @@ client's active policy:
   Process |response| for Origin Policy.
 </h4>
 
+Given a response (|response|), this algorithm will sift through its headers, and
+fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
+
+*  If no "`Origin-Policy`" header is present, this algorithm returns "`No-op`".
+
+*  If an "`Origin-Policy`" header is present with a value of `0`, this
+   algorithm will evict the relevant manifest, and return "`Success`".
+
+*  If an "`Origin-Policy`" header is present with a non-`0` value, this
+   algorithm will attempt to fetch the specified manifest. If successful,
+   the manifest will be cached locally, and this algorithm will return
+   "`Success`". If the fetch fails, this algorithm will return "`Failure`".
+
 1.  Let |version| be the result of parsing "`Origin-Policy`" in |response|'s
     header list.
 
-2.  If |version| is not `null`, execute [[#fetch-manifest]] on |version| and
-    |response|'s URL's origin.
+2.  Let |url| be a copy of |response|'s <a for="response">URL</a>.
 
-<h4 algorithm dfn id="fetch-manifest">
-  Fetch an Origin Policy manifest |version| for |origin|.
-</h4>
+3.  Return "`No-op`" if any of the following statements are true:
 
-To fetch a origin policy manifest given a string (|version|) and an origin
-(|origin|) execute the following steps. If |version| is `0`, any policy cached
-for |origin| will be evicted. Otherwise, if |version| is a valid name, the
-manifest it points to will be retrieved and cached locally:
+    1.  |version| is `null`.
 
-1.  If |origin| is an opaque origin, abort these steps and return.
+    2.  [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
+        executed upon |url|.
 
-2.  Let |url| be the result of executing the <a>URL parser</a> on |origin|'s
-    serialization.
+4.  Assert: |url| is not an <a>opaque origin</a>.    
 
-3.  If |url| is failure, or [[secure-contexts#is-url-trustworthy]] returns
-    "`Not Trustworthy`" when executed upon |url|, abort these steps and return.
+5.  Return "`Failure`" if |version| does not match the
+    <a grammar>manifest-name</a> grammar.
 
-4.  If |version| is `0`, the user agent MUST execute [[#evict-for-origin]]
-    upon |origin|, abort these steps and return.
+6.  If |version| is `0`:
 
-5.  If |version| does not match the <a grammar>manifest-name</a> grammar, abort
-    these steps and return.
+    1.  Execute [[#evict-for-origin]] upon |url|'s <a for="url">origin</a>.
+    
+    2.  Return "`Success`".
 
-6.  Set |url|'s path to the concatenation of "`/.well-known/origin-policy/`" and
-    |version|.
+7.  Replace |url|'s <a for="url">path</a> with the concatenation of
+    "`/.well-known/origin-policy/`" and |version|.
 
-7.  Let |request| be a new request whose method is "`GET`", url is |url|, client
-    is `null`, window is `no-window`, skip-service-worker flag is set,
-    destination is `manifest`, mode is `same-origin`, and redirect mode is
-    `error`.
+8.  Let |request| be a new request with the following properties:
 
-8.  Let |response| be the result of performing an HTTP-network-or-cache fetch
+    :   <a for="request">url</a>
+    ::  |url|
+    :   <a for="request">client</a>
+    ::  `null`
+    :   <a for="request">skip-service-worker flag</a>
+    ::  Set
+    :   <a for="request">destination</a>
+    ::  "`manifest`"
+    :   <a for="request">mode</a>
+    ::  "`same-origin`"
+    :   <a for="request">redirect mode</a>
+    ::  "`error`"
+
+9.  Let |response| be the result of performing an HTTP-network-or-cache fetch
     using |request|.
 
-9.  If |response|'s status is an ok status:
+10. If |response|'s <a for="response">status</a> is an <a>ok status</a>:
 
-    1.  Let |MIME type| be the result of extracting a MIME type from
-        |response|'s header list.
+    1.  Let |MIME type| be the result of
+        <a for="header list" lt="extract a MIME type">extracting a MIME type</a>
+        from |response|'s <a for="response">header list</a>.
 
     2.  If |MIME type| is not `application/manifest+json`, abort these steps
-        and return.
+        and return "`Failure`".
 
-    3.  Store the tuple (|version|, |response|'s body) in the user agent's
-        <a>Origin Policy Store</a> for |origin|.
+    3.  <a for="body">Wait</a> for |response|'s <a for="response">body</a>.
+
+    4.  Store the tuple (|version|, |response|'s <a for="response">body</a>) in
+        the user agent's <a>Origin Policy Store</a> for |response|'s
+        <a for="response">URL</a>'s <a for="url">origin</a>.
+
+    5.  Return "`Success`".
+
+11. Return "`Failure`"
 
 <h4 algorithm dfn id="fetch-apply-policy">
   Apply an Origin Policy to |response|.
@@ -715,7 +766,7 @@ SHOULD use the <a>Server Push</a> mechanism defined in [[RFC7540]] to get the
 manifest down to the client as quickly as possible.
 
 1.  Send a `PUSH_PROMISE` frame with a minimal request for the manifest,
-    aligning with the request generated in [[#fetch-manifest]].
+    aligning with the request generated in [[#fetch-parse-response]].
 
 2.  Begin delivering the response to the `PUSH_PROMISE` request.
 

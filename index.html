@@ -1404,8 +1404,7 @@ Referrer Policy, etc).</p>
        <ol class="toc">
         <li><a href="#fetch-prepare-request"><span class="secno">3.4.1</span> <span class="content"> Prepare <var>request</var> with Origin Policy. </span></a>
         <li><a href="#fetch-parse-response"><span class="secno">3.4.2</span> <span class="content"> Process <var>response</var> for Origin Policy. </span></a>
-        <li><a href="#fetch-manifest"><span class="secno">3.4.3</span> <span class="content"> Fetch an Origin Policy manifest <var>version</var> for <var>origin</var>. </span></a>
-        <li><a href="#fetch-apply-policy"><span class="secno">3.4.4</span> <span class="content"> Apply an Origin Policy to <var>response</var>. </span></a>
+        <li><a href="#fetch-apply-policy"><span class="secno">3.4.3</span> <span class="content"> Apply an Origin Policy to <var>response</var>. </span></a>
        </ol>
      </ol>
     <li>
@@ -1616,8 +1615,8 @@ server could send <code>Strict-Transport-Security: maxage=0</code>.</p>
    <h3 class="heading settled" data-level="2.1" id="concepts"><span class="secno">2.1. </span><span class="content">Concepts</span><a class="self-link" href="#concepts"></a></h3>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="origin-policy-object">origin policy object</dfn> is a tuple of a string
 (<dfn data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-version">version<a class="self-link" href="#origin-policy-object-version"></a></dfn>), and the contents of an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-2">origin policy manifest</a> (<dfn class="dfn-paneled" data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-body">body</dfn>).</p>
-   <p>User agents have a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy-store">Origin Policy Store</dfn>, which is a key
-value store mapping <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-1">origin policy objects</a> to <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-origin">origins</a>.</p>
+   <p>User agents have a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy-store">Origin Policy Store</dfn>, which is a key/value
+store that constitutes a 1:1 mapping between <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-1">origin policy objects</a> and <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origins</a>.</p>
    <p>When asked to <dfn class="dfn-paneled" data-algorithm="retrieve an Origin Policy for an origin" data-dfn-type="dfn" data-local-lt="get-policy-from-store" data-lt="retrieve an Origin Policy for an origin" data-noexport="" id="retrieve-an-origin-policy-for-an-origin">retrieve an Origin
 Policy for an origin</dfn>, an <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-1">Origin Policy Store</a> will return either a
 single <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-2">origin policy object</a> (if one is stored for the given origin), or <code>null</code> (if nothing is stored for the given origin).</p>
@@ -1762,72 +1761,122 @@ user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-o
   call into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-1">§3.4.2 Process response for Origin Policy.</a> to sift through its headers, and
   extract the <code>Origin-Policy</code> header. If present, and its value does not match
   the value of the locally cached manifest for the response’s origin, we’ll issue
-  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/origin-policy/{value}</code>, as defined in <a href="#fetch-manifest" id="ref-for-fetch-manifest-1">§3.4.3 Fetch an Origin Policy manifest version for origin.</a>.</p>
+  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/origin-policy/{value}</code>, as defined in <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-2">§3.4.2 Process response for Origin Policy.</a>.</p>
+     <p>The manifest request will fail in a draconian fashion: if <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-3">§3.4.2 Process response for Origin Policy.</a> returns "<code>Failure</code>", the response to the request
+  which triggered the manifest request will be set to a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>.</p>
      <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?</p>
     <li data-md="">
-     <p>Directly after Fetch calls into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-2">§3.4.2 Process response for Origin Policy.</a>, it will call into <a href="#fetch-apply-policy" id="ref-for-fetch-apply-policy-1">§3.4.4 Apply an Origin Policy to response.</a> to apply any cached policy to the response.</p>
+     <p>Directly after Fetch calls into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-4">§3.4.2 Process response for Origin Policy.</a>, it will call into <a href="#fetch-apply-policy" id="ref-for-fetch-apply-policy-1">§3.4.3 Apply an Origin Policy to response.</a> to apply any cached policy to the response.</p>
    </ol>
    <h4 class="heading settled dfn-paneled" data-algorithm="Prepare request with Origin Policy." data-dfn-type="dfn" data-level="3.4.1" data-lt="Prepare request with Origin Policy." data-noexport="" id="fetch-prepare-request"><span class="secno">3.4.1. </span><span class="content"> Prepare <var>request</var> with Origin Policy. </span></h4>
    <p>Given a request <var>request</var>, add appropriate headers to inform a server about a
 client’s active policy:</p>
    <ol>
     <li data-md="">
-     <p>If <var>request</var> is not a navigation request, or if  abort these steps and return.</p>
+     <p>If <var>request</var> is not a navigation request, or if <a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
+  executed upon <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>, then abort these steps.</p>
     <li data-md="">
      <p>Let <var>version</var> be the result of executing <a href="#version-for-origin" id="ref-for-version-for-origin-1">§3.1 Retrieve origin’s manifest version.</a> on <var>request</var>’s URL’s origin.</p>
     <li data-md="">
      <p>Append a header named <code>Origin-Policy</code> with a value of <var>version</var> to <var>request</var>’s header list.</p>
    </ol>
    <h4 class="heading settled dfn-paneled" data-algorithm="Process response for Origin Policy." data-dfn-type="dfn" data-level="3.4.2" data-lt="Process response for Origin Policy." data-noexport="" id="fetch-parse-response"><span class="secno">3.4.2. </span><span class="content"> Process <var>response</var> for Origin Policy. </span></h4>
+   <p>Given a response (<var>response</var>), this algorithm will sift through its headers, and
+fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a> as follows:</p>
+   <ul>
+    <li data-md="">
+     <p>If no "<code>Origin-Policy</code>" header is present, this algorithm returns "<code>No-op</code>".</p>
+    <li data-md="">
+     <p>If an "<code>Origin-Policy</code>" header is present with a value of <code>0</code>, this
+ algorithm will evict the relevant manifest, and return "<code>Success</code>".</p>
+    <li data-md="">
+     <p>If an "<code>Origin-Policy</code>" header is present with a non-<code>0</code> value, this
+ algorithm will attempt to fetch the specified manifest. If successful,
+ the manifest will be cached locally, and this algorithm will return
+ "<code>Success</code>". If the fetch fails, this algorithm will return "<code>Failure</code>".</p>
+   </ul>
    <ol>
     <li data-md="">
      <p>Let <var>version</var> be the result of parsing "<code>Origin-Policy</code>" in <var>response</var>’s
   header list.</p>
     <li data-md="">
-     <p>If <var>version</var> is not <code>null</code>, execute <a href="#fetch-manifest" id="ref-for-fetch-manifest-2">§3.4.3 Fetch an Origin Policy manifest version for origin.</a> on <var>version</var> and <var>response</var>’s URL’s origin.</p>
-   </ol>
-   <h4 class="heading settled dfn-paneled" data-algorithm="Fetch an Origin Policy manifest version for origin." data-dfn-type="dfn" data-level="3.4.3" data-lt="Fetch an Origin Policy manifest version for origin." data-noexport="" id="fetch-manifest"><span class="secno">3.4.3. </span><span class="content"> Fetch an Origin Policy manifest <var>version</var> for <var>origin</var>. </span></h4>
-   <p>To fetch a origin policy manifest given a string (<var>version</var>) and an origin
-(<var>origin</var>) execute the following steps. If <var>version</var> is <code>0</code>, any policy cached
-for <var>origin</var> will be evicted. Otherwise, if <var>version</var> is a valid name, the
-manifest it points to will be retrieved and cached locally:</p>
-   <ol>
+     <p>Let <var>url</var> be a copy of <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>.</p>
     <li data-md="">
-     <p>If <var>origin</var> is an opaque origin, abort these steps and return.</p>
+     <p>Return "<code>No-op</code>" if any of the following statements are true:</p>
+     <ol>
+      <li data-md="">
+       <p><var>version</var> is <code>null</code>.</p>
+      <li data-md="">
+       <p><a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
+  executed upon <var>url</var>.</p>
+     </ol>
     <li data-md="">
-     <p>Let <var>url</var> be the result of executing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>origin</var>’s
-  serialization.</p>
+     <p>Assert: <var>url</var> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/#concept-opaque-origin">opaque origin</a>.</p>
     <li data-md="">
-     <p>If <var>url</var> is failure, or <a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns
-  "<code>Not Trustworthy</code>" when executed upon <var>url</var>, abort these steps and return.</p>
+     <p>Return "<code>Failure</code>" if <var>version</var> does not match the <a data-link-type="grammar" href="#grammardef-manifest-name" id="ref-for-grammardef-manifest-name-2">manifest-name</a> grammar.</p>
     <li data-md="">
-     <p>If <var>version</var> is <code>0</code>, the user agent MUST execute <a href="#evict-for-origin" id="ref-for-evict-for-origin-1">§3.2 Evict origin’s cached manifest.</a> upon <var>origin</var>, abort these steps and return.</p>
+     <p>If <var>version</var> is <code>0</code>:</p>
+     <ol>
+      <li data-md="">
+       <p>Execute <a href="#evict-for-origin" id="ref-for-evict-for-origin-1">§3.2 Evict origin’s cached manifest.</a> upon <var>url</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
+      <li data-md="">
+       <p>Return "<code>Success</code>".</p>
+     </ol>
     <li data-md="">
-     <p>If <var>version</var> does not match the <a data-link-type="grammar" href="#grammardef-manifest-name" id="ref-for-grammardef-manifest-name-2">manifest-name</a> grammar, abort
-  these steps and return.</p>
+     <p>Replace <var>url</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path">path</a> with the concatenation of
+  "<code>/.well-known/origin-policy/</code>" and <var>version</var>.</p>
     <li data-md="">
-     <p>Set <var>url</var>’s path to the concatenation of "<code>/.well-known/origin-policy/</code>" and <var>version</var>.</p>
-    <li data-md="">
-     <p>Let <var>request</var> be a new request whose method is "<code>GET</code>", url is <var>url</var>, client
-  is <code>null</code>, window is <code>no-window</code>, skip-service-worker flag is set,
-  destination is <code>manifest</code>, mode is <code>same-origin</code>, and redirect mode is <code>error</code>.</p>
+     <p>Let <var>request</var> be a new request with the following properties:</p>
+     <dl>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a></p>
+      <dd data-md="">
+       <p><var>url</var></p>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a></p>
+      <dd data-md="">
+       <p><code>null</code></p>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a></p>
+      <dd data-md="">
+       <p>Set</p>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a></p>
+      <dd data-md="">
+       <p>"<code>manifest</code>"</p>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a></p>
+      <dd data-md="">
+       <p>"<code>same-origin</code>"</p>
+      <dt data-md="">
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-redirect-mode">redirect mode</a></p>
+      <dd data-md="">
+       <p>"<code>error</code>"</p>
+     </dl>
     <li data-md="">
      <p>Let <var>response</var> be the result of performing an HTTP-network-or-cache fetch
   using <var>request</var>.</p>
     <li data-md="">
-     <p>If <var>response</var>’s status is an ok status:</p>
+     <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status">status</a> is an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status">ok status</a>:</p>
      <ol>
       <li data-md="">
-       <p>Let <var>MIME type</var> be the result of extracting a MIME type from <var>response</var>’s header list.</p>
+       <p>Let <var>MIME type</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extracting a MIME type</a> from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
       <li data-md="">
        <p>If <var>MIME type</var> is not <code>application/manifest+json</code>, abort these steps
-  and return.</p>
+  and return "<code>Failure</code>".</p>
       <li data-md="">
-       <p>Store the tuple (<var>version</var>, <var>response</var>’s body) in the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-7">Origin Policy Store</a> for <var>origin</var>.</p>
+       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-wait">Wait</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>.</p>
+      <li data-md="">
+       <p>Store the tuple (<var>version</var>, <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>) in
+  the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-7">Origin Policy Store</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
+      <li data-md="">
+       <p>Return "<code>Success</code>".</p>
      </ol>
+    <li data-md="">
+     <p>Return "<code>Failure</code>"</p>
    </ol>
-   <h4 class="heading settled dfn-paneled" data-algorithm="Apply an Origin Policy to response." data-dfn-type="dfn" data-level="3.4.4" data-lt="Apply an Origin Policy to response." data-noexport="" id="fetch-apply-policy"><span class="secno">3.4.4. </span><span class="content"> Apply an Origin Policy to <var>response</var>. </span></h4>
+   <h4 class="heading settled dfn-paneled" data-algorithm="Apply an Origin Policy to response." data-dfn-type="dfn" data-level="3.4.3" data-lt="Apply an Origin Policy to response." data-noexport="" id="fetch-apply-policy"><span class="secno">3.4.3. </span><span class="content"> Apply an Origin Policy to <var>response</var>. </span></h4>
    <p>Given a response (<var>response</var>), the following algorithm applies the relevant <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-5">origin policy object</a>:</p>
    <ol>
     <li data-md="">
@@ -1958,7 +2007,7 @@ manifest down to the client as quickly as possible.</p>
    <ol>
     <li data-md="">
      <p>Send a <code>PUSH_PROMISE</code> frame with a minimal request for the manifest,
-  aligning with the request generated in <a href="#fetch-manifest" id="ref-for-fetch-manifest-3">§3.4.3 Fetch an Origin Policy manifest version for origin.</a>.</p>
+  aligning with the request generated in <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-5">§3.4.2 Process response for Origin Policy.</a>.</p>
     <li data-md="">
      <p>Begin delivering the response to the <code>PUSH_PROMISE</code> request.</p>
    </ol>
@@ -1974,7 +2023,7 @@ mechanism as follows:</p>
 plugins and framing altogether, but which uses <code>'strict-dynamic'</code> along with a
 fresh nonce for each resource in order to reduce the risk of cross-site
 scripting. It can do so by combining a "<code>baseline</code>" and "<code>fallback</code>" policy in
-the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a>, and delivering a <code>Content-Security-Policy</code> header along with each response. 
+the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-7">Origin Policy Manifest</a>, and delivering a <code>Content-Security-Policy</code> header along with each response. 
     <p>That is, the manifest file might contain the following JSON:</p>
 <pre>{
   ...
@@ -2037,7 +2086,7 @@ with the following registration: <a data-link-type="biblio" href="#biblio-rfc386
      <p>This specification (see <a href="#origin-policy-header">§2.2 The Origin-Policy HTTP Header Field</a>)</p>
    </dl>
    <h3 class="heading settled" data-level="7.2" id="iana-well-known"><span class="secno">7.2. </span><span class="content">Creation of the well-known location <code>origin-policy</code></span><a class="self-link" href="#iana-well-known"></a></h3>
-   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-7">Origin Policy
+   <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-8">Origin Policy
 manifests</a> may be found. In accordance with <a data-link-type="biblio" href="#biblio-rfc5758">[RFC5758]</a>, the following
 registration should be made if and when the proposal in this document gains
 acceptance and implementation:</p>
@@ -2058,7 +2107,7 @@ acceptance and implementation:</p>
      <p>Related information</p>
     <dd data-md="">
      <p>The suffix <code>origin-policy</code> is expected to be followed by an additional path
-  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-8">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
+  component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-9">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
   policy for an origin.</p>
    </dl>
    <h2 class="heading settled" data-level="8" id="ack"><span class="secno">8. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
@@ -2198,7 +2247,7 @@ I’ve swiped large swaths of his introduction, and turned a mess of a syntax in
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#fetch-apply-policy">Apply an Origin Policy to response.</a><span>, in §3.4.3</span>
+   <li><a href="#fetch-apply-policy">Apply an Origin Policy to response.</a><span>, in §3.4.2</span>
    <li><a href="#html-apply-policy">Apply Origin Policy to settings.</a><span>, in §3.3</span>
    <li><a href="#baseline">baseline</a><span>, in §2.3.2</span>
    <li><a href="#baseline-headers">baseline headers</a><span>, in §2.3.2</span>
@@ -2209,7 +2258,6 @@ I’ve swiped large swaths of his introduction, and turned a mess of a syntax in
    <li><a href="#evict-an-origin-policy-for-an-origin">evict-policy-from-store</a><span>, in §2.1</span>
    <li><a href="#fallback">fallback</a><span>, in §2.3.2</span>
    <li><a href="#fallback-headers">fallback headers</a><span>, in §2.3.2</span>
-   <li><a href="#fetch-manifest">Fetch an Origin Policy manifest version for origin.</a><span>, in §3.4.2</span>
    <li><a href="#retrieve-an-origin-policy-for-an-origin">get-policy-from-store</a><span>, in §2.1</span>
    <li><a href="#headers">headers</a><span>, in §2.3.2</span>
    <li><a href="#origin-policy-manifest">manifest</a><span>, in §2.3</span>
@@ -2234,15 +2282,27 @@ I’ve swiped large swaths of his introduction, and turned a mess of a syntax in
    <li>
     <a data-link-type="biblio">[FETCH]</a> defines the following terms:
     <ul>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
      <li><a href="https://fetch.spec.whatwg.org/#cors-preflight-request">cors-preflight request</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>
+     <li><a href="https://fetch.spec.whatwg.org/#ok-status">ok status</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-redirect-mode">redirect mode</a>
+     <li><a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-body-wait">wait</a>
      <li><a href="https://fetch.spec.whatwg.org/#x-content-type-options-header">x-content-type-options</a>
     </ul>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
-     <li><a href="https://html.spec.whatwg.org/#concept-origin">origin</a>
+     <li><a href="https://html.spec.whatwg.org/#concept-opaque-origin">opaque origin</a>
     </ul>
    <li>
     <a data-link-type="biblio">[referrer-policy]</a> defines the following terms:
@@ -2267,7 +2327,8 @@ I’ve swiped large swaths of his introduction, and turned a mess of a syntax in
    <li>
     <a data-link-type="biblio">[WHATWG-URL]</a> defines the following terms:
     <ul>
-     <li><a href="https://url.spec.whatwg.org/#concept-url-parser">url parser</a>
+     <li><a href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>
+     <li><a href="https://url.spec.whatwg.org/#concept-url-path">path</a>
     </ul>
    <li>
     <a data-link-type="biblio">[CSP1]</a> defines the following terms:
@@ -2344,14 +2405,14 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
     <li><a href="#ref-for-origin-policy-object-1">2.1. Concepts</a> <a href="#ref-for-origin-policy-object-2">(2)</a> <a href="#ref-for-origin-policy-object-3">(3)</a>
     <li><a href="#ref-for-origin-policy-object-4">3.2. 
   Evict origin’s cached manifest. </a>
-    <li><a href="#ref-for-origin-policy-object-5">3.4.4. 
+    <li><a href="#ref-for-origin-policy-object-5">3.4.3. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy-object-body">
    <b><a href="#origin-policy-object-body">#origin-policy-object-body</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-origin-policy-object-body-1">3.4.4. 
+    <li><a href="#ref-for-origin-policy-object-body-1">3.4.3. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
@@ -2363,16 +2424,16 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
   Retrieve origin’s manifest version. </a> <a href="#ref-for-origin-policy-store-4">(2)</a>
     <li><a href="#ref-for-origin-policy-store-5">3.2. 
   Evict origin’s cached manifest. </a> <a href="#ref-for-origin-policy-store-6">(2)</a>
-    <li><a href="#ref-for-origin-policy-store-7">3.4.3. 
-  Fetch an Origin Policy manifest version for origin. </a>
-    <li><a href="#ref-for-origin-policy-store-8">3.4.4. 
+    <li><a href="#ref-for-origin-policy-store-7">3.4.2. 
+  Process response for Origin Policy. </a>
+    <li><a href="#ref-for-origin-policy-store-8">3.4.3. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="retrieve-an-origin-policy-for-an-origin">
    <b><a href="#retrieve-an-origin-policy-for-an-origin">#retrieve-an-origin-policy-for-an-origin</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-retrieve-an-origin-policy-for-an-origin-1">3.4.4. 
+    <li><a href="#ref-for-retrieve-an-origin-policy-for-an-origin-1">3.4.3. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
@@ -2394,8 +2455,8 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
    <b><a href="#grammardef-manifest-name">#grammardef-manifest-name</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-grammardef-manifest-name-1">2.2. The Origin-Policy HTTP Header Field</a>
-    <li><a href="#ref-for-grammardef-manifest-name-2">3.4.3. 
-  Fetch an Origin Policy manifest version for origin. </a>
+    <li><a href="#ref-for-grammardef-manifest-name-2">3.4.2. 
+  Process response for Origin Policy. </a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy-manifest">
@@ -2404,8 +2465,10 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
     <li><a href="#ref-for-origin-policy-manifest-1">1. Introduction</a>
     <li><a href="#ref-for-origin-policy-manifest-2">2.1. Concepts</a>
     <li><a href="#ref-for-origin-policy-manifest-3">2.3.1. The origin-policy well-known location</a> <a href="#ref-for-origin-policy-manifest-4">(2)</a> <a href="#ref-for-origin-policy-manifest-5">(3)</a>
-    <li><a href="#ref-for-origin-policy-manifest-6">5.4. CSP: Nonces and 'strict-dynamic'</a>
-    <li><a href="#ref-for-origin-policy-manifest-7">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-8">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest-6">3.4.2. 
+  Process response for Origin Policy. </a>
+    <li><a href="#ref-for-origin-policy-manifest-7">5.4. CSP: Nonces and 'strict-dynamic'</a>
+    <li><a href="#ref-for-origin-policy-manifest-8">7.2. Creation of the well-known location origin-policy</a> <a href="#ref-for-origin-policy-manifest-9">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="headers">
@@ -2414,7 +2477,7 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
     <li><a href="#ref-for-headers-1">1.1. Examples</a>
     <li><a href="#ref-for-headers-2">2.3. The Origin Policy Manifest File</a>
     <li><a href="#ref-for-headers-3">2.3.2. The headers member</a> <a href="#ref-for-headers-4">(2)</a> <a href="#ref-for-headers-5">(3)</a>
-    <li><a href="#ref-for-headers-6">3.4.4. 
+    <li><a href="#ref-for-headers-6">3.4.3. 
   Apply an Origin Policy to response. </a>
     <li><a href="#ref-for-headers-7">4.2. Why .well-known?</a>
     <li><a href="#ref-for-headers-8">5.4. CSP: Nonces and 'strict-dynamic'</a>
@@ -2424,7 +2487,7 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
   <aside class="dfn-panel" data-for="baseline-headers">
    <b><a href="#baseline-headers">#baseline-headers</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-baseline-headers-1">3.4.4. 
+    <li><a href="#ref-for-baseline-headers-1">3.4.3. 
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
@@ -2433,7 +2496,7 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
    <ul>
     <li><a href="#ref-for-baseline-1">1.1. Examples</a>
     <li><a href="#ref-for-baseline-2">2.3.2. The headers member</a> <a href="#ref-for-baseline-3">(2)</a>
-    <li><a href="#ref-for-baseline-4">3.4.4. 
+    <li><a href="#ref-for-baseline-4">3.4.3. 
   Apply an Origin Policy to response. </a>
     <li><a href="#ref-for-baseline-5">5.4. CSP: Nonces and 'strict-dynamic'</a>
    </ul>
@@ -2443,7 +2506,7 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
    <ul>
     <li><a href="#ref-for-fallback-1">1.1. Examples</a>
     <li><a href="#ref-for-fallback-2">2.3.2. The headers member</a> <a href="#ref-for-fallback-3">(2)</a>
-    <li><a href="#ref-for-fallback-4">3.4.4. 
+    <li><a href="#ref-for-fallback-4">3.4.3. 
   Apply an Origin Policy to response. </a>
     <li><a href="#ref-for-fallback-5">5.4. CSP: Nonces and 'strict-dynamic'</a>
    </ul>
@@ -2465,8 +2528,8 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
   <aside class="dfn-panel" data-for="evict-for-origin">
    <b><a href="#evict-for-origin">#evict-for-origin</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-evict-for-origin-1">3.4.3. 
-  Fetch an Origin Policy manifest version for origin. </a>
+    <li><a href="#ref-for-evict-for-origin-1">3.4.2. 
+  Process response for Origin Policy. </a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="html-apply-policy">
@@ -2484,16 +2547,8 @@ like the following? <a href="https://github.com/mikewest/origin-policy/issues/3"
   <aside class="dfn-panel" data-for="fetch-parse-response">
    <b><a href="#fetch-parse-response">#fetch-parse-response</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-fetch-parse-response-1">3.4. Fetch Integration</a> <a href="#ref-for-fetch-parse-response-2">(2)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="fetch-manifest">
-   <b><a href="#fetch-manifest">#fetch-manifest</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-fetch-manifest-1">3.4. Fetch Integration</a>
-    <li><a href="#ref-for-fetch-manifest-2">3.4.2. 
-  Process response for Origin Policy. </a>
-    <li><a href="#ref-for-fetch-manifest-3">5.3. Server Push</a>
+    <li><a href="#ref-for-fetch-parse-response-1">3.4. Fetch Integration</a> <a href="#ref-for-fetch-parse-response-2">(2)</a> <a href="#ref-for-fetch-parse-response-3">(3)</a> <a href="#ref-for-fetch-parse-response-4">(4)</a>
+    <li><a href="#ref-for-fetch-parse-response-5">5.3. Server Push</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="fetch-apply-policy">

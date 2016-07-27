@@ -47,6 +47,7 @@ spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
     text: network error; url: concept-network-error
     text: CORS-safelisted method
     text: CORS-safelisted request-header
+    text: Basic safe CORS protocol setup
     text: header; url: concept-header
     for: header
       text: name; url: concept-header-name
@@ -464,6 +465,73 @@ members:
 Note: This member does <em>not</em> set CORS headers for responses in general;
 it only allows the user agent to skip the `OPTIONS` preflight request for a
 defined set of requests.
+
+#### Examples #### {#cors-examples}
+
+<div class="example">
+  MegaCorp, Inc. has a partnership with Excellent Examples, GmbH., and wishes to
+  allow the latter to make otherwise unsafely credentialed cross-origin requests
+  without the overhead of CORS preflight requests. They can do so with the
+  following manifest:
+
+  <pre>
+  {
+    "<a>unsafe-cors-preflight-with-credentials</a>": {
+      "<a for="CORSOptions" idl>origins</a>": [ "https://excellent-example.test/" ]
+    }
+  }
+  </pre>
+
+  As spelled out in [[#fetch-bypass-preflight]], this bypasses <a>CORS-preflight
+  requests</a> for credentialed requests coming from
+  `https://excellent-example.text`, as long as they don't set strange headers,
+  or use strange HTTP methods.
+
+  If the API required a special header (say `X-Examples-Are-Excellent`), or a
+  custom HTTP method (say `EXAMPLE`), MegaCorp, Inc. could bypass preflights
+  for those as well by changing their manifest as follows:
+
+  <pre>
+  {
+    "<a>unsafe-cors-preflight-with-credentials</a>": {
+      "<a for="CORSOptions" idl>origins</a>": [ "https://excellent-example.test/" ],
+      "<a for="CORSOptions" idl>methods</a>": [ "EXAMPLE" ],
+      "<a for="CORSOptions" idl>headers</a>": [ "X-Examples-Are-Excellent" ]
+    }
+  }
+  </pre>
+</div>
+
+<div class="example">
+  MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
+  the API endpoints on `https://open.example.com/` available for uncredentialed
+  requests from any origin. They can do so with the following manifest:
+
+  <pre>
+  {
+    "<a>headers</a>": [
+      {
+        "<a for="HTTPHeader" idl>name</a>": "Access-Control-Allow-Origin",
+        "<a for="HTTPHeader" idl>value</a>": "*",
+        "<a for="HTTPHeader" idl>type</a>": "<a enum-value>fallback</a>"
+      }
+    ],
+    "<a>cors-preflight</a>": {
+      "<a for="CORSOptions" idl>origins</a>": "*"
+    }
+  }
+  </pre>
+
+  As spelled out in [[#fetch-bypass-preflight]], this bypasses <a>CORS-preflight
+  requests</a> for uncredentialed requests from any origin. Further, it appends
+  an `Access-Control-Allow-Origin: *` header to each response that doesn't set
+  a custom value for that header.
+
+  Note: This doesn't allow anything more than the "<a>Basic safe CORS
+  protocol setup</a>", as `*` will not allow credentialed access to any resource
+  and the static manifest cannot be configured to echo the actual origin of the
+  requestor.
+</div>
 
 ### Syntax ### {#syntax}
 

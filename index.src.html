@@ -81,11 +81,14 @@ However, the existing delivery mechanism is ill-suited to the task, suffering
 from a clear mismatch between the resource-specific nature of the metadata
 declarations on the one hand, and the origin-wide intent of the metadata on the
 other. Take `Strict-Transport-Security` [[RFC6797]] and `Public-Key-Pins`
-[[RFC7469]], for example. These headers explicitly alters the state of an entire
-Moreover, many headers are deployed in such a way as to be practically static
-across all resources that an origin serves. `Content-Security-Policy` [[CSP3]],
-for instance, can be very granular indeed, but is commonly implemented by
-setting a single policy which is delivered for an entire application.
+[[RFC7469]], for example, which explicitly alter the state of an entire origin,
+but are delivered in resource-specific response headers.
+
+Moreover, many resource-specific headers are deployed in such a way as to be
+<i lang="la">de facto</i> static across all resources that an origin serves.
+`Content-Security-Policy` [[CSP3]], for instance, can be very granular indeed,
+but is commonly implemented by setting a single policy which is delivered for
+an entire application.
 
 A number of implications follow:
 

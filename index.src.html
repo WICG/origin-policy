@@ -233,6 +233,19 @@ according to the normal HTTP caching rules, and applied to pages on
 }
 </pre>
 
+Subsequent requests from the same client will contain the version of
+the policy currently cached for the origin (with a slight caveat: see
+[[#tracking]]). In this case:
+
+<pre>
+GET / HTTP/1.1
+Host: example.com
+Connection: keep-alive
+...
+<a>Origin-Policy</a>: "<strong>policy-1</strong>"
+...
+</pre>
+
 Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See [[#server-push]] for details.
@@ -248,7 +261,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: 1
+<a>Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
 
@@ -323,10 +336,11 @@ policy for an origin</dfn>, an <a>Origin Policy Store</a> will discard any
 The `Origin-Policy` HTTP Header Field {#origin-policy-header}
 -----------------------------------------------------------------
 
-The <dfn export>`Origin-Policy`</dfn> HTTP header field is sent with
+The <dfn export>`Origin-Policy`</dfn> HTTP request header field is sent with
 navigational HTTP requests in order to advertise support generally for the
-origin policy manifest mechanism defined in this document. Its value
-MUST be `1`.
+origin policy manifest mechanism defined in this document, and to inform
+the server which version of its origin policy is cached locally. Its value
+MUST be either `1` of a base64-encoded value, wrapped in double-quotes.
 
 The same header is sent by the server in responses to such requests to
 inform the client that a origin policy manifest is available to fetch. Its
@@ -629,7 +643,9 @@ During a navigation request, Fetch will hook into this specification in two ways
 
 1.  At the top of the basic fetch algorithm, Fetch will call
     [[#fetch-prepare-request]] in order to append `Origin-Policy` to the
-    request's header list with a value of `1`.
+    request's header list with a value of `1` if no manifest is cached for its
+    URL's origin, or a value of the verion of the manifest that is cached  (e.g.
+    `"policy-1"`).
 
 2.  When a response is received during HTTP-network fetch algorithm, Fetch will
     call into [[#fetch-parse-response]] to sift through its headers, and
@@ -665,8 +681,14 @@ client's active policy:
     [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
     executed upon |request|'s <a for="request">url</a>, then abort these steps.
 
-2.  Append a header named `Origin-Policy` with a value of `1` to |request|'s
-    header list.
+2.  If the user agent is configured to include cookies with |request|, then
+    let |version| be the result of executing [[#version-for-origin]] on
+    |request|'s URL's origin.
+
+    Otherwise, let |version| be `1` (see [[#tracking]]).
+
+3.  Append a header named `Origin-Policy` with a value of |version| to
+    |request|'s header list.
 
 <h4 algorithm dfn id="fetch-parse-response">
   Process |response| for Origin Policy.
@@ -1001,7 +1023,25 @@ the nonce will be active, and script will execute as expected.
 Privacy and Security Considerations {#privacy-and-security}
 ===================================
 
-ISSUE: Add some considerations here.
+Tracking {#tracking}
+--------
+
+We send an <a>`Origin-Policy`</a> header containing the currently cached
+manifest version up to the server along with every <a>navigation request</a>
+in order to reduce the performance impact of the synchronous request for
+the manifest. By informing the server which manifest the user has cached,
+the server can make intelligent decisions about when to initiate a server
+push, thereby avoiding the blocking behavior, and extra round-trip for a
+cancellation.
+
+That said, the value of the <a>`Origin-Policy`</a> header (as well as the
+contents of the cached manifest), can be used to track users with only
+marginally less granularity and coverage than cookies allow. As such, the
+user agent MUST purge an origin's cached manifests whenever a user instructs
+it to clear cookies or cached data for that origin. Additionally, if the user
+agent is configured to not attach cookies to a given request it MUST send `1`
+instead of the manifest version, advertising support for the feature, but not
+a particular cache entry.
 
 IANA Considerations {#iana}
 ===================

@@ -1408,7 +1408,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-07-28">28 July 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-07-29">29 July 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1444,7 +1444,7 @@ Referrer Policy, etc).</p>
      <a href="#framework"><span class="secno">2</span> <span class="content">Framework</span></a>
      <ol class="toc">
       <li><a href="#concepts"><span class="secno">2.1</span> <span class="content">Concepts</span></a>
-      <li><a href="#origin-policy-header"><span class="secno">2.2</span> <span class="content">The <code>Origin-Policy</code> HTTP Header Field</span></a>
+      <li><a href="#origin-policy-header"><span class="secno">2.2</span> <span class="content">The <code>Sec-Origin-Policy</code> HTTP Header Field</span></a>
       <li>
        <a href="#manifest-file"><span class="secno">2.3</span> <span class="content">The Origin Policy Manifest File</span></a>
        <ol class="toc">
@@ -1495,11 +1495,12 @@ Referrer Policy, etc).</p>
      <a href="#privacy-and-security"><span class="secno">6</span> <span class="content">Privacy and Security Considerations</span></a>
      <ol class="toc">
       <li><a href="#tracking"><span class="secno">6.1</span> <span class="content">Tracking</span></a>
+      <li><a href="#sec-prefix"><span class="secno">6.2</span> <span class="content">The <code>Sec-</code> prefix</span></a>
      </ol>
     <li>
      <a href="#iana"><span class="secno">7</span> <span class="content">IANA Considerations</span></a>
      <ol class="toc">
-      <li><a href="#iana-header"><span class="secno">7.1</span> <span class="content">The <code>Origin-Policy</code> header</span></a>
+      <li><a href="#iana-header"><span class="secno">7.1</span> <span class="content">The <code>Sec-Origin-Policy</code> header</span></a>
       <li><a href="#iana-well-known"><span class="secno">7.2</span> <span class="content">Creation of the well-known location <code>origin-policy</code></span></a>
      </ol>
     <li><a href="#ack"><span class="secno">8</span> <span class="content">Acknowledgements</span></a>
@@ -1565,19 +1566,19 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-b9feb4de">
-    <a class="self-link" href="#example-b9feb4de"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-e380852d">
+    <a class="self-link" href="#example-e380852d"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
-    <p>When they see a request come in that contains a <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-1"><code>Origin-Policy</code></a> header, they can respond in kind, pointing the client to a manifest file
+    <p>When they see a request come in that contains a <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-1"><code>Sec-Origin-Policy</code></a> header, they can respond in kind, pointing the client to a manifest file
 in a well-known location on their server. That is, given the following
 request:</p>
 <pre>GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-2">Origin-Policy</a>: 1
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-2">Sec-Origin-Policy</a>: 1
 ...
 </pre>
     <p>MegaCorp, Inc. can respond with:</p>
@@ -1587,7 +1588,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-3">Origin-Policy</a>: "policy-1"
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-3">Sec-Origin-Policy</a>: "policy-1"
 ...
 </pre>
     <p>The client will parse the response headers, and synchronously request <code>https://example.com/.well-known/origin-policy/policy-1</code> before completing
@@ -1632,22 +1633,22 @@ the policy currently cached for the origin (with a slight caveat: see <a href="#
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-4">Origin-Policy</a>: "<strong>policy-1</strong>"
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-4">Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
     <p class="note" role="note">Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See <a href="#server-push">§5.3 Server Push</a> for details.</p>
    </div>
-   <div class="example" id="example-b9647d9e">
-    <a class="self-link" href="#example-b9647d9e"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
-It can do so by setting an appropriate <code>Origin-Policy</code> header in the response.
+   <div class="example" id="example-894fe995">
+    <a class="self-link" href="#example-894fe995"></a> MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
+It can do so by setting an appropriate <code>Sec-Origin-Policy</code> header in the response.
 That is, given the following request: 
 <pre>GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-5">Origin-Policy</a>: "<strong>policy-1</strong>"
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-5">Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
     <p>MegaCorp, Inc. can respond with:</p>
@@ -1657,16 +1658,16 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-6">Origin-Policy</a>: "policy-2"
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-6">Sec-Origin-Policy</a>: "policy-2"
 ...
 </pre>
     <p>The client will process the header, replace the <code>policy-1</code> manifest it downloaded
 in the previous example with the newly specified <code>policy-2</code> manifest, and apply
 the latter to the response.</p>
    </div>
-   <div class="example" id="example-25a0a06c">
-    <a class="self-link" href="#example-25a0a06c"></a> MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
-It can do so by setting an <code>Origin-Policy</code> header with a value of <code>0</code> in the
+   <div class="example" id="example-5ceeafd8">
+    <a class="self-link" href="#example-5ceeafd8"></a> MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
+It can do so by setting an <code>Sec-Origin-Policy</code> header with a value of <code>0</code> in the
 response: 
 <pre>HTTP/1.1 200 OK
 Content-Encoding: gzip
@@ -1674,7 +1675,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-7">Origin-Policy</a>: 0
+<a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-7">Sec-Origin-Policy</a>: 0
 ...
 </pre>
     <p>The client will process the header, and evict any origin policy for the
@@ -1697,8 +1698,8 @@ Policy for an origin</dfn>, an <a data-link-type="dfn" href="#origin-policy-stor
 single <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-2">origin policy object</a> (if one is stored for the given origin), or <code>null</code> (if nothing is stored for the given origin).</p>
    <p>When asked to <dfn class="dfn-paneled" data-algorithm="evict an Origin policy for an origin" data-dfn-type="dfn" data-local-lt="evict-policy-from-store" data-lt="evict an Origin policy for an origin" data-noexport="" id="evict-an-origin-policy-for-an-origin">evict an Origin
 policy for an origin</dfn>, an <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-2">Origin Policy Store</a> will discard any <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-3">origin policy object</a> associated with the given origin.</p>
-   <h3 class="heading settled" data-level="2.2" id="origin-policy-header"><span class="secno">2.2. </span><span class="content">The <code>Origin-Policy</code> HTTP Header Field</span><a class="self-link" href="#origin-policy-header"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy"><code>Origin-Policy</code></dfn> HTTP request header field is sent with
+   <h3 class="heading settled" data-level="2.2" id="origin-policy-header"><span class="secno">2.2. </span><span class="content">The <code>Sec-Origin-Policy</code> HTTP Header Field</span><a class="self-link" href="#origin-policy-header"></a></h3>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="sec-origin-policy"><code>Sec-Origin-Policy</code></dfn> HTTP request header field is sent with
 navigational HTTP requests in order to advertise support generally for the
 origin policy manifest mechanism defined in this document, and to inform
 the server which version of its origin policy is cached locally. Its value
@@ -1707,7 +1708,7 @@ MUST be either <code>1</code> of a base64-encoded value, wrapped in double-quote
 inform the client that a origin policy manifest is available to fetch. Its
 value MUST be either <code>0</code> or a base64-encoded value, wrapped in double-quotes.
 The following ABNF defines that more formally:</p>
-<pre class="abnf">Origin-Policy: 0 / 1 / <a data-link-type="grammar" href="#grammardef-manifest-name" id="ref-for-grammardef-manifest-name-1">manifest-name</a>
+<pre class="abnf">Sec-Origin-Policy: 0 / 1 / <a data-link-type="grammar" href="#grammardef-manifest-name" id="ref-for-grammardef-manifest-name-1">manifest-name</a>
 <dfn class="dfn-paneled" data-dfn-type="grammar" data-export="" id="grammardef-manifest-name">manifest-name</dfn>: <a data-link-type="grammar" href="https://tools.ietf.org/html/rfc5234#appendix-B.1">DQUOTE</a> <a data-link-type="grammar" href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a> <a data-link-type="grammar" href="https://tools.ietf.org/html/rfc5234#appendix-B.1">DQUOTE</a>
 ; base64-value is defined in [[!CSP3]]
 ; DQUOTE is defined in [[!RFC5234]]
@@ -1908,8 +1909,8 @@ defined set of requests.</p>
   <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-6">CORSOptionList</a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-2">headers</a>;
 };
 </pre>
-   <p class="issue" id="issue-35d576f3"><a class="self-link" href="#issue-35d576f3"></a> WebIDL is almost certainly the wrong way to describe the way the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-8"><code>Origin-Policy</code></a> header’s value is constructed. Still, it makes writing
-the spec quite a bit simpler, so. We’ll come up with something better
+   <p class="issue" id="issue-f1fa5121"><a class="self-link" href="#issue-f1fa5121"></a> WebIDL is almost certainly the wrong way to describe the way the <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-8"><code>Sec-Origin-Policy</code></a> header’s value is constructed. Still, it makes
+writing the spec quite a bit simpler, so. We’ll come up with something better
 later. Possibly as part of the JSON HTTP Header Field encoding work
 ongoing in the HTTP WG.</p>
    <h2 class="heading settled" data-level="3" id="algorithms"><span class="secno">3. </span><span class="content">Algorithms</span><a class="self-link" href="#algorithms"></a></h2>
@@ -1948,15 +1949,16 @@ user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-o
    <p>During a navigation request, Fetch will hook into this specification in two ways:</p>
    <ol>
     <li data-md="">
-     <p>At the top of the basic fetch algorithm, Fetch will call <a href="#fetch-prepare-request" id="ref-for-fetch-prepare-request-1">§3.4.1 Prepare request with Origin Policy.</a> in order to append <code>Origin-Policy</code> to the
+     <p>At the top of the basic fetch algorithm, Fetch will call <a href="#fetch-prepare-request" id="ref-for-fetch-prepare-request-1">§3.4.1 Prepare request with Origin Policy.</a> in order to append <code>Sec-Origin-Policy</code> to the
   request’s header list with a value of <code>1</code> if no manifest is cached for its
   URL’s origin, or a value of the verion of the manifest that is cached  (e.g. <code>"policy-1"</code>).</p>
     <li data-md="">
      <p>When a response is received during HTTP-network fetch algorithm, Fetch will
   call into <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-1">§3.4.2 Process response for Origin Policy.</a> to sift through its headers, and
-  extract the <code>Origin-Policy</code> header. If present, and its value does not match
-  the value of the locally cached manifest for the response’s origin, we’ll issue
-  a synchronous request for a resource located on the request’s URL’s origin at <code>/.well-known/origin-policy/{value}</code>, as defined in <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-2">§3.4.2 Process response for Origin Policy.</a>.</p>
+  extract the <code>Sec-Origin-Policy</code> header. If present, and its value does not
+  match the value of the locally cached manifest for the response’s origin,
+  we’ll issue a synchronous request for a resource located on the request’s
+  URL’s origin at <code>/.well-known/origin-policy/{value}</code>, as defined in <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-2">§3.4.2 Process response for Origin Policy.</a>.</p>
      <p>The manifest request will fail in a draconian fashion: if <a href="#fetch-parse-response" id="ref-for-fetch-parse-response-3">§3.4.2 Process response for Origin Policy.</a> returns "<code>Failure</code>", the response to the request
   which triggered the manifest request will be set to a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>.</p>
      <p class="issue" id="issue-43a867ce"><a class="self-link" href="#issue-43a867ce"></a> Should we allow service workers to intercept/set policy? Maybe only if they
@@ -1981,26 +1983,27 @@ client’s active policy:</p>
   let <var>version</var> be the result of executing <a href="#version-for-origin" id="ref-for-version-for-origin-1">§3.1 Retrieve origin’s manifest version.</a> on <var>request</var>’s URL’s origin.</p>
      <p>Otherwise, let <var>version</var> be <code>1</code> (see <a href="#tracking">§6.1 Tracking</a>).</p>
     <li data-md="">
-     <p>Append a header named <code>Origin-Policy</code> with a value of <var>version</var> to <var>request</var>’s header list.</p>
+     <p>Append a header named <code>Sec-Origin-Policy</code> with a value of <var>version</var> to <var>request</var>’s header list.</p>
    </ol>
    <h4 class="heading settled dfn-paneled" data-algorithm="Process response for Origin Policy." data-dfn-type="dfn" data-level="3.4.2" data-lt="Process response for Origin Policy." data-noexport="" id="fetch-parse-response"><span class="secno">3.4.2. </span><span class="content"> Process <var>response</var> for Origin Policy. </span></h4>
    <p>Given a response (<var>response</var>), this algorithm will sift through its headers, and
 fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a> as follows:</p>
    <ul>
     <li data-md="">
-     <p>If no "<code>Origin-Policy</code>" header is present, this algorithm returns "<code>No-op</code>".</p>
+     <p>If no "<code>Sec-Origin-Policy</code>" header is present, this algorithm returns
+ "<code>No-op</code>".</p>
     <li data-md="">
-     <p>If an "<code>Origin-Policy</code>" header is present with a value of <code>0</code>, this
+     <p>If an "<code>Sec-Origin-Policy</code>" header is present with a value of <code>0</code>, this
  algorithm will evict the relevant manifest, and return "<code>Success</code>".</p>
     <li data-md="">
-     <p>If an "<code>Origin-Policy</code>" header is present with a non-<code>0</code> value, this
+     <p>If an "<code>Sec-Origin-Policy</code>" header is present with a non-<code>0</code> value, this
  algorithm will attempt to fetch the specified manifest. If successful,
  the manifest will be cached locally, and this algorithm will return
  "<code>Success</code>". If the fetch fails, this algorithm will return "<code>Failure</code>".</p>
    </ul>
    <ol>
     <li data-md="">
-     <p>Let <var>version</var> be the result of parsing "<code>Origin-Policy</code>" in <var>response</var>’s
+     <p>Let <var>version</var> be the result of parsing "<code>Sec-Origin-Policy</code>" in <var>response</var>’s
   header list.</p>
     <li data-md="">
      <p>Let <var>url</var> be a copy of <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>.</p>
@@ -2192,7 +2195,7 @@ to look into. For now, we’ve done the simple thing as a strawman.</p>
 "well-known location" specific to Origin Policy manifests. It would increase
 flexibility of deployment and implementation if we allowed a developer to point
 to any location on an origin instead. Perhaps something like the following:</p>
-<pre>  Origin-Policy: /path/to/manifest.json
+<pre>  Sec-Origin-Policy: /path/to/manifest.json
 </pre>
    <p>This would allow developers who control an application, but not the server on
 which the application runs, to define policy for themselves without bothering
@@ -2282,28 +2285,34 @@ the nonce will be active, and script will execute as expected.</p>
    </div>
    <h2 class="heading settled" data-level="6" id="privacy-and-security"><span class="secno">6. </span><span class="content">Privacy and Security Considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
    <h3 class="heading settled" data-level="6.1" id="tracking"><span class="secno">6.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
-   <p>We send an <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-9"><code>Origin-Policy</code></a> header containing the currently cached
+   <p>We send an <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-9"><code>Sec-Origin-Policy</code></a> header containing the currently cached
 manifest version up to the server along with every <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a> in order to reduce the performance impact of the synchronous request for
 the manifest. By informing the server which manifest the user has cached,
 the server can make intelligent decisions about when to initiate a server
 push, thereby avoiding the blocking behavior, and extra round-trip for a
 cancellation.</p>
-   <p>That said, the value of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy-10"><code>Origin-Policy</code></a> header (as well as the
+   <p>That said, the value of the <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-10"><code>Sec-Origin-Policy</code></a> header (as well as the
 contents of the cached manifest), can be used to track users with only
 marginally less granularity and coverage than cookies allow. As such, the
 user agent MUST purge an origin’s cached manifests whenever a user instructs
 it to clear cookies or cached data for that origin. Additionally, if the user
 agent is configured to not attach cookies to a given request it MUST send <code>1</code> instead of the manifest version, advertising support for the feature, but not
 a particular cache entry.</p>
+   <h3 class="heading settled" data-level="6.2" id="sec-prefix"><span class="secno">6.2. </span><span class="content">The <code>Sec-</code> prefix</span><a class="self-link" href="#sec-prefix"></a></h3>
+   <p>The <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-11"><code>Sec-Origin-Policy</code></a> header <code>Sec-</code> prefix ensures that it is treated
+as a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#forbidden-header-name">forbidden header name</a> by Fetch: developers have no direct control
+over the header’s value, and cannot forge the header by injecting it via APIs
+like <code>fetch()</code> or <code>XMLHttpRequest</code>. It remains under the control of the user
+agent.</p>
    <h2 class="heading settled" data-level="7" id="iana"><span class="secno">7. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
-   <h3 class="heading settled" data-level="7.1" id="iana-header"><span class="secno">7.1. </span><span class="content">The <code>Origin-Policy</code> header</span><a class="self-link" href="#iana-header"></a></h3>
+   <h3 class="heading settled" data-level="7.1" id="iana-header"><span class="secno">7.1. </span><span class="content">The <code>Sec-Origin-Policy</code> header</span><a class="self-link" href="#iana-header"></a></h3>
    <p>The permanent message header field registry should be updated
 with the following registration: <a data-link-type="biblio" href="#biblio-rfc3864">[RFC3864]</a></p>
    <dl>
     <dt data-md="">
      <p>Header field name</p>
     <dd data-md="">
-     <p><code>Origin-Policy</code></p>
+     <p><code>Sec-Origin-Policy</code></p>
     <dt data-md="">
      <p>Applicable protocol</p>
     <dd data-md="">
@@ -2319,7 +2328,7 @@ with the following registration: <a data-link-type="biblio" href="#biblio-rfc386
     <dt data-md="">
      <p>Specification document</p>
     <dd data-md="">
-     <p>This specification (see <a href="#origin-policy-header">§2.2 The Origin-Policy HTTP Header Field</a>)</p>
+     <p>This specification (see <a href="#origin-policy-header">§2.2 The Sec-Origin-Policy HTTP Header Field</a>)</p>
    </dl>
    <h3 class="heading settled" data-level="7.2" id="iana-well-known"><span class="secno">7.2. </span><span class="content">Creation of the well-known location <code>origin-policy</code></span><a class="self-link" href="#iana-well-known"></a></h3>
    <p>This document defines a well-known location at which <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-9">Origin Policy
@@ -2515,7 +2524,6 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <li><a href="#grammardef-manifest-name">manifest-name</a><span>, in §2.2</span>
    <li><a href="#dom-corsoptions-methods">methods</a><span>, in §2.3.3</span>
    <li><a href="#dom-httpheader-name">name</a><span>, in §2.3.2</span>
-   <li><a href="#origin-policy">Origin-Policy</a><span>, in §2.2</span>
    <li><a href="#origin-policy-manifest">Origin Policy Manifest</a><span>, in §2.3</span>
    <li><a href="#origin-policy-object">origin policy object</a><span>, in §2.1</span>
    <li><a href="#origin-policy-store">Origin Policy Store</a><span>, in §2.1</span>
@@ -2524,6 +2532,7 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <li><a href="#fetch-parse-response">Process response for Origin Policy.</a><span>, in §3.4.1</span>
    <li><a href="#retrieve-an-origin-policy-for-an-origin">retrieve an Origin Policy for an origin</a><span>, in §2.1</span>
    <li><a href="#version-for-origin">Retrieve origin’s manifest version.</a><span>, in §3</span>
+   <li><a href="#sec-origin-policy">Sec-Origin-Policy</a><span>, in §2.2</span>
    <li><a href="#dom-httpheader-type">type</a><span>, in §2.3.2</span>
    <li><a href="#unsafe-cors-preflight-with-credentials">unsafe-cors-preflight-with-credentials</a><span>, in §2.3.3</span>
    <li><a href="#dom-httpheader-value">value</a><span>, in §2.3.2</span>
@@ -2549,6 +2558,7 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode">credentials mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
+     <li><a href="https://fetch.spec.whatwg.org/#forbidden-header-name">forbidden header name</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-method">method</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a>
@@ -2700,10 +2710,10 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <div class="issue"> It may be a dangerous (or at least confusing) footgun to allow certain
 headers to be set on an origin (consider <code>Content-Type</code> or <code>Content-Length</code>,
 for instance). Perhaps it would be reasonable to limit the <a data-link-type="dfn" href="#headers"><code>headers</code></a> member to some whitelist of expected headers?<a href="#issue-a997f997"> ↵ </a></div>
-   <div class="issue"> WebIDL is almost certainly the wrong way to describe the way the <a data-link-type="dfn" href="#origin-policy"><code>Origin-Policy</code></a> header’s value is constructed. Still, it makes writing
-the spec quite a bit simpler, so. We’ll come up with something better
+   <div class="issue"> WebIDL is almost certainly the wrong way to describe the way the <a data-link-type="dfn" href="#sec-origin-policy"><code>Sec-Origin-Policy</code></a> header’s value is constructed. Still, it makes
+writing the spec quite a bit simpler, so. We’ll come up with something better
 later. Possibly as part of the JSON HTTP Header Field encoding work
-ongoing in the HTTP WG.<a href="#issue-35d576f3"> ↵ </a></div>
+ongoing in the HTTP WG.<a href="#issue-f1fa5121"> ↵ </a></div>
    <div class="issue"> Write this algorithm.<a href="#issue-7275c976"> ↵ </a></div>
    <div class="issue"> Should we allow service workers to intercept/set policy? Maybe only if they
   are scoped to the whole origin?<a href="#issue-43a867ce"> ↵ </a></div>
@@ -2760,18 +2770,19 @@ ongoing in the HTTP WG.<a href="#issue-35d576f3"> ↵ </a></div>
   Evict origin’s cached manifest. </a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="origin-policy">
-   <b><a href="#origin-policy">#origin-policy</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="sec-origin-policy">
+   <b><a href="#sec-origin-policy">#sec-origin-policy</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-origin-policy-1">1.1. Examples</a> <a href="#ref-for-origin-policy-2">(2)</a> <a href="#ref-for-origin-policy-3">(3)</a> <a href="#ref-for-origin-policy-4">(4)</a> <a href="#ref-for-origin-policy-5">(5)</a> <a href="#ref-for-origin-policy-6">(6)</a> <a href="#ref-for-origin-policy-7">(7)</a>
-    <li><a href="#ref-for-origin-policy-8">2.3.4. Syntax</a>
-    <li><a href="#ref-for-origin-policy-9">6.1. Tracking</a> <a href="#ref-for-origin-policy-10">(2)</a>
+    <li><a href="#ref-for-sec-origin-policy-1">1.1. Examples</a> <a href="#ref-for-sec-origin-policy-2">(2)</a> <a href="#ref-for-sec-origin-policy-3">(3)</a> <a href="#ref-for-sec-origin-policy-4">(4)</a> <a href="#ref-for-sec-origin-policy-5">(5)</a> <a href="#ref-for-sec-origin-policy-6">(6)</a> <a href="#ref-for-sec-origin-policy-7">(7)</a>
+    <li><a href="#ref-for-sec-origin-policy-8">2.3.4. Syntax</a>
+    <li><a href="#ref-for-sec-origin-policy-9">6.1. Tracking</a> <a href="#ref-for-sec-origin-policy-10">(2)</a>
+    <li><a href="#ref-for-sec-origin-policy-11">6.2. The Sec- prefix</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="grammardef-manifest-name">
    <b><a href="#grammardef-manifest-name">#grammardef-manifest-name</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-grammardef-manifest-name-1">2.2. The Origin-Policy HTTP Header Field</a>
+    <li><a href="#ref-for-grammardef-manifest-name-1">2.2. The Sec-Origin-Policy HTTP Header Field</a>
     <li><a href="#ref-for-grammardef-manifest-name-2">3.4.2. 
   Process response for Origin Policy. </a>
    </ul>

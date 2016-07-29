@@ -49,6 +49,7 @@ spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
     text: CORS-safelisted request-header
     text: Basic safe CORS protocol setup
     text: navigation request
+    text: forbidden header name
     text: header; url: concept-header
     for: header
       text: name; url: concept-header-name
@@ -165,7 +166,7 @@ applied to each of the pages on `https://example.com`, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they've really covered everything that lives on the origin.
 
-When they see a request come in that contains a <a>`Origin-Policy`</a>
+When they see a request come in that contains a <a>`Sec-Origin-Policy`</a>
 header, they can respond in kind, pointing the client to a manifest file
 in a well-known location on their server. That is, given the following
 request:
@@ -175,7 +176,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: 1
+<a>Sec-Origin-Policy</a>: 1
 ...
 </pre>
 
@@ -188,7 +189,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Origin-Policy</a>: "policy-1"
+<a>Sec-Origin-Policy</a>: "policy-1"
 ...
 </pre>
 
@@ -242,7 +243,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: "<strong>policy-1</strong>"
+<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
 
@@ -253,7 +254,7 @@ See [[#server-push]] for details.
 
 <div class="example">
 MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
-It can do so by setting an appropriate `Origin-Policy` header in the response.
+It can do so by setting an appropriate `Sec-Origin-Policy` header in the response.
 That is, given the following request:
 
 <pre>
@@ -261,7 +262,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Origin-Policy</a>: "<strong>policy-1</strong>"
+<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
 
@@ -274,7 +275,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Origin-Policy</a>: "policy-2"
+<a>Sec-Origin-Policy</a>: "policy-2"
 ...
 </pre>
 
@@ -285,7 +286,7 @@ the latter to the response.
 
 <div class="example">
 MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
-It can do so by setting an `Origin-Policy` header with a value of `0` in the
+It can do so by setting an `Sec-Origin-Policy` header with a value of `0` in the
 response:
 
 <pre>
@@ -295,7 +296,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Origin-Policy</a>: 0
+<a>Sec-Origin-Policy</a>: 0
 ...
 </pre>
 
@@ -333,10 +334,10 @@ When asked to <dfn algorithm local-lt="evict-policy-from-store">evict an Origin
 policy for an origin</dfn>, an <a>Origin Policy Store</a> will discard any
 <a>origin policy object</a> associated with the given origin.
 
-The `Origin-Policy` HTTP Header Field {#origin-policy-header}
+The `Sec-Origin-Policy` HTTP Header Field {#origin-policy-header}
 -----------------------------------------------------------------
 
-The <dfn export>`Origin-Policy`</dfn> HTTP request header field is sent with
+The <dfn export>`Sec-Origin-Policy`</dfn> HTTP request header field is sent with
 navigational HTTP requests in order to advertise support generally for the
 origin policy manifest mechanism defined in this document, and to inform
 the server which version of its origin policy is cached locally. Its value
@@ -348,7 +349,7 @@ value MUST be either `0` or a base64-encoded value, wrapped in double-quotes.
 The following ABNF defines that more formally:
 
 <pre class="abnf" dfn-type="grammar" link-type="grammar">
-  Origin-Policy: 0 / 1 / <a>manifest-name</a>
+  Sec-Origin-Policy: 0 / 1 / <a>manifest-name</a>
   <dfn>manifest-name</dfn>: <a>DQUOTE</a> <a>base64-value</a> <a>DQUOTE</a>
   ; base64-value is defined in [[!CSP3]]
   ; DQUOTE is defined in [[!RFC5234]]
@@ -584,8 +585,8 @@ defined set of requests.
 </pre>
 
 ISSUE: WebIDL is almost certainly the wrong way to describe the way the
-<a>`Origin-Policy`</a> header's value is constructed. Still, it makes writing
-the spec quite a bit simpler, so. We'll come up with something better
+<a>`Sec-Origin-Policy`</a> header's value is constructed. Still, it makes
+writing the spec quite a bit simpler, so. We'll come up with something better
 later. Possibly as part of the JSON HTTP Header Field encoding work
 ongoing in the HTTP WG.
 
@@ -642,17 +643,18 @@ Fetch Integration {#monkey-patching-fetch}
 During a navigation request, Fetch will hook into this specification in two ways:
 
 1.  At the top of the basic fetch algorithm, Fetch will call
-    [[#fetch-prepare-request]] in order to append `Origin-Policy` to the
+    [[#fetch-prepare-request]] in order to append `Sec-Origin-Policy` to the
     request's header list with a value of `1` if no manifest is cached for its
     URL's origin, or a value of the verion of the manifest that is cached  (e.g.
     `"policy-1"`).
 
 2.  When a response is received during HTTP-network fetch algorithm, Fetch will
     call into [[#fetch-parse-response]] to sift through its headers, and
-    extract the `Origin-Policy` header. If present, and its value does not match
-    the value of the locally cached manifest for the response's origin, we'll issue
-    a synchronous request for a resource located on the request's URL's origin at
-    `/.well-known/origin-policy/{value}`, as defined in [[#fetch-parse-response]].
+    extract the `Sec-Origin-Policy` header. If present, and its value does not
+    match the value of the locally cached manifest for the response's origin,
+    we'll issue a synchronous request for a resource located on the request's
+    URL's origin at `/.well-known/origin-policy/{value}`, as defined in
+    [[#fetch-parse-response]].
 
     The manifest request will fail in a draconian fashion: if
     [[#fetch-parse-response]] returns "`Failure`", the response to the request
@@ -687,7 +689,7 @@ client's active policy:
 
     Otherwise, let |version| be `1` (see [[#tracking]]).
 
-3.  Append a header named `Origin-Policy` with a value of |version| to
+3.  Append a header named `Sec-Origin-Policy` with a value of |version| to
     |request|'s header list.
 
 <h4 algorithm dfn id="fetch-parse-response">
@@ -697,17 +699,18 @@ client's active policy:
 Given a response (|response|), this algorithm will sift through its headers, and
 fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
 
-*  If no "`Origin-Policy`" header is present, this algorithm returns "`No-op`".
+*  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
+   "`No-op`".
 
-*  If an "`Origin-Policy`" header is present with a value of `0`, this
+*  If an "`Sec-Origin-Policy`" header is present with a value of `0`, this
    algorithm will evict the relevant manifest, and return "`Success`".
 
-*  If an "`Origin-Policy`" header is present with a non-`0` value, this
+*  If an "`Sec-Origin-Policy`" header is present with a non-`0` value, this
    algorithm will attempt to fetch the specified manifest. If successful,
    the manifest will be cached locally, and this algorithm will return
    "`Success`". If the fetch fails, this algorithm will return "`Failure`".
 
-1.  Let |version| be the result of parsing "`Origin-Policy`" in |response|'s
+1.  Let |version| be the result of parsing "`Sec-Origin-Policy`" in |response|'s
     header list.
 
 2.  Let |url| be a copy of |response|'s <a for="response">URL</a>.
@@ -905,7 +908,7 @@ flexibility of deployment and implementation if we allowed a developer to point
 to any location on an origin instead. Perhaps something like the following:
 
 ```
-  Origin-Policy: /path/to/manifest.json
+  Sec-Origin-Policy: /path/to/manifest.json
 ```
 
 This would allow developers who control an application, but not the server on
@@ -1026,7 +1029,7 @@ Privacy and Security Considerations {#privacy-and-security}
 Tracking {#tracking}
 --------
 
-We send an <a>`Origin-Policy`</a> header containing the currently cached
+We send an <a>`Sec-Origin-Policy`</a> header containing the currently cached
 manifest version up to the server along with every <a>navigation request</a>
 in order to reduce the performance impact of the synchronous request for
 the manifest. By informing the server which manifest the user has cached,
@@ -1034,7 +1037,7 @@ the server can make intelligent decisions about when to initiate a server
 push, thereby avoiding the blocking behavior, and extra round-trip for a
 cancellation.
 
-That said, the value of the <a>`Origin-Policy`</a> header (as well as the
+That said, the value of the <a>`Sec-Origin-Policy`</a> header (as well as the
 contents of the cached manifest), can be used to track users with only
 marginally less granularity and coverage than cookies allow. As such, the
 user agent MUST purge an origin's cached manifests whenever a user instructs
@@ -1043,17 +1046,26 @@ agent is configured to not attach cookies to a given request it MUST send `1`
 instead of the manifest version, advertising support for the feature, but not
 a particular cache entry.
 
+The `Sec-` prefix {#sec-prefix}
+-----------------
+
+The <a>`Sec-Origin-Policy`</a> header `Sec-` prefix ensures that it is treated
+as a <a>forbidden header name</a> by Fetch: developers have no direct control
+over the header's value, and cannot forge the header by injecting it via APIs
+like `fetch()` or `XMLHttpRequest`. It remains under the control of the user
+agent.
+
 IANA Considerations {#iana}
 ===================
 
-The `Origin-Policy` header {#iana-header}
+The `Sec-Origin-Policy` header {#iana-header}
 --------------------------
 
 The permanent message header field registry should be updated
 with the following registration: [[!RFC3864]]
 
 :   Header field name
-::  `Origin-Policy`
+::  `Sec-Origin-Policy`
 :   Applicable protocol
 ::  http
 :   Status

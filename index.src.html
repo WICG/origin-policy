@@ -18,16 +18,13 @@ Boilerplate: omit conformance, omit feedback-header
 <pre boilerplate="copyright">&copy;2016 Google, Inc.</pre>
 <pre class="link-defaults">
 spec:html; type:element; text:link
+spec:html; type:dfn; text:case-sensitive
+spec:html; type:dfn; text:ascii case-insensitive
 </pre>
 <pre class="anchors">
 spec: CSP3; urlPrefix: https://w3c.github.io/webappsec-csp/
   type: dfn
     text: Content Security Policy
-spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/
-  type: dfn
-    urlPrefix: browsers.html
-      text: origin; url: concept-origin
-      text: opaque origin; url: concept-opaque-origin
 spec: REFERRER-POLICY; urlPrefix: https://w3c.github.io/webappsec-referrer-policy/
   type: dfn
     text: referrer-policy; url: referrer-policy-header
@@ -45,11 +42,8 @@ spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
    -->
 spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
   type: dfn
-    text: CORS-preflight request
     text: ok status
     text: network error; url: concept-network-error
-    text: CORS-safelisted method
-    text: CORS-safelisted request-header
     text: Basic safe CORS protocol setup
     text: navigation request
     text: forbidden header name
@@ -205,7 +199,7 @@ according to the normal HTTP caching rules, and applied to pages on
 
 <pre>
 {
-  "<a>headers</a>": [
+  "<a idl>headers</a>": [
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
@@ -328,7 +322,7 @@ An <dfn>origin policy object</dfn> is a tuple of a string
 
 User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
 store that constitutes a 1:1 mapping between <a>origin policy objects</a> and
-<a for="">origins</a>.
+<a for="/">origins</a>.
 
 When asked to <dfn algorithm local-lt="get-policy-from-store">retrieve an Origin
 Policy for an origin</dfn>, an <a>Origin Policy Store</a> will return either a
@@ -372,7 +366,7 @@ members. Each member defines a specific aspect of an origin's policy.
 
 <pre class="example">
 {
-  "<a>headers</a>": [
+  "<a idl>headers</a>": [
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
@@ -537,7 +531,7 @@ defined set of requests.
 
   <pre>
   {
-    "<a>headers</a>": [
+    "<a idl>headers</a>": [
       {
         "<a for="HTTPHeader" idl>name</a>": "Access-Control-Allow-Origin",
         "<a for="HTTPHeader" idl>value</a>": "*",
@@ -889,15 +883,15 @@ It might make sense to combine this mechanism with the manifest notion
 defined in [[APPMANIFEST]]. There are a few distinctions, however, which
 lead to the current design:
 
-1.  The =Security Policy Manifest= is delivered synchronously during navigation,
-    which gives it a number of valuable security properties. The web app
-    manifest, on the other hand, is delivered inline via a <{link}> element,
-    which makes it less valuable from that perspective.
+1.  The [=Origin Policy Manifest=] is delivered synchronously during
+    navigation, which gives it a number of valuable security properties. The
+    web app manifest, on the other hand, is delivered inline via a <{link}>
+    element, which makes it less valuable from that perspective.
 
 2.  Web app manifests can live anywhere on an origin, and anywhere on any other
     origin, for that matter. This might make sense for the feature set it wishes
     to expose, but it would expose an origin to unnecessary risk to be quite so
-    loose with =security policy manifest= files.
+    loose with [=origin policy manifest=] files.
 
 Nevertheless, we should consider ways to merge this policy with [[APPMANIFEST]].
 Perhaps we could accept a certain set of attributes was parsed iff certain
@@ -1007,7 +1001,7 @@ That is, the manifest file might contain the following JSON:
 <pre>
 {
   ...
-  "<a>headers</a>": [
+  "<a idl>headers</a>": [
     {
       "<a idl>name</a>": "Content-Security-Policy",
       "<a idl>value</a>": "script-src 'none'",

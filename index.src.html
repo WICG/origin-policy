@@ -37,6 +37,9 @@ spec: RFC7540; urlPrefix: https://tools.ietf.org/html/rfc7540
 spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
   type: dfn
     text: Strict-Transport-Security; url: section-8.1
+spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
+  type: http-header
+    text: Vary; url: section-7.1.4
 <!--
    -   WHATWG
    -->
@@ -190,6 +193,7 @@ Cache-Control: max-age=604800
 Content-Type: text/html
 ...
 <a>Sec-Origin-Policy</a>: "policy-1"
+<a http-header>Vary</a>: sec-origin-policy
 ...
 </pre>
 
@@ -276,6 +280,7 @@ Cache-Control: max-age=604800
 Content-Type: text/html
 ...
 <a>Sec-Origin-Policy</a>: "policy-2"
+<a http-header>Vary</a>: sec-origin-policy
 ...
 </pre>
 
@@ -936,6 +941,15 @@ happen in order to deploy an Origin Policy safely.
 
 Authoring Considerations {#authoring}
 ========================
+
+Caching {#vary}
+-------
+
+Authors SHOULD set an appropriate <a http-header>`Vary`</a> header in order to
+ensure that responses are cached correctly based on the relevant origin
+manifest.
+
+ISSUE: Expand upon this.
 
 Headers To Set {#headers-to-set}
 --------------

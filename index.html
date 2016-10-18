@@ -414,6 +414,19 @@
 	 border-left: 0.5em solid #DEF;
 	}
 
+	/* Put nice boxes around each algorithm. */
+	[data-algorithm]:not(.heading) {
+	  padding: .5em;
+	  border: thin solid #ddd; border-radius: .5em;
+	  margin: .5em 0;
+	}
+	[data-algorithm]:not(.heading) > :first-child {
+	  margin-top: 0;
+	}
+	[data-algorithm]:not(.heading) > :last-child {
+	  margin-bottom: 0;
+	}
+
 	/* Style for switch/case <dl>s */
 	dl.switch > dd > ol.only,
 	dl.switch > dd > .only > ol {
@@ -1408,11 +1421,11 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-08-31">31 August 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-10-04">4 October 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
-     <dd><a class="u-url" href="https://mikewest.github.io/origin-policy/">https://mikewest.github.io/origin-policy/</a>
+     <dd><a class="u-url" href="https://WICG.github.io/origin-policy">https://WICG.github.io/origin-policy</a>
      <dt class="editor">Editor:
      <dd class="editor p-author h-card vcard" data-editor-id="56384"><a class="p-name fn u-email email" href="mailto:mkwst@google.com">Mike West</a> (<span class="p-org org">Google Inc.</span>)
      <dt>Participate:
@@ -1776,12 +1789,12 @@ resources which don’t themselves deliver the header.</p>
 each containing the following members:</p>
    <dl>
     <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-name">name</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#dom-USVString">USVString</a></span></p>
+     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-name">name</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span></p>
     <dd data-md="">
      <p>A string representing the header’s name: "<code>Content-Security-Policy</code>", for
   example. This member is required.</p>
     <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-value">value</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#dom-USVString">USVString</a></span></p>
+     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-value">value</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span></p>
     <dd data-md="">
      <p>A string representing the header’s value: "script-src 'none'", for example.
   This member is required.</p>
@@ -2160,7 +2173,7 @@ Bypass</code>" if the preflight is required:</p>
   any of <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-7">origins</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-3">methods</a></code>,
   or <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-6">headers</a></code> member’s values are "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-7">*</a></code>".</p>
       <li data-md="">
-       <p><var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-8">origins</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-8">*</a></code>", and the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">serialization</a> of <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-9">origins</a></code> sequence.</p>
+       <p><var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-8">origins</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-8">*</a></code>", and the <a data-link-type="dfn">serialization</a> of <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-9">origins</a></code> sequence.</p>
       <li data-md="">
        <p><var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> (<var>method</var>) is not a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-method">CORS-safelisted method</a>, and <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-4">methods</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-9">*</a></code>", and <var>method</var> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for
   any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-5">methods</a></code> sequence.</p>
@@ -2551,6 +2564,15 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <li>
     <a data-link-type="biblio">[CSP3]</a> defines the following terms:
     <ul>
+     <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic">'strict-dynamic'</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[CSP3]</a> defines the following terms:
+    <ul>
      <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a>
     </ul>
    <li>
@@ -2559,6 +2581,9 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">basic safe cors protocol setup</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
+     <li><a href="https://fetch.spec.whatwg.org/#cors-preflight-request">cors-preflight request</a>
+     <li><a href="https://fetch.spec.whatwg.org/#cors-safelisted-method">cors-safelisted method</a>
+     <li><a href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">cors-safelisted request-header</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode">credentials mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
@@ -2578,6 +2603,16 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-wait">wait</a>
      <li><a href="https://fetch.spec.whatwg.org/#x-content-type-options-header">x-content-type-options</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[HTML]</a> defines the following terms:
+    <ul>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#ascii-case-insensitive">ascii case-insensitive</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#meta">meta</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
     </ul>
    <li>
     <a data-link-type="biblio">[referrer-policy]</a> defines the following terms:
@@ -2611,45 +2646,16 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://url.spec.whatwg.org/#concept-url-path">path</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[CSP1]</a> defines the following terms:
-    <ul>
-     <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic">'strict-dynamic'</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a>
-    </ul>
-   <li>
-    <a data-link-type="biblio">[FETCH]</a> defines the following terms:
-    <ul>
-     <li><a href="https://fetch.spec.whatwg.org/#cors-preflight-request">cors-preflight request</a>
-     <li><a href="https://fetch.spec.whatwg.org/#cors-safelisted-method">cors-safelisted method</a>
-     <li><a href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">cors-safelisted request-header</a>
-    </ul>
-   <li>
-    <a data-link-type="biblio">[HTML]</a> defines the following terms:
-    <ul>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#ascii-case-insensitive">ascii case-insensitive</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#meta">meta</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">unicode serialisation of an origin</a>
-    </ul>
-   <li>
     <a data-link-type="biblio">[WebIDL-1]</a> defines the following terms:
     <ul>
-     <li><a href="https://heycam.github.io/webidl/#dom-USVString">USVString</a>
+     <li><a href="https://heycam.github.io/webidl/#idl-USVString">USVString</a>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
-   <dt id="biblio-csp1">[CSP1]
-   <dd>Brandon Sterne; Adam Barth. <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">Content Security Policy 1.0</a>. 19 February 2015. NOTE. URL: <a href="http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html">http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-1.0-specification.html</a>
    <dt id="biblio-csp3">[CSP3]
-   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. 18 August 2016. WD. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
+   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. 13 September 2016. WD. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
    <dt id="biblio-fetch">[FETCH]
    <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/">Fetch Standard</a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
@@ -2663,14 +2669,14 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <dt id="biblio-rfc7540">[RFC7540]
    <dd>M. Belshe; R. Peon; M. Thomson, Ed.. <a href="https://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>. May 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7540">https://tools.ietf.org/html/rfc7540</a>
    <dt id="biblio-webidl-1">[WebIDL-1]
-   <dd>Cameron McCormack; Boris Zbarsky. <a href="https://heycam.github.io/webidl/">WebIDL Level 1</a>. 8 March 2016. CR. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
+   <dd>Cameron McCormack; Boris Zbarsky. <a href="https://heycam.github.io/webidl/">WebIDL Level 1</a>. 15 September 2016. PR. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
    <dt id="biblio-whatwg-url">[WHATWG-URL]
    <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
   </dl>
   <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-appmanifest">[APPMANIFEST]
-   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. 25 August 2016. WD. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
+   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. 12 September 2016. WD. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
    <dt id="biblio-origin-wide-cors">[ORIGIN-WIDE-CORS]
    <dd>Takeshi Yoshino. <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">Origin-Wide CORS</a>. URL: <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">https://github.com/tyoshino/origin-wide-cors/blob/master/README.md</a>
    <dt id="biblio-referrer-policy">[REFERRER-POLICY]

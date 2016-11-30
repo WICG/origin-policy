@@ -158,10 +158,10 @@ Examples {#examples}
 --------------------
 
 <div class="example">
-MegaCorp, Inc. wishes to ensure that a baseline content security policy is
-applied to each of the pages on `https://example.com`, while avoiding the
-overhead associated with large response headers, and the uncertainty that
-they've really covered everything that lives on the origin.
+MegaCorp, Inc. wishes to ensure that a baseline policy is applied to each of
+the pages on `https://example.com`, while avoiding the overhead associated with
+large response headers, and the uncertainty that they've really covered
+everything that lives on the origin.
 
 When they see a request come in that contains a <a>`Sec-Origin-Policy`</a>
 header, they can respond in kind, pointing the client to a manifest file
@@ -199,33 +199,6 @@ according to the normal HTTP caching rules, and applied to pages on
 
 <pre>
 {
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a idl>type</a>": "<a idl>fallback</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Referrer-Policy</a>",
-      "<a idl>value</a>": "origin-when-cross-origin",
-      "<a idl>type</a>": "<a idl>fallback</a>"
-    }
-    {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
-      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
-      "<a idl>value</a>": "nosniff",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    }
-  ],
   "<a>cors-preflight</a>": {
     "<a for="CORSOptions" idl>origins</a>": "*"
   }
@@ -303,7 +276,7 @@ The client will process the header, and evict any origin policy for the
 response's origin.
 
 Note: The manifest itself will be removed, but some of the policies it set may
-still be effective. For example, if the <a>Strict-Transport-Security</a> header
+still be effective. For example, if <a>Strict-Transport-Security</a>
 was set, the `maxage` property it contained may still force TLS on any connection
 to the origin's host. Those kinds of behaviors will need to be cleared
 individually, as appropriate for the feature. For example, to remove HSTS, the
@@ -366,33 +339,6 @@ members. Each member defines a specific aspect of an origin's policy.
 
 <pre class="example">
 {
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a idl>type</a>": "<a idl>fallback</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Referrer-Policy</a>",
-      "<a idl>value</a>": "origin-when-cross-origin",
-      "<a idl>type</a>": "<a idl>fallback</a>"
-    }
-    {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
-      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
-      "<a idl>value</a>": "nosniff",
-      "<a idl>type</a>": "<a idl>baseline</a>"
-    }
-  ],
   "<a>cors-preflight</a>": {
     "<a for="CORSOptions" idl>origins</a>": "*"
   }
@@ -417,37 +363,6 @@ prefetch such manifest files for origins a user is likely to visit, testing
 services might give developers automated feedback on their origin's manifest,
 etc.
 
-### The `headers` member ### {#headers-member}
-
-The <dfn export>`headers`</dfn> member defines a set of HTTP response headers
-which will be automatically appended to resources delivered from the manifest's
-origin. The headers specified in this member's value are categorized either as
-<dfn>baseline headers</dfn> which appended to <em>every</em> resource served by
-the origin, or as <dfn>fallback headers</dfn> which are appended only to those
-resources which don't themselves deliver the header.
-
-The `headers` member's value MUST be a sequence of {{HTTPHeader}} dictionaries,
-each containing the following members:
-
-:   <dfn for="HTTPHeader" dict-member>name</dfn>
-::  A string representing the header's name: "`Content-Security-Policy`", for
-    example. This member is required.
-:   <dfn for="HTTPHeader" dict-member>value</dfn>
-::  A string representing the header's value: "script-src 'none'", for example.
-    This member is required.
-:   <dfn for="HTTPHeader" dict-member>type</dfn>
-::  Either "<dfn for="HTTPHeaderType" enum-value>`baseline`</dfn>" or
-    "<dfn for="HTTPHeaderType" enum-value>`fallback`</dfn>", designating this header as
-    either a <a>baseline header</a> or <a>fallback header</a> respectively. If
-    this member is not explicitly present, it defaults to "`baseline`".
-
-Members other than those specified here will be ignored, and will not cause
-parse failures.
-
-ISSUE: It may be a dangerous (or at least confusing) footgun to allow certain
-headers to be set on an origin (consider `Content-Type` or `Content-Length`,
-for instance). Perhaps it would be reasonable to limit the <a>`headers`</a>
-member to some whitelist of expected headers?
 
 ### The `cors-preflight` and `unsafe-cors-preflight-with-credentials` members ### {#cors-preflight-member}
 
@@ -524,52 +439,10 @@ defined set of requests.
   </pre>
 </div>
 
-<div class="example">
-  MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
-  the API endpoints on `https://open.example.com/` available for uncredentialed
-  requests from any origin. They can do so with the following manifest:
-
-  <pre>
-  {
-    "<a idl>headers</a>": [
-      {
-        "<a for="HTTPHeader" idl>name</a>": "Access-Control-Allow-Origin",
-        "<a for="HTTPHeader" idl>value</a>": "*",
-        "<a for="HTTPHeader" idl>type</a>": "<a enum-value>fallback</a>"
-      }
-    ],
-    "<a>cors-preflight</a>": {
-      "<a for="CORSOptions" idl>origins</a>": "*"
-    }
-  }
-  </pre>
-
-  As spelled out in [[#fetch-bypass-preflight]], this bypasses <a>CORS-preflight
-  requests</a> for uncredentialed requests from any origin. Further, it appends
-  an `Access-Control-Allow-Origin: *` header to each response that doesn't set
-  a custom value for that header.
-
-  Note: This doesn't allow anything more than the "<a>Basic safe CORS
-  protocol setup</a>", as `*` will not allow credentialed access to any resource
-  and the static manifest cannot be configured to echo the actual origin of the
-  requestor.
-</div>
 
 ### Syntax ### {#syntax}
 
 <pre class="idl">
-  //
-  // `header` member:
-  //
-  enum HTTPHeaderType { "baseline", "fallback" };
-
-  dictionary HTTPHeader {
-    required USVString name;
-    required USVString value;
-    HTTPHeaderType type = "baseline";
-  };
-
-
   //
   // `cors-preflight` and `unsafe-cors-preflight-with-credentials`
   //
@@ -793,35 +666,6 @@ Given a response (|response|), the following algorithm applies the relevant
 
 5.  Set |policy| to |object|'s <a for="origin policy object">body</a>.
 
-6.  For each member (|member|) in |policy|, execute the steps associated with
-    the matching statement below:
-
-    :   <a>`headers`</a>
-    ::  1.  If |member|'s value is not valid as defined in [[#headers-member]],
-            abort these steps and return.
-
-            ISSUE: Is there a better way to define validity? JSON schema?
-
-        2.  Let |headers| be an empty list.
-
-        3.  For each |header| in |member|'s value:
-
-            1.  Let |name| be |header|'s {{HTTPHeader/name}}, and |value| be
-                |header|'s {{HTTPHeader/value}}.
-
-            2.  If |header|'s {{HTTPHeader/type}} is "`fallback`", and the
-                result of <a for="header list">parsing</a> |name| in
-                |response|'s <a for="response">header list</a> is not `null`,
-                skip the remaining substep, and proceed to the next |header|.
-
-                Note: We check the header's presence <em>before</em> applying
-                <a>baseline headers</a> to |response|.
-
-            3.  Append |header|'s value to |headers|.
-
-        Note: Once a policy is cached for an origin, the headers it applies
-        will never change. User agents are encouraged to implement more
-        performant algorithms making use of this invariant.
 
 <h4 algorithm dfn id="fetch-bypass-preflight">
   Does Origin Policy bypass |request|'s CORS-preflight request?
@@ -920,9 +764,9 @@ So why does this document force a well-known location?
 In short, this document posits that setting a policy for an origin is an action
 that should, in fact, involve the folks responsible for running the origin's
 server, as it has cross-cutting effects upon <em>every</em> application hosted
-on an origin. Unlike a response-specific `Content-Security-Policy` header, the
-<a>`headers`</a> member can apply a baseline policy to <em>all</em> the responses
-an origin emits. This can be hugely benificial, but also hugely destructive.
+on an origin. Unlike a response-specific header, the well-known location can
+apply a baseline policy to <em>all</em> the responses an origin emits. This can
+be hugely benificial, but also hugely destructive.
 
 Consider, for example, MegaCorp, Inc.'s `https://example.com`, which
 hosts a mail application, a mapping application, a document editing application,
@@ -978,58 +822,6 @@ manifest down to the client as quickly as possible.
 
 ISSUE: Spell this out with an example.
 
-CSP: Nonces and `'strict-dynamic'` {#strict-dynamic}
-----------------------------------
-
-Content Security Policy has introduced some dynamic mechanisms that are quite
-valuable in terms of encouraging deployment. Nonces, along with the
-<a grammar>`'strict-dynamic'`</a> expression are a good example of an
-implementation which requires a server to send a fresh value down with each
-response. Origin Policy can support such deployments via the "`fallback`"
-mechanism as follows:
-
-<div class="example">
-MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
-plugins and framing altogether, but which uses `'strict-dynamic'` along with a
-fresh nonce for each resource in order to reduce the risk of cross-site
-scripting. It can do so by combining a "`baseline`" and "`fallback`" policy in
-the <a>Origin Policy Manifest</a>, and delivering a `Content-Security-Policy`
-header along with each response.
-
-That is, the manifest file might contain the following JSON:
-
-<pre>
-{
-  ...
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "Content-Security-Policy",
-      "<a idl>value</a>": "script-src 'none'",
-      "<a idl>type</a>": "fallback"
-    },
-    {
-      "<a idl>name</a>": "Content-Security-Policy",
-      "<a idl>value</a>": "object-src 'none'; frame-ancestors 'self'",
-      "<a idl>type</a>": "baseline"
-    }
-  },
-  ...
-}
-</pre>
-
-And each resource's response might contain the following header:
-
-<pre>
-  <a>Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
-</pre>
-
-The baseline policy will be applied to every response, blocking plugins and
-restricting framing regardless of the response's other headers.
-
-The fallback policy will be applied iff the response doesn't itself provide a
-Content Security Policy, meaning that the resource's policy will be applied,
-the nonce will be active, and script will execute as expected.
-</div>
 
 Privacy and Security Considerations {#privacy-and-security}
 ===================================

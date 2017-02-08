@@ -418,7 +418,7 @@
 	[data-algorithm]:not(.heading) {
 	  padding: .5em;
 	  border: thin solid #ddd; border-radius: .5em;
-	  margin: .5em 0;
+	  margin: .5em calc(-0.5em - 1px);
 	}
 	[data-algorithm]:not(.heading) > :first-child {
 	  margin-top: 0;
@@ -968,6 +968,8 @@ Possible extra rowspan handling
 		/* Reverse color scheme */
 		color: black;
 		border-color: #3980B5;
+		border-bottom-width: 3px !important;
+		margin-bottom: 0px !important;
 	}
 	.toc a:visited {
 		border-color: #054572;
@@ -1174,7 +1176,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed 1.0.0" name="generator">
+  <meta content="Bikeshed version 7d5b85d5220bc9cd2c3f6f91ad51efdd41a94cd6" name="generator">
 <style>/* style-md-lists */
 
             /* This is a weird hack for me not yet following the commonmark spec
@@ -1421,7 +1423,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2016-10-04">4 October 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2017-02-08">8 February 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1580,8 +1582,8 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-0bdc5abc">
-    <a class="self-link" href="#example-0bdc5abc"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-0b078043">
+    <a class="self-link" href="#example-0b078043"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1612,7 +1614,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
 <pre>{
   "<a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-1">headers</a>": [
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-1">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-1">name</a>": "<a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-1">value</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a> 'self' https://cdn.example.com",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-1">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-1">fallback</a>"
     },
@@ -1622,7 +1624,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-2">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-2">fallback</a>"
     }
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-3">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-3">name</a>": "<a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-3">value</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a> 'none'; <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a> 'none'",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-3">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-1">baseline</a>"
     },
@@ -1651,7 +1653,7 @@ Connection: keep-alive
 <a data-link-type="dfn" href="#sec-origin-policy" id="ref-for-sec-origin-policy-4">Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
 ...
 </pre>
-    <p class="note" role="note">Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
+    <p class="note" role="note"><span>Note:</span> MegaCorp, Inc. can signficantly speed up this interaction by proactively
 pushing the current manifest down to the client along with the initial response.
 See <a href="#server-push">§5.4 Server Push</a> for details.</p>
    </div>
@@ -1681,8 +1683,8 @@ Content-Type: text/html
 in the previous example with the newly specified <code>policy-2</code> manifest, and apply
 the latter to the response.</p>
    </div>
-   <div class="example" id="example-5ceeafd8">
-    <a class="self-link" href="#example-5ceeafd8"></a> MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
+   <div class="example" id="example-cde10f2a">
+    <a class="self-link" href="#example-cde10f2a"></a> MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
 It can do so by setting an <code>Sec-Origin-Policy</code> header with a value of <code>0</code> in the
 response: 
 <pre>HTTP/1.1 200 OK
@@ -1696,7 +1698,7 @@ Content-Type: text/html
 </pre>
     <p>The client will process the header, and evict any origin policy for the
 response’s origin.</p>
-    <p class="note" role="note">Note: The manifest itself will be removed, but some of the policies it set may
+    <p class="note" role="note"><span>Note:</span> The manifest itself will be removed, but some of the policies it set may
 still be effective. For example, if the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc6797#section-8.1">Strict-Transport-Security</a> header
 was set, the <code>maxage</code> property it contained may still force TLS on any connection
 to the origin’s host. Those kinds of behaviors will need to be cleared
@@ -1735,10 +1737,10 @@ The following ABNF defines that more formally:</p>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin’s policy.</p>
-<pre class="example" id="example-2f9e3d12"><a class="self-link" href="#example-2f9e3d12"></a>{
+<pre class="example" id="example-ddde92ff"><a class="self-link" href="#example-ddde92ff"></a>{
   "<a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-2">headers</a>": [
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-6">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-6">name</a>": "<a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-6">value</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a> 'self' https://cdn.example.com",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-6">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-3">fallback</a>"
     },
@@ -1748,7 +1750,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-7">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-4">fallback</a>"
     }
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-8">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-8">name</a>": "<a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-8">value</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a> 'none'; <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a> 'none'",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-8">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-4">baseline</a>"
     },
@@ -1775,7 +1777,7 @@ Their names MUST be strings of characters matching the <a data-link-type="gramma
    <p>Servers MUST respond to a <code>GET</code> request to <code>/.well-known/origin-policy</code> with a
 302 redirect whose <code>Location</code> header points to the origin’s current <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-5">Origin
 Policy Manifest</a>, or with a 404 response if no such policy is available.</p>
-   <p class="note" role="note">Note: This redirect can be used as a discovery mechanism. User agents might
+   <p class="note" role="note"><span>Note:</span> This redirect can be used as a discovery mechanism. User agents might
 prefetch such manifest files for origins a user is likely to visit, testing
 services might give developers automated feedback on their origin’s manifest,
 etc.</p>
@@ -1844,7 +1846,7 @@ members:</p>
      <p>If this is a member of <a data-link-type="dfn" href="#unsafe-cors-preflight-with-credentials" id="ref-for-unsafe-cors-preflight-with-credentials-3"><code>unsafe-cors-preflight-with-credentials</code></a>, then
   its value MUST not be "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-5">*</a></code>".</p>
    </dl>
-   <p class="note" role="note">Note: This member does <em>not</em> set CORS headers for responses in general;
+   <p class="note" role="note"><span>Note:</span> This member does <em>not</em> set CORS headers for responses in general;
 it only allows the user agent to skip the <code>OPTIONS</code> preflight request for a
 defined set of requests.</p>
    <h5 class="heading settled" data-level="2.3.3.1" id="cors-examples"><span class="secno">2.3.3.1. </span><span class="content">Examples</span><a class="self-link" href="#cors-examples"></a></h5>
@@ -1874,8 +1876,8 @@ defined set of requests.</p>
 }
 </pre>
    </div>
-   <div class="example" id="example-4c9733eb">
-    <a class="self-link" href="#example-4c9733eb"></a> MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
+   <div class="example" id="example-9cd0fe89">
+    <a class="self-link" href="#example-9cd0fe89"></a> MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
   the API endpoints on <code>https://open.example.com/</code> available for uncredentialed
   requests from any origin. They can do so with the following manifest: 
 <pre>{
@@ -1895,7 +1897,7 @@ defined set of requests.</p>
   requests</a> for uncredentialed requests from any origin. Further, it appends
   an <code>Access-Control-Allow-Origin: *</code> header to each response that doesn’t set
   a custom value for that header.</p>
-    <p class="note" role="note">Note: This doesn’t allow anything more than the "<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic safe CORS
+    <p class="note" role="note"><span>Note:</span> This doesn’t allow anything more than the "<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic safe CORS
   protocol setup</a>", as <code>*</code> will not allow credentialed access to any resource
   and the static manifest cannot be configured to echo the actual origin of the
   requestor.</p>
@@ -2127,8 +2129,6 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
          <p class="issue" id="issue-d22f5cea"><a class="self-link" href="#issue-d22f5cea"></a> Is there a better way to define validity? JSON schema?</p>
          <ol start="2">
           <li data-md="">
-           <p>Let <var>headers</var> be an empty list.</p>
-          <li data-md="">
            <p>For each <var>header</var> in <var>member</var>’s value:</p>
            <ol>
             <li data-md="">
@@ -2137,12 +2137,12 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
              <p>If <var>header</var>’s <code class="idl"><a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-13">type</a></code> is "<code>fallback</code>", and the
   result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> <var>name</var> in <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> is not <code>null</code>,
   skip the remaining substep, and proceed to the next <var>header</var>.</p>
-             <p class="note" role="note">Note: We check the header’s presence <em>before</em> applying <a data-link-type="dfn" href="#baseline-headers" id="ref-for-baseline-headers-2">baseline headers</a> to <var>response</var>.</p>
+             <p class="note" role="note"><span>Note:</span> We check the header’s presence <em>before</em> applying <a data-link-type="dfn" href="#baseline-headers" id="ref-for-baseline-headers-2">baseline headers</a> to <var>response</var>.</p>
             <li data-md="">
-             <p>Append <var>header</var>’s value to <var>headers</var>.</p>
+             <p>Append <var>name</var>/<var>value</var> to <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
            </ol>
          </ol>
-         <p class="note" role="note">Note: Once a policy is cached for an origin, the headers it applies
+         <p class="note" role="note"><span>Note:</span> Once a policy is cached for an origin, the headers it applies
 will never change. User agents are encouraged to implement more
 performant algorithms making use of this invariant.</p>
        </ol>
@@ -2270,8 +2270,8 @@ valuable in terms of encouraging deployment. Nonces, along with the <a data-link
 implementation which requires a server to send a fresh value down with each
 response. Origin Policy can support such deployments via the "<code>fallback</code>"
 mechanism as follows:</p>
-   <div class="example" id="example-19708f07">
-    <a class="self-link" href="#example-19708f07"></a> MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
+   <div class="example" id="example-37dab83c">
+    <a class="self-link" href="#example-37dab83c"></a> MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
 plugins and framing altogether, but which uses <code>'strict-dynamic'</code> along with a
 fresh nonce for each resource in order to reduce the risk of cross-site
 scripting. It can do so by combining a "<code>baseline</code>" and "<code>fallback</code>" policy in
@@ -2295,7 +2295,7 @@ the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-po
 }
 </pre>
     <p>And each resource’s response might contain the following header:</p>
-<pre><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
+<pre><a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
 </pre>
     <p>The baseline policy will be applied to every response, blocking plugins and
 restricting framing regardless of the response’s other headers.</p>
@@ -2565,7 +2565,7 @@ helped ensure that the CORS-request preflight bits were sane.</p>
     <a data-link-type="biblio">[CSP3]</a> defines the following terms:
     <ul>
      <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic">'strict-dynamic'</a>
-     <li><a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">content-security-policy</a>
+     <li><a href="https://www.w3.org/TR/CSP3/#header-content-security-policy">content-security-policy</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a>
@@ -2588,7 +2588,8 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
      <li><a href="https://fetch.spec.whatwg.org/#forbidden-header-name">forbidden header name</a>
-     <li><a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list <small>(for request)</small></a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list <small>(for response)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-method">method</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-name">name</a>
@@ -2600,7 +2601,8 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
-     <li><a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-url">url <small>(for request)</small></a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-response-url">url <small>(for response)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-wait">wait</a>
      <li><a href="https://fetch.spec.whatwg.org/#x-content-type-options-header">x-content-type-options</a>
     </ul>
@@ -2646,7 +2648,7 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://url.spec.whatwg.org/#concept-url-path">path</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[WebIDL-1]</a> defines the following terms:
+    <a data-link-type="biblio">[WebIDL]</a> defines the following terms:
     <ul>
      <li><a href="https://heycam.github.io/webidl/#idl-USVString">USVString</a>
     </ul>
@@ -2655,11 +2657,11 @@ helped ensure that the CORS-request preflight bits were sane.</p>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-csp3">[CSP3]
-   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. 13 September 2016. WD. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
+   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
    <dt id="biblio-fetch">[FETCH]
    <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/">Fetch Standard</a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
-   <dd>Ian Hickson. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-rfc3864">[RFC3864]
    <dd>G. Klyne; M. Nottingham; J. Mogul. <a href="https://tools.ietf.org/html/rfc3864">Registration Procedures for Message Header Fields</a>. September 2004. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc3864">https://tools.ietf.org/html/rfc3864</a>
    <dt id="biblio-rfc5234">[RFC5234]
@@ -2668,19 +2670,19 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://tools.ietf.org/html/rfc7231">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>. June 2014. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7231">https://tools.ietf.org/html/rfc7231</a>
    <dt id="biblio-rfc7540">[RFC7540]
    <dd>M. Belshe; R. Peon; M. Thomson, Ed.. <a href="https://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>. May 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7540">https://tools.ietf.org/html/rfc7540</a>
-   <dt id="biblio-webidl-1">[WebIDL-1]
-   <dd>Cameron McCormack; Boris Zbarsky. <a href="https://heycam.github.io/webidl/">WebIDL Level 1</a>. 15 September 2016. PR. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
+   <dt id="biblio-webidl">[WebIDL]
+   <dd>Cameron McCormack; Boris Zbarsky; Tobie Langel. <a href="https://heycam.github.io/webidl/">Web IDL</a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
    <dt id="biblio-whatwg-url">[WHATWG-URL]
    <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
   </dl>
   <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-appmanifest">[APPMANIFEST]
-   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. 12 September 2016. WD. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
+   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
    <dt id="biblio-origin-wide-cors">[ORIGIN-WIDE-CORS]
    <dd>Takeshi Yoshino. <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">Origin-Wide CORS</a>. URL: <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">https://github.com/tyoshino/origin-wide-cors/blob/master/README.md</a>
    <dt id="biblio-referrer-policy">[REFERRER-POLICY]
-   <dd>Jochen Eisinger; Mike West. <a href="https://w3c.github.io/webappsec/specs/referrer-policy/">Referrer Policy</a>. 1 June 2016. WD. URL: <a href="https://w3c.github.io/webappsec/specs/referrer-policy/">https://w3c.github.io/webappsec/specs/referrer-policy/</a>
+   <dd>Jochen Eisinger; Emily Stark. <a href="https://w3c.github.io/webappsec-referrer-policy/">Referrer Policy</a>. URL: <a href="https://w3c.github.io/webappsec-referrer-policy/">https://w3c.github.io/webappsec-referrer-policy/</a>
    <dt id="biblio-rfc5758">[RFC5758]
    <dd>Q. Dang; et al. <a href="https://tools.ietf.org/html/rfc5758">Internet X.509 Public Key Infrastructure: Additional Algorithms and Identifiers for DSA and ECDSA</a>. January 2010. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc5758">https://tools.ietf.org/html/rfc5758</a>
    <dt id="biblio-rfc5785">[RFC5785]

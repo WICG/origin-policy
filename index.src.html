@@ -203,27 +203,27 @@ according to the normal HTTP caching rules, and applied to pages on
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a idl>type</a>": "<a idl>fallback</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     },
     {
       "<a idl>name</a>": "<a>Referrer-Policy</a>",
       "<a idl>value</a>": "origin-when-cross-origin",
-      "<a idl>type</a>": "<a idl>fallback</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     }
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
       "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
       "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
       "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
       "<a idl>value</a>": "nosniff",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     }
   ],
   "<a>cors-preflight</a>": {
@@ -370,27 +370,27 @@ members. Each member defines a specific aspect of an origin's policy.
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a idl>type</a>": "<a idl>fallback</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     },
     {
       "<a idl>name</a>": "<a>Referrer-Policy</a>",
       "<a idl>value</a>": "origin-when-cross-origin",
-      "<a idl>type</a>": "<a idl>fallback</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     }
     {
       "<a idl>name</a>": "<a>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
       "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
       "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
       "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
       "<a idl>value</a>": "nosniff",
-      "<a idl>type</a>": "<a idl>baseline</a>"
+      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     }
   ],
   "<a>cors-preflight</a>": {
@@ -802,9 +802,7 @@ Given a response (|response|), the following algorithm applies the relevant
 
             ISSUE: Is there a better way to define validity? JSON schema?
 
-        2.  Let |headers| be an empty list.
-
-        3.  For each |header| in |member|'s value:
+        2.  For each |header| in |member|'s value:
 
             1.  Let |name| be |header|'s {{HTTPHeader/name}}, and |value| be
                 |header|'s {{HTTPHeader/value}}.
@@ -817,7 +815,7 @@ Given a response (|response|), the following algorithm applies the relevant
                 Note: We check the header's presence <em>before</em> applying
                 <a>baseline headers</a> to |response|.
 
-            3.  Append |header|'s value to |headers|.
+            3.  Append |name|/|value| to |response|'s <a for="response">header list</a>.
 
         Note: Once a policy is cached for an origin, the headers it applies
         will never change. User agents are encouraged to implement more
@@ -1005,12 +1003,12 @@ That is, the manifest file might contain the following JSON:
     {
       "<a idl>name</a>": "Content-Security-Policy",
       "<a idl>value</a>": "script-src 'none'",
-      "<a idl>type</a>": "fallback"
+      "<a for="HTTPHeader" idl>type</a>": "fallback"
     },
     {
       "<a idl>name</a>": "Content-Security-Policy",
       "<a idl>value</a>": "object-src 'none'; frame-ancestors 'self'",
-      "<a idl>type</a>": "baseline"
+      "<a for="HTTPHeader" idl>type</a>": "baseline"
     }
   },
   ...

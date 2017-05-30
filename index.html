@@ -1176,7 +1176,8 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version 7d5b85d5220bc9cd2c3f6f91ad51efdd41a94cd6" name="generator">
+  <meta content="Bikeshed version 34209db86579ed3f0e75afb470f2788a2646155f" name="generator">
+  <link href="https://WICG.github.io/origin-policy" rel="canonical">
 <style>/* style-md-lists */
 
             /* This is a weird hack for me not yet following the commonmark spec
@@ -1423,7 +1424,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">A Collection of Interesting Ideas, <time class="dt-updated" datetime="2017-02-08">8 February 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2017-05-30">30 May 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1435,16 +1436,28 @@ pre.idl.highlight { color: #708090; }
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright">©2016 Google, Inc.</p>
+   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2017 the Contributors to the Origin Policy Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
    <hr title="Separator for header">
   </div>
-  <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
   <div class="p-summary" data-fill-with="abstract">
+   <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
    <p>This specification defines a delivery mechanism for a number of policies
 
 which are to be applied to an entire origin. It compliments header-based
 delivery mechanisms for existing policies (Content Security Policy,
 Referrer Policy, etc).</p>
+  </div>
+  <div data-fill-with="at-risk"></div>
+  <h2 class="no-num no-toc no-ref heading settled" id="status"><span class="content">Status of this document</span></h2>
+  <div data-fill-with="status">
+   <p> This specification was published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a>.
+  It is not a W3C Standard nor is it on the W3C Standards Track.
+
+  Please note that under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a> there is a limited opt-out and other conditions apply.
+
+  Learn more about <a href="http://www.w3.org/community/">W3C Community and Business Groups</a>. </p>
+   <p></p>
   </div>
   <div data-fill-with="at-risk"></div>
   <nav data-fill-with="table-of-contents" id="toc">
@@ -1582,8 +1595,8 @@ server can speed things up even more by using HTTP/2 Server Push (<a data-link-t
 section 8.2) to proactively send the manifest file along with the response to
 the user agent’s first request.</p>
    <h3 class="heading settled" data-level="1.1" id="examples"><span class="secno">1.1. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h3>
-   <div class="example" id="example-0b078043">
-    <a class="self-link" href="#example-0b078043"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
+   <div class="example" id="example-3ba29c81">
+    <a class="self-link" href="#example-3ba29c81"></a> MegaCorp, Inc. wishes to ensure that a baseline content security policy is
 applied to each of the pages on <code>https://example.com</code>, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they’ve really covered everything that lives on the origin. 
@@ -1619,7 +1632,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-1">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-1">fallback</a>"
     },
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-2">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header">Referrer-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-2">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header-dfn">Referrer-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-2">value</a>": "origin-when-cross-origin",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-2">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-2">fallback</a>"
     }
@@ -1634,7 +1647,7 @@ according to the normal HTTP caching rules, and applied to pages on <code>https:
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-4">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-2">baseline</a>"
     },
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-5">name</a>": "<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#x-content-type-options-header">X-Content-Type-Options</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-5">name</a>": "<a data-link-type="http-header" href="https://fetch.spec.whatwg.org/#http-x-content-type-options">X-Content-Type-Options</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-5">value</a>": "nosniff",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-5">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-3">baseline</a>"
     }
@@ -1711,11 +1724,15 @@ server could send <code>Strict-Transport-Security: maxage=0</code>.</p>
 (<dfn data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-version">version<a class="self-link" href="#origin-policy-object-version"></a></dfn>), and the contents of an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-2">origin policy manifest</a> (<dfn class="dfn-paneled" data-dfn-for="origin policy object" data-dfn-type="dfn" data-noexport="" id="origin-policy-object-body">body</dfn>).</p>
    <p>User agents have a <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="origin-policy-store">Origin Policy Store</dfn>, which is a key/value
 store that constitutes a 1:1 mapping between <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-1">origin policy objects</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origins</a>.</p>
-   <p>When asked to <dfn class="dfn-paneled algorithm" data-algorithm="retrieve an Origin Policy for an origin" data-dfn-type="dfn" data-local-lt="get-policy-from-store" data-lt="retrieve an Origin Policy for an origin" data-noexport="" id="retrieve-an-origin-policy-for-an-origin">retrieve an Origin
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="abstract-op" data-export="" data-local-lt="get-policy-from-store" data-lt="retrieve an Origin Policy for an origin" id="abstract-opdef-retrieve-an-origin-policy-for-an-origin">retrieve an Origin
 Policy for an origin</dfn>, an <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-1">Origin Policy Store</a> will return either a
 single <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-2">origin policy object</a> (if one is stored for the given origin), or <code>null</code> (if nothing is stored for the given origin).</p>
-   <p>When asked to <dfn class="dfn-paneled algorithm" data-algorithm="evict an Origin policy for an origin" data-dfn-type="dfn" data-local-lt="evict-policy-from-store" data-lt="evict an Origin policy for an origin" data-noexport="" id="evict-an-origin-policy-for-an-origin">evict an Origin
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="abstract-op" data-export="" data-local-lt="evict-policy-from-store" data-lt="evict an Origin policy for an origin" id="abstract-opdef-evict-an-origin-policy-for-an-origin">evict an Origin
 policy for an origin</dfn>, an <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-2">Origin Policy Store</a> will discard any <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-3">origin policy object</a> associated with the given origin.</p>
+   <p>This document uses ABNF grammar to specify syntax, as defined in <a data-link-type="biblio" href="#biblio-rfc5234">[RFC5234]</a>. It also relies on
+the <code>#rule</code> ABNF extension defined in <a href="https://tools.ietf.org/html/rfc7230#section-7">Section 7</a> of <a data-link-type="biblio" href="#biblio-rfc7230">[RFC7230]</a>.</p>
+   <p>This document depends on the Infra Standard for a number of foundational concepts used in its
+algorithms and prose <a data-link-type="biblio" href="#biblio-infra">[INFRA]</a>.</p>
    <h3 class="heading settled" data-level="2.2" id="origin-policy-header"><span class="secno">2.2. </span><span class="content">The <code>Sec-Origin-Policy</code> HTTP Header Field</span><a class="self-link" href="#origin-policy-header"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="sec-origin-policy"><code>Sec-Origin-Policy</code></dfn> HTTP request header field is sent with
 navigational HTTP requests in order to advertise support generally for the
@@ -1731,13 +1748,13 @@ The following ABNF defines that more formally:</p>
 ; base64-value is defined in [[!CSP3]]
 ; DQUOTE is defined in [[!RFC5234]]
 </pre>
-   <p>This header MUST be ignored if <a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns
+   <p>This header MUST be ignored if <a href="https://www.w3.org/TR/secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns
 "<code>Not Trustworthy</code>" when executed upon the response’s URL.</p>
    <h3 class="heading settled" data-level="2.3" id="manifest-file"><span class="secno">2.3. </span><span class="content">The Origin Policy Manifest File</span><a class="self-link" href="#manifest-file"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin’s policy.</p>
-<pre class="example" id="example-ddde92ff"><a class="self-link" href="#example-ddde92ff"></a>{
+<pre class="example" id="example-9e90ebe2"><a class="self-link" href="#example-9e90ebe2"></a>{
   "<a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-2">headers</a>": [
     {
       "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-6">name</a>": "<a data-link-type="dfn" href="https://www.w3.org/TR/CSP3/#header-content-security-policy">Content-Security-Policy</a>",
@@ -1745,7 +1762,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-6">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-3">fallback</a>"
     },
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-7">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header">Referrer-Policy</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-7">name</a>": "<a data-link-type="dfn" href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header-dfn">Referrer-Policy</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-7">value</a>": "origin-when-cross-origin",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-7">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-4">fallback</a>"
     }
@@ -1760,7 +1777,7 @@ members. Each member defines a specific aspect of an origin’s policy.</p>
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-9">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-5">baseline</a>"
     },
     {
-      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-10">name</a>": "<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#x-content-type-options-header">X-Content-Type-Options</a>",
+      "<a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-10">name</a>": "<a data-link-type="http-header" href="https://fetch.spec.whatwg.org/#http-x-content-type-options">X-Content-Type-Options</a>",
       "<a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-10">value</a>": "nosniff",
       "<a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-10">type</a>": "<a data-link-type="idl" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-6">baseline</a>"
     }
@@ -1790,21 +1807,18 @@ resources which don’t themselves deliver the header.</p>
    <p>The <code>headers</code> member’s value MUST be a sequence of <code class="idl"><a data-link-type="idl" href="#dictdef-httpheader" id="ref-for-dictdef-httpheader-1">HTTPHeader</a></code> dictionaries,
 each containing the following members:</p>
    <dl>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-name">name</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-name"><code>name</code></dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span>
     <dd data-md="">
      <p>A string representing the header’s name: "<code>Content-Security-Policy</code>", for
   example. This member is required.</p>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-value">value</dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-value"><code>value</code></dfn>, <span> of type <a data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></span>
     <dd data-md="">
      <p>A string representing the header’s value: "script-src 'none'", for example.
   This member is required.</p>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-type">type</dfn>, <span> of type <a data-link-type="idl-name" href="#enumdef-httpheadertype" id="ref-for-enumdef-httpheadertype-1">HTTPHeaderType</a>, defaulting to <code>"baseline"</code></span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeader" data-dfn-type="dict-member" data-export="" id="dom-httpheader-type"><code>type</code></dfn>, <span> of type <a data-link-type="idl-name" href="#enumdef-httpheadertype" id="ref-for-enumdef-httpheadertype-1">HTTPHeaderType</a>, defaulting to <code>"baseline"</code></span>
     <dd data-md="">
-     <p>Either "<dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeaderType" data-dfn-type="enum-value" data-export="" id="dom-httpheadertype-baseline"><code>baseline</code></dfn>" or
-  "<dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeaderType" data-dfn-type="enum-value" data-export="" id="dom-httpheadertype-fallback"><code>fallback</code></dfn>", designating this header as
+     <p>Either "<dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeaderType" data-dfn-type="enum-value" data-export="" id="dom-httpheadertype-baseline"><code><code>baseline</code></code></dfn>" or
+  "<dfn class="dfn-paneled idl-code" data-dfn-for="HTTPHeaderType" data-dfn-type="enum-value" data-export="" id="dom-httpheadertype-fallback"><code><code>fallback</code></code></dfn>", designating this header as
   either a <a data-link-type="dfn" href="#baseline-headers" id="ref-for-baseline-headers-1">baseline header</a> or <a data-link-type="dfn" href="#fallback-headers" id="ref-for-fallback-headers-1">fallback header</a> respectively. If
   this member is not explicitly present, it defaults to "<code>baseline</code>".</p>
    </dl>
@@ -1821,24 +1835,21 @@ governs uncredentialed requests, the latter credentialed.</p>
    <p>Both members values MUST be a <code class="idl"><a data-link-type="idl" href="#dictdef-corsoptions" id="ref-for-dictdef-corsoptions-1">CORSOptions</a></code> dictionary, with the following
 members:</p>
    <dl>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-origins">origins</dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-1">CORSOptionList</a></span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-origins"><code>origins</code></dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-1">CORSOptionList</a></span>
     <dd data-md="">
-     <p>Either the string "<dfn class="dfn-paneled idl-code" data-dfn-for="Wildcard" data-dfn-type="enum-value" data-export="" id="dom-wildcard"><code>*</code></dfn>" or a sequence
+     <p>Either the string "<dfn class="dfn-paneled idl-code" data-dfn-for="Wildcard" data-dfn-type="enum-value" data-export="" id="dom-wildcard"><code><code>*</code></code></dfn>" or a sequence
   of strings, representing the origins for which <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight
   requests</a> may be bypassed. This member is required.</p>
      <p>If this is a member of <a data-link-type="dfn" href="#unsafe-cors-preflight-with-credentials" id="ref-for-unsafe-cors-preflight-with-credentials-1"><code>unsafe-cors-preflight-with-credentials</code></a>, then
   its value MUST not be "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-1">*</a></code>".</p>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-methods">methods</dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-2">CORSOptionList</a>, nullable</span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-methods"><code>methods</code></dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-2">CORSOptionList</a>, nullable</span>
     <dd data-md="">
      <p>Either the string "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-2">*</a></code>" or a sequence
   of strings, representing the non-<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-method">CORS-safelisted method</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">methods</a> for which <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight request</a> may
   be bypassed. This member is optional.</p>
      <p>If this is a member of <a data-link-type="dfn" href="#unsafe-cors-preflight-with-credentials" id="ref-for-unsafe-cors-preflight-with-credentials-2"><code>unsafe-cors-preflight-with-credentials</code></a>, then
   its value MUST not be "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-3">*</a></code>".</p>
-    <dt data-md="">
-     <p><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-headers">headers</dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-3">CORSOptionList</a>, nullable</span></p>
+    <dt data-md=""><dfn class="dfn-paneled idl-code" data-dfn-for="CORSOptions" data-dfn-type="dict-member" data-export="" id="dom-corsoptions-headers"><code>headers</code></dfn>, <span> of type <a data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-3">CORSOptionList</a>, nullable</span>
     <dd data-md="">
      <p>Either the string "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-4">*</a></code>" or a sequence
   of strings, representing the non-<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">CORS-safelisted request-header</a> <a data-link-type="dfn" href="#headers" id="ref-for-headers-2">headers</a> which <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-preflight-request">CORS-preflight request</a> may be bypassed. This
@@ -1876,8 +1887,8 @@ defined set of requests.</p>
 }
 </pre>
    </div>
-   <div class="example" id="example-9cd0fe89">
-    <a class="self-link" href="#example-9cd0fe89"></a> MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
+   <div class="example" id="example-4ef16191">
+    <a class="self-link" href="#example-4ef16191"></a> MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
   the API endpoints on <code>https://open.example.com/</code> available for uncredentialed
   requests from any origin. They can do so with the following manifest: 
 <pre>{
@@ -1897,20 +1908,21 @@ defined set of requests.</p>
   requests</a> for uncredentialed requests from any origin. Further, it appends
   an <code>Access-Control-Allow-Origin: *</code> header to each response that doesn’t set
   a custom value for that header.</p>
-    <p class="note" role="note"><span>Note:</span> This doesn’t allow anything more than the "<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic safe CORS
-  protocol setup</a>", as <code>*</code> will not allow credentialed access to any resource
-  and the static manifest cannot be configured to echo the actual origin of the
-  requestor.</p>
+    <p class="note" role="note"><span>Note:</span> This doesn’t allow anything more than the
+  "<a href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic
+  safe CORS protocol setup</a>", as <code>*</code> will not allow credentialed access to any
+  resource and the static manifest cannot be configured to echo the actual origin
+  of the requestor.</p>
    </div>
    <h4 class="heading settled" data-level="2.3.4" id="syntax"><span class="secno">2.3.4. </span><span class="content">Syntax</span><a class="self-link" href="#syntax"></a></h4>
 <pre class="idl highlight def">//
 // header member:
 //
-<span class="kt">enum</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="enum" data-export="" id="enumdef-httpheadertype">HTTPHeaderType</dfn> { <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-7">"baseline"</a>, <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-6">"fallback"</a> };
+<span class="kt">enum</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="enum" data-export="" id="enumdef-httpheadertype"><code>HTTPHeaderType</code></dfn> { <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-baseline" id="ref-for-dom-httpheadertype-baseline-7">"baseline"</a>, <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-fallback" id="ref-for-dom-httpheadertype-fallback-6">"fallback"</a> };
 
-<span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-httpheader">HTTPHeader</dfn> {
-  <span class="kt">required</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-12">name</a>;
-  <span class="kt">required</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-12">value</a>;
+<span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-httpheader"><code>HTTPHeader</code></dfn> {
+  <span class="kt">required</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-12">name</a>;
+  <span class="kt">required</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-12">value</a>;
   <a class="n" data-link-type="idl-name" href="#enumdef-httpheadertype" id="ref-for-enumdef-httpheadertype-2">HTTPHeaderType</a> <a class="nv idl-code" data-default="&quot;baseline&quot;" data-link-type="dict-member" data-type="HTTPHeaderType " href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-12">type</a> = "baseline";
 };
 
@@ -1918,10 +1930,10 @@ defined set of requests.</p>
 //
 // cors-preflight and unsafe-cors-preflight-with-credentials
 //
-<span class="kt">enum</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="enum" data-export="" id="enumdef-wildcard">Wildcard</dfn> { <a class="s idl-code" data-link-type="enum-value" href="#dom-wildcard" id="ref-for-dom-wildcard-6">"*"</a> };
-<span class="kt">typedef</span> (<a class="n" data-link-type="idl-name" href="#enumdef-wildcard" id="ref-for-enumdef-wildcard-1">Wildcard</a> <span class="kt">or</span> <span class="kt">sequence</span>&lt;<span class="kt">USVString</span>>) <dfn class="nv dfn-paneled idl-code" data-dfn-type="typedef" data-export="" id="typedefdef-corsoptionlist">CORSOptionList</dfn>;
+<span class="kt">enum</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="enum" data-export="" id="enumdef-wildcard"><code>Wildcard</code></dfn> { <a class="s idl-code" data-link-type="enum-value" href="#dom-wildcard" id="ref-for-dom-wildcard-6">"*"</a> };
+<span class="kt">typedef</span> (<a class="n" data-link-type="idl-name" href="#enumdef-wildcard" id="ref-for-enumdef-wildcard-1">Wildcard</a> <span class="kt">or</span> <span class="kt">sequence</span>&lt;<a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a>>) <dfn class="nv dfn-paneled idl-code" data-dfn-type="typedef" data-export="" id="typedefdef-corsoptionlist"><code>CORSOptionList</code></dfn>;
 
-<span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-corsoptions">CORSOptions</dfn> {
+<span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-corsoptions"><code>CORSOptions</code></dfn> {
   <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-4">CORSOptionList</a> <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList " href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-6">origins</a>;
   <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-5">CORSOptionList</a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-2">methods</a>;
   <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist" id="ref-for-typedefdef-corsoptionlist-6">CORSOptionList</a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-5">headers</a>;
@@ -1949,7 +1961,8 @@ cached version otherwise.</p>
 user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-5">Origin Policy Store</a>:</p>
    <ol>
     <li data-md="">
-     <p>Instruct the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-6">Origin Policy Store</a> to <a data-link-type="dfn" href="#evict-an-origin-policy-for-an-origin" id="ref-for-evict-an-origin-policy-for-an-origin-1">evict</a> any <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-4">Origin Policy object</a> stored for <var>origin</var>.</p>
+     <p>Instruct the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-6">Origin Policy Store</a> to <a data-link-type="abstract-op" href="#abstract-opdef-evict-an-origin-policy-for-an-origin" id="ref-for-abstract-opdef-evict-an-origin-policy-for-an-origin-1">evict</a> any <a data-link-type="dfn" href="#origin-policy-object" id="ref-for-origin-policy-object-4">Origin Policy object</a> stored
+  for <var>origin</var>.</p>
    </ol>
    <h3 class="heading settled" data-level="3.3" id="monkey-patching-html"><span class="secno">3.3. </span><span class="content">HTML Integration</span><a class="self-link" href="#monkey-patching-html"></a></h3>
    <p>At the end of the navigation algorithm, we’ll do the following:</p>
@@ -1994,7 +2007,7 @@ user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-o
 client’s active policy:</p>
    <ol>
     <li data-md="">
-     <p>If <var>request</var> is not a navigation request, or if <a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
+     <p>If <var>request</var> is not a navigation request, or if <a href="https://www.w3.org/TR/secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
   executed upon <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>, then abort these steps.</p>
     <li data-md="">
      <p>If the user agent is configured to include cookies with <var>request</var>, then
@@ -2004,8 +2017,8 @@ client’s active policy:</p>
      <p>Append a header named <code>Sec-Origin-Policy</code> with a value of <var>version</var> to <var>request</var>’s header list.</p>
    </ol>
    <h4 class="heading settled dfn-paneled algorithm" data-algorithm="Process response for Origin Policy." data-dfn-type="dfn" data-level="3.4.2" data-lt="Process response for Origin Policy." data-noexport="" id="fetch-parse-response"><span class="secno">3.4.2. </span><span class="content"> Process <var>response</var> for Origin Policy. </span></h4>
-   <p>Given a response (<var>response</var>), this algorithm will sift through its headers, and
-fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a> as follows:</p>
+   <p>Given a response (<var>response</var>), the user agent will <dfn data-dfn-type="abstract-op" data-export="" data-lt="process response’s Origin Policy" id="abstract-opdef-process-responses-origin-policy">process <var>response</var>’s Origin
+Policy<a class="self-link" href="#abstract-opdef-process-responses-origin-policy"></a></dfn> as follows, fetching or evicting the relevant <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-6">Origin Policy Manifest</a>:</p>
    <ul>
     <li data-md="">
      <p>If no "<code>Sec-Origin-Policy</code>" header is present, this algorithm returns
@@ -2019,10 +2032,9 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
  the manifest will be cached locally, and this algorithm will return
  "<code>Success</code>". If the fetch fails, this algorithm will return "<code>Failure</code>".</p>
    </ul>
-   <ol>
+   <ol class="algorithm">
     <li data-md="">
-     <p>Let <var>version</var> be the result of parsing "<code>Sec-Origin-Policy</code>" in <var>response</var>’s
-  header list.</p>
+     <p>Let <var>version</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values">extracting header list values</a> given <code>Sec-Origin-Policy</code> and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
     <li data-md="">
      <p>Let <var>url</var> be a copy of <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>.</p>
     <li data-md="">
@@ -2031,7 +2043,7 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
       <li data-md="">
        <p><var>version</var> is <code>null</code>.</p>
       <li data-md="">
-       <p><a href="https://w3c.github.io/webappsec-secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
+       <p><a href="https://www.w3.org/TR/secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns "<code>Not Trustworthy</code>" when
   executed upon <var>url</var>.</p>
      </ol>
     <li data-md="">
@@ -2047,52 +2059,44 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
        <p>Return "<code>Success</code>".</p>
      </ol>
     <li data-md="">
-     <p>Replace <var>url</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path">path</a> with the concatenation of
-  "<code>/.well-known/origin-policy/</code>" and <var>version</var>.</p>
+     <p>Replace <var>url</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path">path</a> with the concatenation of "<code>/.well-known/origin-policy/</code>" and <var>version</var>.</p>
     <li data-md="">
      <p>Let <var>request</var> be a new request with the following properties:</p>
      <dl>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a></p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>
       <dd data-md="">
        <p><var>url</var></p>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a></p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
       <dd data-md="">
        <p><code>null</code></p>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a></p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a>
       <dd data-md="">
-       <p>Set</p>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a></p>
+       <p>"<code>none</code>"</p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
       <dd data-md="">
        <p>"<code>manifest</code>"</p>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a></p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode">mode</a>
       <dd data-md="">
        <p>"<code>same-origin</code>"</p>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a></p>
+      <dt data-md=""><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
       <dd data-md="">
        <p>"<code>error</code>"</p>
      </dl>
     <li data-md="">
-     <p>Let <var>response</var> be the result of performing an HTTP-network-or-cache fetch
-  using <var>request</var>.</p>
+     <p>Let <var>response</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch">fetching</a> <var>request</var>.</p>
     <li data-md="">
      <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status">status</a> is an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status">ok status</a>:</p>
      <ol>
       <li data-md="">
        <p>Let <var>MIME type</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extracting a MIME type</a> from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
       <li data-md="">
-       <p>If <var>MIME type</var> is not <code>application/manifest+json</code>, abort these steps
-  and return "<code>Failure</code>".</p>
+       <p>If <var>MIME type</var> is not <code>application/manifest+json</code>, abort these steps and return
+  "<code>Failure</code>".</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-wait">Wait</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>.</p>
       <li data-md="">
-       <p>Store the tuple (<var>version</var>, <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>) in
-  the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-7">Origin Policy Store</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
+       <p>Store the tuple (<var>version</var>, <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>) in the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-7">Origin
+  Policy Store</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url">URL</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
       <li data-md="">
        <p>Return "<code>Success</code>".</p>
      </ol>
@@ -2105,11 +2109,11 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
     <li data-md="">
      <p>Let <var>origin</var> be <var>response</var>’s URL’s origin.</p>
     <li data-md="">
-     <p>If <var>origin</var> is an opaque origin, or if <a href="https://w3c.github.io/webappsec-secure-contexts/#is-origin-trustworthy">Secure Contexts §is-origin-trustworthy</a> returns "<code>Not Trustworthy</code>" when
+     <p>If <var>origin</var> is an opaque origin, or if <a href="https://www.w3.org/TR/secure-contexts/#is-origin-trustworthy">Secure Contexts §is-origin-trustworthy</a> returns "<code>Not Trustworthy</code>" when
   executed upon <var>origin</var>, abort these steps and return.</p>
     <li data-md="">
      <p>Let <var>object</var> be the result of instructing the user agent’s <a data-link-type="dfn" href="#origin-policy-store" id="ref-for-origin-policy-store-8">Origin Policy
-  Store</a> to <a data-link-type="dfn" href="#retrieve-an-origin-policy-for-an-origin" id="ref-for-retrieve-an-origin-policy-for-an-origin-1">retrieve an Origin Policy
+  Store</a> to <a data-link-type="abstract-op" href="#abstract-opdef-retrieve-an-origin-policy-for-an-origin" id="ref-for-abstract-opdef-retrieve-an-origin-policy-for-an-origin-1">retrieve an Origin Policy
   object</a> for <var>origin</var>.</p>
     <li data-md="">
      <p>If <var>object</var> is <code>null</code>, abort these steps and return.</p>
@@ -2119,8 +2123,7 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
      <p>For each member (<var>member</var>) in <var>policy</var>, execute the steps associated with
   the matching statement below:</p>
      <dl>
-      <dt data-md="">
-       <p><a data-link-type="dfn" href="#headers" id="ref-for-headers-3"><code>headers</code></a></p>
+      <dt data-md=""><a data-link-type="dfn" href="#headers" id="ref-for-headers-3"><code>headers</code></a>
       <dd data-md="">
        <ol>
         <li data-md="">
@@ -2134,9 +2137,8 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
             <li data-md="">
              <p>Let <var>name</var> be <var>header</var>’s <code class="idl"><a data-link-type="idl" href="#dom-httpheader-name" id="ref-for-dom-httpheader-name-13">name</a></code>, and <var>value</var> be <var>header</var>’s <code class="idl"><a data-link-type="idl" href="#dom-httpheader-value" id="ref-for-dom-httpheader-value-13">value</a></code>.</p>
             <li data-md="">
-             <p>If <var>header</var>’s <code class="idl"><a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-13">type</a></code> is "<code>fallback</code>", and the
-  result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> <var>name</var> in <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> is not <code>null</code>,
-  skip the remaining substep, and proceed to the next <var>header</var>.</p>
+             <p>If <var>header</var>’s <code class="idl"><a data-link-type="idl" href="#dom-httpheader-type" id="ref-for-dom-httpheader-type-13">type</a></code> is "<code>fallback</code>", and the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values">extracting
+  header list values</a> given <var>name</var> and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> is not <code>null</code>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue">continue</a>.</p>
              <p class="note" role="note"><span>Note:</span> We check the header’s presence <em>before</em> applying <a data-link-type="dfn" href="#baseline-headers" id="ref-for-baseline-headers-2">baseline headers</a> to <var>response</var>.</p>
             <li data-md="">
              <p>Append <var>name</var>/<var>value</var> to <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</p>
@@ -2154,8 +2156,8 @@ examining the target origin’s <a data-link-type="dfn" href="#origin-policy-man
 Bypass</code>" if the preflight is required:</p>
    <ol>
     <li data-md="">
-     <p>Let <var>manifest</var> be the result of <a data-link-type="dfn" href="#retrieve-an-origin-policy-for-an-origin" id="ref-for-retrieve-an-origin-policy-for-an-origin-2">retrieving
-  an Origin Policy</a> for <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
+     <p>Let <var>manifest</var> be the result of <a data-link-type="abstract-op" href="#abstract-opdef-retrieve-an-origin-policy-for-an-origin" id="ref-for-abstract-opdef-retrieve-an-origin-policy-for-an-origin-2">retrieving an Origin
+  Policy</a> for <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>.</p>
     <li data-md="">
      <p>If <var>manifest</var> is <code>null</code>, return "<code>Does Not Bypass</code>".</p>
     <li data-md="">
@@ -2173,14 +2175,14 @@ Bypass</code>" if the preflight is required:</p>
   any of <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-7">origins</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-3">methods</a></code>,
   or <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-6">headers</a></code> member’s values are "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-7">*</a></code>".</p>
       <li data-md="">
-       <p><var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-8">origins</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-8">*</a></code>", and the <a data-link-type="dfn">serialization</a> of <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-9">origins</a></code> sequence.</p>
+       <p><var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-8">origins</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-8">*</a></code>", and the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin">serialization</a> of <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-origins" id="ref-for-dom-corsoptions-origins-9">origins</a></code> sequence.</p>
       <li data-md="">
        <p><var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> (<var>method</var>) is not a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-method">CORS-safelisted method</a>, and <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-4">methods</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-9">*</a></code>", and <var>method</var> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a> match for
   any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-methods" id="ref-for-dom-corsoptions-methods-5">methods</a></code> sequence.</p>
       <li data-md="">
        <p><var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a> (<var>list</var>) contains headers
   which are not <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">CORS-safelisted request-headers</a>, and <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-7">headers</a></code> is not "<code class="idl"><a data-link-type="idl" href="#dom-wildcard" id="ref-for-dom-wildcard-10">*</a></code>", and one or more of <var>list</var>’s
-  non-<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">CORS-safelisted request-headers</a>' <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name">names</a> is not an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#ascii-case-insensitive">ASCII case-insensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-8">headers</a></code> sequence.</p>
+  non-<a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">CORS-safelisted request-headers</a>' <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name">names</a> is not an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> match for any of the items in <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-corsoptions-headers" id="ref-for-dom-corsoptions-headers-8">headers</a></code> sequence.</p>
      </ol>
     <li data-md="">
      <p>Return "<code>Bypass</code>".</p>
@@ -2329,24 +2331,19 @@ agent.</p>
    <p>The permanent message header field registry should be updated
 with the following registration: <a data-link-type="biblio" href="#biblio-rfc3864">[RFC3864]</a></p>
    <dl>
-    <dt data-md="">
-     <p>Header field name</p>
+    <dt data-md="">Header field name
     <dd data-md="">
      <p><code>Sec-Origin-Policy</code></p>
-    <dt data-md="">
-     <p>Applicable protocol</p>
+    <dt data-md="">Applicable protocol
     <dd data-md="">
      <p>http</p>
-    <dt data-md="">
-     <p>Status</p>
+    <dt data-md="">Status
     <dd data-md="">
      <p>WIP</p>
-    <dt data-md="">
-     <p>Author/Change controller</p>
+    <dt data-md="">Author/Change controller
     <dd data-md="">
      <p>W3C</p>
-    <dt data-md="">
-     <p>Specification document</p>
+    <dt data-md="">Specification document
     <dd data-md="">
      <p>This specification (see <a href="#origin-policy-header">§2.2 The Sec-Origin-Policy HTTP Header Field</a>)</p>
    </dl>
@@ -2356,20 +2353,16 @@ manifests</a> may be found. In accordance with <a data-link-type="biblio" href="
 registration should be made if and when the proposal in this document gains
 acceptance and implementation:</p>
    <dl>
-    <dt data-md="">
-     <p>URI Suffix</p>
+    <dt data-md="">URI Suffix
     <dd data-md="">
      <p><code>origin-policy</code></p>
-    <dt data-md="">
-     <p>Change Controller</p>
+    <dt data-md="">Change Controller
     <dd data-md="">
      <p>W3C</p>
-    <dt data-md="">
-     <p>Specification document</p>
+    <dt data-md="">Specification document
     <dd data-md="">
      <p>This document (see <a href="#origin-policy-well-known">§2.3.1 The origin-policy well-known location</a>)</p>
-    <dt data-md="">
-     <p>Related information</p>
+    <dt data-md="">Related information
     <dd data-md="">
      <p>The suffix <code>origin-policy</code> is expected to be followed by an additional path
   component which names a specific <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest-12">Origin Policy manifest</a> (e.g. <code>/.well-known/origin-policy/name</code>). A request to <code>/.well-known/origin-policy</code> can be expected to redirect to the most current
@@ -2526,12 +2519,12 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <li><a href="#dictdef-corsoptions">CORSOptions</a><span>, in §2.3.4</span>
    <li><a href="#cors-preflight">cors-preflight</a><span>, in §2.3.3</span>
    <li><a href="#fetch-bypass-preflight">Does Origin Policy bypass request’s CORS-preflight request?</a><span>, in §3.4.3</span>
-   <li><a href="#evict-an-origin-policy-for-an-origin">evict an Origin policy for an origin</a><span>, in §2.1</span>
+   <li><a href="#abstract-opdef-evict-an-origin-policy-for-an-origin">evict an Origin policy for an origin</a><span>, in §2.1</span>
    <li><a href="#evict-for-origin">Evict origin’s cached manifest.</a><span>, in §3.1</span>
-   <li><a href="#evict-an-origin-policy-for-an-origin">evict-policy-from-store</a><span>, in §2.1</span>
+   <li><a href="#abstract-opdef-evict-an-origin-policy-for-an-origin">evict-policy-from-store</a><span>, in §2.1</span>
    <li><a href="#dom-httpheadertype-fallback">fallback</a><span>, in §2.3.2</span>
    <li><a href="#fallback-headers">fallback headers</a><span>, in §2.3.2</span>
-   <li><a href="#retrieve-an-origin-policy-for-an-origin">get-policy-from-store</a><span>, in §2.1</span>
+   <li><a href="#abstract-opdef-retrieve-an-origin-policy-for-an-origin">get-policy-from-store</a><span>, in §2.1</span>
    <li>
     headers
     <ul>
@@ -2550,7 +2543,8 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <li><a href="#dom-corsoptions-origins">origins</a><span>, in §2.3.3</span>
    <li><a href="#fetch-prepare-request">Prepare request with Origin Policy.</a><span>, in §3.4</span>
    <li><a href="#fetch-parse-response">Process response for Origin Policy.</a><span>, in §3.4.1</span>
-   <li><a href="#retrieve-an-origin-policy-for-an-origin">retrieve an Origin Policy for an origin</a><span>, in §2.1</span>
+   <li><a href="#abstract-opdef-process-responses-origin-policy">process response’s Origin Policy</a><span>, in §3.4.2</span>
+   <li><a href="#abstract-opdef-retrieve-an-origin-policy-for-an-origin">retrieve an Origin Policy for an origin</a><span>, in §2.1</span>
    <li><a href="#version-for-origin">Retrieve origin’s manifest version.</a><span>, in §3</span>
    <li><a href="#sec-origin-policy">Sec-Origin-Policy</a><span>, in §2.2</span>
    <li><a href="#dom-httpheader-type">type</a><span>, in §2.3.2</span>
@@ -2565,20 +2559,15 @@ helped ensure that the CORS-request preflight bits were sane.</p>
     <a data-link-type="biblio">[CSP3]</a> defines the following terms:
     <ul>
      <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic">'strict-dynamic'</a>
+     <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a>
      <li><a href="https://www.w3.org/TR/CSP3/#header-content-security-policy">content-security-policy</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#frame-ancestors">frame-ancestors</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#object-src">object-src</a>
      <li><a href="https://w3c.github.io/webappsec-csp/#script-src">script-src</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[CSP3]</a> defines the following terms:
-    <ul>
-     <li><a href="https://w3c.github.io/webappsec-csp/#grammardef-base64-value">base64-value</a>
-    </ul>
-   <li>
     <a data-link-type="biblio">[FETCH]</a> defines the following terms:
     <ul>
-     <li><a href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">basic safe cors protocol setup</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
      <li><a href="https://fetch.spec.whatwg.org/#cors-preflight-request">cors-preflight request</a>
@@ -2587,6 +2576,8 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode">credentials mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
+     <li><a href="https://fetch.spec.whatwg.org/#extract-header-list-values">extracting header list values</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a>
      <li><a href="https://fetch.spec.whatwg.org/#forbidden-header-name">forbidden header name</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list <small>(for request)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list <small>(for response)</small></a>
@@ -2597,19 +2588,18 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>
      <li><a href="https://fetch.spec.whatwg.org/#ok-status">ok status</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a>
-     <li><a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
-     <li><a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a>
+     <li><a href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-url">url <small>(for request)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-url">url <small>(for response)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-wait">wait</a>
-     <li><a href="https://fetch.spec.whatwg.org/#x-content-type-options-header">x-content-type-options</a>
+     <li><a href="https://fetch.spec.whatwg.org/#http-x-content-type-options">x-content-type-options</a>
     </ul>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#ascii-case-insensitive">ascii case-insensitive</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin">ascii serialization of an origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#case-sensitive">case-sensitive</a>
      <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
      <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#meta">meta</a>
@@ -2617,12 +2607,18 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[referrer-policy]</a> defines the following terms:
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
     <ul>
-     <li><a href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header">referrer-policy</a>
+     <li><a href="https://infra.spec.whatwg.org/#ascii-case-insensitive">ascii case-insensitive</a>
+     <li><a href="https://infra.spec.whatwg.org/#iteration-continue">continue</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[rfc5234]</a> defines the following terms:
+    <a data-link-type="biblio">[referrer-policy]</a> defines the following terms:
+    <ul>
+     <li><a href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header-dfn">referrer-policy</a>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[RFC5234]</a> defines the following terms:
     <ul>
      <li><a href="https://tools.ietf.org/html/rfc5234#appendix-B.1">dquote</a>
     </ul>
@@ -2642,7 +2638,7 @@ helped ensure that the CORS-request preflight bits were sane.</p>
      <li><a href="https://tools.ietf.org/html/rfc7540#section-8.2">server push</a>
     </ul>
    <li>
-    <a data-link-type="biblio">[WHATWG-URL]</a> defines the following terms:
+    <a data-link-type="biblio">[URL]</a> defines the following terms:
     <ul>
      <li><a href="https://url.spec.whatwg.org/#concept-url-origin">origin</a>
      <li><a href="https://url.spec.whatwg.org/#concept-url-path">path</a>
@@ -2657,32 +2653,36 @@ helped ensure that the CORS-request preflight bits were sane.</p>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-csp3">[CSP3]
-   <dd>Mike West. <a href="https://w3c.github.io/webappsec-csp/">Content Security Policy Level 3</a>. URL: <a href="https://w3c.github.io/webappsec-csp/">https://w3c.github.io/webappsec-csp/</a>
+   <dd>Mike West. <a href="https://www.w3.org/TR/CSP3/">Content Security Policy Level 3</a>. URL: <a href="https://www.w3.org/TR/CSP3/">https://www.w3.org/TR/CSP3/</a>
    <dt id="biblio-fetch">[FETCH]
    <dd>Anne van Kesteren. <a href="https://fetch.spec.whatwg.org/">Fetch Standard</a>. Living Standard. URL: <a href="https://fetch.spec.whatwg.org/">https://fetch.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc3864">[RFC3864]
    <dd>G. Klyne; M. Nottingham; J. Mogul. <a href="https://tools.ietf.org/html/rfc3864">Registration Procedures for Message Header Fields</a>. September 2004. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc3864">https://tools.ietf.org/html/rfc3864</a>
    <dt id="biblio-rfc5234">[RFC5234]
    <dd>D. Crocker, Ed.; P. Overell. <a href="https://tools.ietf.org/html/rfc5234">Augmented BNF for Syntax Specifications: ABNF</a>. January 2008. Internet Standard. URL: <a href="https://tools.ietf.org/html/rfc5234">https://tools.ietf.org/html/rfc5234</a>
+   <dt id="biblio-rfc7230">[RFC7230]
+   <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a>. June 2014. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7230">https://tools.ietf.org/html/rfc7230</a>
    <dt id="biblio-rfc7231">[RFC7231]
    <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://tools.ietf.org/html/rfc7231">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>. June 2014. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7231">https://tools.ietf.org/html/rfc7231</a>
    <dt id="biblio-rfc7540">[RFC7540]
    <dd>M. Belshe; R. Peon; M. Thomson, Ed.. <a href="https://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>. May 2015. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7540">https://tools.ietf.org/html/rfc7540</a>
+   <dt id="biblio-url">[URL]
+   <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
    <dt id="biblio-webidl">[WebIDL]
    <dd>Cameron McCormack; Boris Zbarsky; Tobie Langel. <a href="https://heycam.github.io/webidl/">Web IDL</a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
-   <dt id="biblio-whatwg-url">[WHATWG-URL]
-   <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
   </dl>
   <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-appmanifest">[APPMANIFEST]
-   <dd>Marcos Caceres; et al. <a href="https://w3c.github.io/manifest/">Web App Manifest</a>. URL: <a href="https://w3c.github.io/manifest/">https://w3c.github.io/manifest/</a>
+   <dd>Marcos Caceres; et al. <a href="https://www.w3.org/TR/appmanifest/">Web App Manifest</a>. URL: <a href="https://www.w3.org/TR/appmanifest/">https://www.w3.org/TR/appmanifest/</a>
    <dt id="biblio-origin-wide-cors">[ORIGIN-WIDE-CORS]
    <dd>Takeshi Yoshino. <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">Origin-Wide CORS</a>. URL: <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">https://github.com/tyoshino/origin-wide-cors/blob/master/README.md</a>
    <dt id="biblio-referrer-policy">[REFERRER-POLICY]
-   <dd>Jochen Eisinger; Emily Stark. <a href="https://w3c.github.io/webappsec-referrer-policy/">Referrer Policy</a>. URL: <a href="https://w3c.github.io/webappsec-referrer-policy/">https://w3c.github.io/webappsec-referrer-policy/</a>
+   <dd>Jochen Eisinger; Emily Stark. <a href="https://www.w3.org/TR/referrer-policy/">Referrer Policy</a>. URL: <a href="https://www.w3.org/TR/referrer-policy/">https://www.w3.org/TR/referrer-policy/</a>
    <dt id="biblio-rfc5758">[RFC5758]
    <dd>Q. Dang; et al. <a href="https://tools.ietf.org/html/rfc5758">Internet X.509 Public Key Infrastructure: Additional Algorithms and Identifiers for DSA and ECDSA</a>. January 2010. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc5758">https://tools.ietf.org/html/rfc5758</a>
    <dt id="biblio-rfc5785">[RFC5785]
@@ -2697,28 +2697,28 @@ helped ensure that the CORS-request preflight bits were sane.</p>
    <dd>Mark Nottingham. <a href="https://mnot.github.io/I-D/site-wide-headers/">Site-Wide HTTP Headers</a>. URL: <a href="https://mnot.github.io/I-D/site-wide-headers/">https://mnot.github.io/I-D/site-wide-headers/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
-<pre class="idl def">//
+<pre class="idl highlight def">//
 // header member:
 //
-<span class="kt">enum</span> <a class="nv" href="#enumdef-httpheadertype">HTTPHeaderType</a> { <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-baseline">"baseline"</a>, <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-fallback">"fallback"</a> };
+<span class="kt"><span class="kt">enum</span></span> <a class="nv" href="#enumdef-httpheadertype"><code><span class="nv">HTTPHeaderType</span></code></a> { <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-baseline"><span class="s">"baseline"</span></a>, <a class="s idl-code" data-link-type="enum-value" href="#dom-httpheadertype-fallback"><span class="s">"fallback"</span></a> };
 
-<span class="kt">dictionary</span> <a class="nv" href="#dictdef-httpheader">HTTPHeader</a> {
-  <span class="kt">required</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-name">name</a>;
-  <span class="kt">required</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-value">value</a>;
-  <a class="n" data-link-type="idl-name" href="#enumdef-httpheadertype">HTTPHeaderType</a> <a class="nv idl-code" data-default="&quot;baseline&quot;" data-link-type="dict-member" data-type="HTTPHeaderType " href="#dom-httpheader-type">type</a> = "baseline";
+<span class="kt"><span class="kt">dictionary</span></span> <a class="nv" href="#dictdef-httpheader"><code><span class="nv">HTTPHeader</span></code></a> {
+  <span class="kt"><span class="kt">required</span></span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt"><span class="kt">USVString</span></span></a> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-name"><span class="nv">name</span></a>;
+  <span class="kt"><span class="kt">required</span></span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt"><span class="kt">USVString</span></span></a> <a class="nv idl-code" data-link-type="dict-member" data-type="USVString " href="#dom-httpheader-value"><span class="nv">value</span></a>;
+  <a class="n" data-link-type="idl-name" href="#enumdef-httpheadertype"><span class="n">HTTPHeaderType</span></a> <a class="nv idl-code" data-default="&quot;baseline&quot;" data-link-type="dict-member" data-type="HTTPHeaderType " href="#dom-httpheader-type"><span class="nv">type</span></a> = "baseline";
 };
 
 
 //
 // cors-preflight and unsafe-cors-preflight-with-credentials
 //
-<span class="kt">enum</span> <a class="nv" href="#enumdef-wildcard">Wildcard</a> { <a class="s idl-code" data-link-type="enum-value" href="#dom-wildcard">"*"</a> };
-<span class="kt">typedef</span> (<a class="n" data-link-type="idl-name" href="#enumdef-wildcard">Wildcard</a> <span class="kt">or</span> <span class="kt">sequence</span>&lt;<span class="kt">USVString</span>>) <a class="nv" href="#typedefdef-corsoptionlist">CORSOptionList</a>;
+<span class="kt"><span class="kt">enum</span></span> <a class="nv" href="#enumdef-wildcard"><code><span class="nv">Wildcard</span></code></a> { <a class="s idl-code" data-link-type="enum-value" href="#dom-wildcard"><span class="s">"*"</span></a> };
+<span class="kt"><span class="kt">typedef</span></span> (<a class="n" data-link-type="idl-name" href="#enumdef-wildcard"><span class="n">Wildcard</span></a> <span class="kt"><span class="kt">or</span></span> <span class="kt"><span class="kt">sequence</span></span>&lt;<a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt"><span class="kt">USVString</span></span></a>>) <a class="nv" href="#typedefdef-corsoptionlist"><code><span class="nv">CORSOptionList</span></code></a>;
 
-<span class="kt">dictionary</span> <a class="nv" href="#dictdef-corsoptions">CORSOptions</a> {
-  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist">CORSOptionList</a> <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList " href="#dom-corsoptions-origins">origins</a>;
-  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist">CORSOptionList</a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-methods">methods</a>;
-  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist">CORSOptionList</a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-headers">headers</a>;
+<span class="kt"><span class="kt">dictionary</span></span> <a class="nv" href="#dictdef-corsoptions"><code><span class="nv">CORSOptions</span></code></a> {
+  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist"><span class="n">CORSOptionList</span></a> <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList " href="#dom-corsoptions-origins"><span class="nv">origins</span></a>;
+  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist"><span class="n">CORSOptionList</span></a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-methods"><span class="nv">methods</span></a>;
+  <a class="n" data-link-type="idl-name" href="#typedefdef-corsoptionlist"><span class="n">CORSOptionList</span></a>? <a class="nv idl-code" data-link-type="dict-member" data-type="CORSOptionList? " href="#dom-corsoptions-headers"><span class="nv">headers</span></a>;
 };
 
 </pre>
@@ -2772,19 +2772,19 @@ ongoing in the HTTP WG.<a href="#issue-f1fa5121"> ↵ </a></div>
   Apply an Origin Policy to response. </a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="retrieve-an-origin-policy-for-an-origin">
-   <b><a href="#retrieve-an-origin-policy-for-an-origin">#retrieve-an-origin-policy-for-an-origin</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="abstract-opdef-retrieve-an-origin-policy-for-an-origin">
+   <b><a href="#abstract-opdef-retrieve-an-origin-policy-for-an-origin">#abstract-opdef-retrieve-an-origin-policy-for-an-origin</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-retrieve-an-origin-policy-for-an-origin-1">3.4.3. 
+    <li><a href="#ref-for-abstract-opdef-retrieve-an-origin-policy-for-an-origin-1">3.4.3. 
   Apply an Origin Policy to response. </a>
-    <li><a href="#ref-for-retrieve-an-origin-policy-for-an-origin-2">3.4.4. 
+    <li><a href="#ref-for-abstract-opdef-retrieve-an-origin-policy-for-an-origin-2">3.4.4. 
   Does Origin Policy bypass request’s CORS-preflight request? </a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="evict-an-origin-policy-for-an-origin">
-   <b><a href="#evict-an-origin-policy-for-an-origin">#evict-an-origin-policy-for-an-origin</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="abstract-opdef-evict-an-origin-policy-for-an-origin">
+   <b><a href="#abstract-opdef-evict-an-origin-policy-for-an-origin">#abstract-opdef-evict-an-origin-policy-for-an-origin</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-evict-an-origin-policy-for-an-origin-1">3.2. 
+    <li><a href="#ref-for-abstract-opdef-evict-an-origin-policy-for-an-origin-1">3.2. 
   Evict origin’s cached manifest. </a>
    </ul>
   </aside>

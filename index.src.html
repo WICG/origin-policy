@@ -1,7 +1,9 @@
 <pre class='metadata'>
 Title: Origin Policy
-Status: DREAM
+Status: CG-DRAFT
+Group: WICG
 ED: https://WICG.github.io/origin-policy
+Repository: WICG/origin-policy
 Shortname: origin-policy
 Level: None
 Editor: Mike West 56384, Google Inc., mkwst@google.com
@@ -15,19 +17,11 @@ Markup Shorthands: css off, markdown on
 Boilerplate: omit conformance, omit feedback-header
 !Participate: <a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/mikewest/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/mikewest/origin-policy/issues">open issues</a>)
 </pre>
-<pre boilerplate="copyright">&copy;2016 Google, Inc.</pre>
 <pre class="link-defaults">
 spec:html; type:element; text:link
-spec:html; type:dfn; text:case-sensitive
-spec:html; type:dfn; text:ascii case-insensitive
+spec:referrer-policy; type: dfn; text: referrer-policy
 </pre>
 <pre class="anchors">
-spec: CSP3; urlPrefix: https://w3c.github.io/webappsec-csp/
-  type: dfn
-    text: Content Security Policy
-spec: REFERRER-POLICY; urlPrefix: https://w3c.github.io/webappsec-referrer-policy/
-  type: dfn
-    text: referrer-policy; url: referrer-policy-header
 spec: RFC7540; urlPrefix: https://tools.ietf.org/html/rfc7540
   type: dfn
     text: server push; url: section-8.2
@@ -37,48 +31,6 @@ spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
 spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   type: http-header
     text: Vary; url: section-7.1.4
-<!--
-   -   WHATWG
-   -->
-spec: FETCH; urlPrefix: https://fetch.spec.whatwg.org/
-  type: dfn
-    text: ok status
-    text: network error; url: concept-network-error
-    text: Basic safe CORS protocol setup
-    text: navigation request
-    text: forbidden header name
-    text: header; url: concept-header
-    for: header
-      text: name; url: concept-header-name
-    text: header list; url: concept-header-list
-    for: header list
-      text: extract a MIME type; url: concept-header-extract-mime-type
-    text: parsing; for: header list; url: concept-header-parse
-    for: body
-      text: wait; url: concept-body-wait
-    for: request
-      text: url; url: concept-request-url
-      text: destination; url: concept-request-destination
-      text: mode; url: concept-request-mode
-      text: client; url: concept-request-client
-      text: origin; url: concept-request-origin
-      text: skip-service-worker flag
-      text: redirect mode; url: concept-request-redirect-mode
-      text: method; url: concept-request-method
-      text: credentials mode; url: concept-request-credentials-mode
-      text: header list; url: concept-request-header-list
-    for: response
-      text: header list; url: concept-response-header-list
-      text: CSP list; url: concept-response-csp-list
-      text: URL; url: concept-response-url
-      text: status; url: concept-response-status
-      text: body; url: concept-response-body
-    text: X-Content-Type-Options; url: x-content-type-options-header
-spec: URL; urlPrefix: https://url.spec.whatwg.org/
-  type: dfn
-    text: origin; for: url; url: concept-url-origin
-    text: path; for: url; url: concept-url-path
-    text: URL parser; url: concept-url-parser
 <!--
    -   ABNF
    -->
@@ -221,7 +173,7 @@ according to the normal HTTP caching rules, and applied to pages on
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
-      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
+      "<a idl>name</a>": "<a http-header>X-Content-Type-Options</a>",
       "<a idl>value</a>": "nosniff",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     }
@@ -324,14 +276,21 @@ User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
 store that constitutes a 1:1 mapping between <a>origin policy objects</a> and
 <a for="/">origins</a>.
 
-When asked to <dfn algorithm local-lt="get-policy-from-store">retrieve an Origin
+When asked to <dfn abstract-op local-lt="get-policy-from-store">retrieve an Origin
 Policy for an origin</dfn>, an <a>Origin Policy Store</a> will return either a
 single <a>origin policy object</a> (if one is stored for the given origin), or
 `null` (if nothing is stored for the given origin).
 
-When asked to <dfn algorithm local-lt="evict-policy-from-store">evict an Origin
+When asked to <dfn abstract-op local-lt="evict-policy-from-store">evict an Origin
 policy for an origin</dfn>, an <a>Origin Policy Store</a> will discard any
 <a>origin policy object</a> associated with the given origin.
+
+This document uses ABNF grammar to specify syntax, as defined in [[!RFC5234]]. It also relies on
+the `#rule` ABNF extension defined in
+<a href="https://tools.ietf.org/html/rfc7230#section-7">Section 7</a> of [[!RFC7230]].
+
+This document depends on the Infra Standard for a number of foundational concepts used in its
+algorithms and prose [[!INFRA]].
 
 The `Sec-Origin-Policy` HTTP Header Field {#origin-policy-header}
 -----------------------------------------------------------------
@@ -388,7 +347,7 @@ members. Each member defines a specific aspect of an origin's policy.
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
     {
-      "<a idl>name</a>": "<a>X-Content-Type-Options</a>",
+      "<a idl>name</a>": "<a http-header>X-Content-Type-Options</a>",
       "<a idl>value</a>": "nosniff",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     }
@@ -549,10 +508,11 @@ defined set of requests.
   an `Access-Control-Allow-Origin: *` header to each response that doesn't set
   a custom value for that header.
 
-  Note: This doesn't allow anything more than the "<a>Basic safe CORS
-  protocol setup</a>", as `*` will not allow credentialed access to any resource
-  and the static manifest cannot be configured to echo the actual origin of the
-  requestor.
+  Note: This doesn't allow anything more than the
+  "<a href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic
+  safe CORS protocol setup</a>", as `*` will not allow credentialed access to any
+  resource and the static manifest cannot be configured to echo the actual origin
+  of the requestor.
 </div>
 
 ### Syntax ### {#syntax}
@@ -615,8 +575,8 @@ Given an origin (|origin|), this algorithm removes any cached manifest from the
 user agent's <a>Origin Policy Store</a>:
 
 1.  Instruct the user agent's <a>Origin Policy Store</a> to
-    <a lt="evict-policy-from-store">evict</a> any <a>Origin Policy object</a>
-    stored for |origin|.
+    <a lt="evict-policy-from-store" abstract-op>evict</a> any <a>Origin Policy object</a> stored
+    for |origin|.
 
 HTML Integration {#monkey-patching-html}
 ----------------
@@ -695,8 +655,8 @@ client's active policy:
   Process |response| for Origin Policy.
 </h4>
 
-Given a response (|response|), this algorithm will sift through its headers, and
-fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
+Given a response (|response|), the user agent will <dfn abstract-op>process |response|'s Origin
+Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Manifest</a>:
 
 *  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
    "`No-op`".
@@ -709,68 +669,67 @@ fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
    the manifest will be cached locally, and this algorithm will return
    "`Success`". If the fetch fails, this algorithm will return "`Failure`".
 
-1.  Let |version| be the result of parsing "`Sec-Origin-Policy`" in |response|'s
-    header list.
+<ol class="algorithm">
+  1.  Let |version| be the result of [=extracting header list values=] given `Sec-Origin-Policy` and
+      |response|'s [=response/header list=].
 
-2.  Let |url| be a copy of |response|'s <a for="response">URL</a>.
+  2.  Let |url| be a copy of |response|'s [=response/URL=].
 
-3.  Return "`No-op`" if any of the following statements are true:
+  3.  Return "`No-op`" if any of the following statements are true:
 
-    1.  |version| is `null`.
+      1.  |version| is `null`.
 
-    2.  [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
-        executed upon |url|.
+      2.  [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
+          executed upon |url|.
 
-4.  Assert: |url| is not an <a>opaque origin</a>.
+  4.  Assert: |url| is not an [=opaque origin=].
 
-5.  Return "`Failure`" if |version| does not match the
-    <a grammar>manifest-name</a> grammar.
+  5.  Return "`Failure`" if |version| does not match the <a grammar>manifest-name</a> grammar.
 
-6.  If |version| is `0`:
+  6.  If |version| is `0`:
 
-    1.  Execute [[#evict-for-origin]] upon |url|'s <a for="url">origin</a>.
+      1.  Execute [[#evict-for-origin]] upon |url|'s [=url/origin=].
 
-    2.  Return "`Success`".
+      2.  Return "`Success`".
 
-7.  Replace |url|'s <a for="url">path</a> with the concatenation of
-    "`/.well-known/origin-policy/`" and |version|.
+  7.  Replace |url|'s [=url/path=] with the concatenation of "`/.well-known/origin-policy/`" and
+      |version|.
 
-8.  Let |request| be a new request with the following properties:
+  8.  Let |request| be a new request with the following properties:
 
-    :   <a for="request">url</a>
-    ::  |url|
-    :   <a for="request">client</a>
-    ::  `null`
-    :   <a for="request">skip-service-worker flag</a>
-    ::  Set
-    :   <a for="request">destination</a>
-    ::  "`manifest`"
-    :   <a for="request">mode</a>
-    ::  "`same-origin`"
-    :   <a for="request">redirect mode</a>
-    ::  "`error`"
+      :   [=request/url=]
+      ::  |url|
+      :   [=request/client=]
+      ::  `null`
+      :   [=request/service-workers mode=]
+      ::  "`none`"
+      :   [=request/destination=]
+      ::  "`manifest`"
+      :   [=request/mode=]
+      ::  "`same-origin`"
+      :   [=request/redirect mode=]
+      ::  "`error`"
 
-9.  Let |response| be the result of performing an HTTP-network-or-cache fetch
-    using |request|.
+  9.  Let |response| be the result of [=/fetching=] |request|.
 
-10. If |response|'s <a for="response">status</a> is an <a>ok status</a>:
+  10. If |response|'s [=response/status=] is an [=ok status=]:
 
-    1.  Let |MIME type| be the result of
-        <a for="header list" lt="extract a MIME type">extracting a MIME type</a>
-        from |response|'s <a for="response">header list</a>.
+      1.  Let |MIME type| be the result of
+          <a for="header list" lt="extract a MIME type">extracting a MIME type</a>
+          from |response|'s [=response/header list=].
 
-    2.  If |MIME type| is not `application/manifest+json`, abort these steps
-        and return "`Failure`".
+      2.  If |MIME type| is not `application/manifest+json`, abort these steps and return
+          "`Failure`".
 
-    3.  <a for="body">Wait</a> for |response|'s <a for="response">body</a>.
+      3.  [=body/Wait=] for |response|'s [=response/body=].
 
-    4.  Store the tuple (|version|, |response|'s <a for="response">body</a>) in
-        the user agent's <a>Origin Policy Store</a> for |response|'s
-        <a for="response">URL</a>'s <a for="url">origin</a>.
+      4.  Store the tuple (|version|, |response|'s [=response/body=]) in the user agent's <a>Origin
+          Policy Store</a> for |response|'s [=response/URL=]'s [=url/origin=].
 
-    5.  Return "`Success`".
+      5.  Return "`Success`".
 
-11. Return "`Failure`"
+  11. Return "`Failure`"
+</ol>
 
 <h4 algorithm dfn id="fetch-apply-policy">
   Apply an Origin Policy to |response|.
@@ -786,7 +745,7 @@ Given a response (|response|), the following algorithm applies the relevant
     executed upon |origin|, abort these steps and return.
 
 3.  Let |object| be the result of instructing the user agent's <a>Origin Policy
-    Store</a> to <a lt="get-policy-from-store">retrieve an Origin Policy
+    Store</a> to <a lt="get-policy-from-store" abstract-op>retrieve an Origin Policy
     object</a> for |origin|.
 
 4.  If |object| is `null`, abort these steps and return.
@@ -807,10 +766,9 @@ Given a response (|response|), the following algorithm applies the relevant
             1.  Let |name| be |header|'s {{HTTPHeader/name}}, and |value| be
                 |header|'s {{HTTPHeader/value}}.
 
-            2.  If |header|'s {{HTTPHeader/type}} is "`fallback`", and the
-                result of <a for="header list">parsing</a> |name| in
-                |response|'s <a for="response">header list</a> is not `null`,
-                skip the remaining substep, and proceed to the next |header|.
+            2.  If |header|'s {{HTTPHeader/type}} is "`fallback`", and the result of [=extracting
+                header list values=] given |name| and |response|'s [=response/header list=] is not
+                `null`, <a>continue</a>.
 
                 Note: We check the header's presence <em>before</em> applying
                 <a>baseline headers</a> to |response|.
@@ -830,9 +788,8 @@ Given a request (|request|), this algorithm returns "`Bypass`" if the
 examining the target origin's <a>Origin Policy Manifest</a>, and "`Does Not
 Bypass`" if the preflight is required:
 
-1.  Let |manifest| be the result of <a lt="get-policy-from-store">retrieving
-    an Origin Policy</a> for |request|'s <a for="request">url</a>'s
-    <a for="url">origin</a>.
+1.  Let |manifest| be the result of <a lt="get-policy-from-store" abstract-op>retrieving an Origin
+    Policy</a> for |request|'s <a for="request">url</a>'s <a for="url">origin</a>.
 
 2.  If |manifest| is `null`, return "`Does Not Bypass`".
 
@@ -852,7 +809,7 @@ Bypass`" if the preflight is required:
         or {{CORSOptions/headers}} member's values are "{{*}}".
 
     3.  |options|'s {{CORSOptions/origins}} is not "{{*}}", and the
-        <a lt="unicode serialisation of an origin">serialization</a> of
+        <a lt="ASCII serialization of an origin">serialization</a> of
         |request|'s <a for="request">origin</a> is not an <a>case-sensitive</a>
         match for any of the items in |options|'s {{CORSOptions/origins}}
         sequence.

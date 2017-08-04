@@ -1,5 +1,5 @@
 <pre class='metadata'>
-Title: Origin Policy
+Title: Origin Manifest 
 Status: CG-DRAFT
 Group: WICG
 ED: https://WICG.github.io/origin-policy
@@ -96,7 +96,7 @@ A number of implications follow:
 
 This document introduces a new delivery mechanism for policies which are meant
 to apply to an entire origin. In short, a server will provide an <a>Origin
-Policy Manifest</a> file at a well-known location. This file contains all of the
+Manifest</a> file at a well-known location. This file contains all of the
 metadata the server would like to set for each response. User agents can be
 instructed to synchronously download and process this manifest before completing
 a navigation to an origin's resources, ensuring that the policy contained therin
@@ -115,7 +115,7 @@ applied to each of the pages on `https://example.com`, while avoiding the
 overhead associated with large response headers, and the uncertainty that
 they've really covered everything that lives on the origin.
 
-When they see a request come in that contains a <a>`Sec-Origin-Policy`</a>
+When they see a request come in that contains a <a>`Sec-Origin-Manifest`</a>
 header, they can respond in kind, pointing the client to a manifest file
 in a well-known location on their server. That is, given the following
 request:
@@ -125,7 +125,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Sec-Origin-Policy</a>: 1
+<a>Sec-Origin-Manifest</a>: 1
 ...
 </pre>
 
@@ -138,13 +138,13 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Sec-Origin-Policy</a>: "policy-1"
-<a http-header>Vary</a>: sec-origin-policy
+<a>Sec-Origin-Manifest</a>: "policy-1"
+<a http-header>Vary</a>: sec-origin-manifest
 ...
 </pre>
 
 The client will parse the response headers, and synchronously request
-`https://example.com/.well-known/origin-policy/policy-1` before completing
+`https://example.com/.well-known/origin-manifest/policy-1` before completing
 the navigation. The policies contained in that file will be cached
 according to the normal HTTP caching rules, and applied to pages on
 `https://example.com/` (including the current navigation).
@@ -193,7 +193,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
+<a>Sec-Origin-Manifest</a>: "<strong>policy-1</strong>"
 ...
 </pre>
 
@@ -204,7 +204,7 @@ See [[#server-push]] for details.
 
 <div class="example">
 MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
-It can do so by setting an appropriate `Sec-Origin-Policy` header in the response.
+It can do so by setting an appropriate `Sec-Origin-Manifest` header in the response.
 That is, given the following request:
 
 <pre>
@@ -212,7 +212,7 @@ GET / HTTP/1.1
 Host: example.com
 Connection: keep-alive
 ...
-<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
+<a>Sec-Origin-Manifest</a>: "<strong>policy-1</strong>"
 ...
 </pre>
 
@@ -225,8 +225,8 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Sec-Origin-Policy</a>: "policy-2"
-<a http-header>Vary</a>: sec-origin-policy
+<a>Sec-Origin-Manifest</a>: "policy-2"
+<a http-header>Vary</a>: sec-origin-manifest
 ...
 </pre>
 
@@ -237,7 +237,7 @@ the latter to the response.
 
 <div class="example">
 MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
-It can do so by setting an `Sec-Origin-Policy` header with a value of `0` in the
+It can do so by setting an `Sec-Origin-Manifest` header with a value of `0` in the
 response:
 
 <pre>
@@ -247,7 +247,7 @@ Accept-Ranges: bytes
 Cache-Control: max-age=604800
 Content-Type: text/html
 ...
-<a>Sec-Origin-Policy</a>: 0
+<a>Sec-Origin-Manifest</a>: 0
 ...
 </pre>
 
@@ -272,17 +272,17 @@ An <dfn>origin policy object</dfn> is a tuple of a string
 (<dfn for="origin policy object">version</dfn>), and the contents of an
 <a>origin policy manifest</a> (<dfn for="origin policy object">body</dfn>).
 
-User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
+User agents have a <dfn export>Origin Manifest Store</dfn>, which is a key/value
 store that constitutes a 1:1 mapping between <a>origin policy objects</a> and
 <a for="/">origins</a>.
 
 When asked to <dfn abstract-op local-lt="get-policy-from-store">retrieve an Origin
-Policy for an origin</dfn>, an <a>Origin Policy Store</a> will return either a
+Manifest for an origin</dfn>, an <a>Origin Manifest Store</a> will return either a
 single <a>origin policy object</a> (if one is stored for the given origin), or
 `null` (if nothing is stored for the given origin).
 
 When asked to <dfn abstract-op local-lt="evict-policy-from-store">evict an Origin
-policy for an origin</dfn>, an <a>Origin Policy Store</a> will discard any
+policy for an origin</dfn>, an <a>Origin Manifest Store</a> will discard any
 <a>origin policy object</a> associated with the given origin.
 
 This document uses ABNF grammar to specify syntax, as defined in [[!RFC5234]]. It also relies on
@@ -292,10 +292,10 @@ the `#rule` ABNF extension defined in
 This document depends on the Infra Standard for a number of foundational concepts used in its
 algorithms and prose [[!INFRA]].
 
-The `Sec-Origin-Policy` HTTP Header Field {#origin-policy-header}
+The `Sec-Origin-Manifest` HTTP Header Field {#origin-manifest-header}
 -----------------------------------------------------------------
 
-The <dfn export>`Sec-Origin-Policy`</dfn> HTTP request header field is sent with
+The <dfn export>`Sec-Origin-Manifest`</dfn> HTTP request header field is sent with
 navigational HTTP requests in order to advertise support generally for the
 origin policy manifest mechanism defined in this document, and to inform
 the server which version of its origin policy is cached locally. Its value
@@ -307,7 +307,7 @@ value MUST be either `0` or a base64-encoded value, wrapped in double-quotes.
 The following ABNF defines that more formally:
 
 <pre class="abnf" dfn-type="grammar" link-type="grammar">
-  Sec-Origin-Policy: 0 / 1 / <a>manifest-name</a>
+  Sec-Origin-Manifest: 0 / 1 / <a>manifest-name</a>
   <dfn>manifest-name</dfn>: <a>DQUOTE</a> <a>base64-value</a> <a>DQUOTE</a>
   ; base64-value is defined in [[!CSP3]]
   ; DQUOTE is defined in [[!RFC5234]]
@@ -316,10 +316,10 @@ The following ABNF defines that more formally:
 This header MUST be ignored if [[secure-contexts#is-url-trustworthy]] returns
 "`Not Trustworthy`" when executed upon the response's URL.
 
-The Origin Policy Manifest File {#manifest-file}
+The Origin Manifest File {#manifest-file}
 ------------------------------------------------------
 
-The <dfn export local-lt="manifest">Origin Policy Manifest</dfn> is a
+The <dfn export local-lt="manifest">Origin Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
 members. Each member defines a specific aspect of an origin's policy.
 
@@ -358,18 +358,18 @@ members. Each member defines a specific aspect of an origin's policy.
 }
 </pre>
 
-### The `origin-policy` well-known location ### {#origin-policy-well-known}
+### The `origin-manifest` well-known location ### {#origin-manifest-well-known}
 
-<a>Origin Policy Manifest</a> files for a given origin MUST be located as
-suffixes to the well-known location `/.well-known/origin-policy` [[RFC5785]].
+<a>Origin Manifest</a> files for a given origin MUST be located as
+suffixes to the well-known location `/.well-known/origin-manifest` [[RFC5785]].
 Their names MUST be strings of characters matching the
-<a grammar>base64-value</a> grammar. That is, `/.well-known/origin-policy/a`
-might point to one <a>Origin Policy Manifest</a> file, while
-`/.well-known/origin-policy/b` might point to another.
+<a grammar>base64-value</a> grammar. That is, `/.well-known/origin-manifest/a`
+might point to one <a>Origin Manifest</a> file, while
+`/.well-known/origin-manifest/b` might point to another.
 
-Servers MUST respond to a `GET` request to `/.well-known/origin-policy` with a
+Servers MUST respond to a `GET` request to `/.well-known/origin-manifest` with a
 302 redirect whose `Location` header points to the origin's current <a>Origin
-Policy Manifest</a>, or with a 404 response if no such policy is available.
+Manifest</a>, or with a 404 response if no such policy is available.
 
 Note: This redirect can be used as a discovery mechanism. User agents might
 prefetch such manifest files for origins a user is likely to visit, testing
@@ -544,7 +544,7 @@ defined set of requests.
 </pre>
 
 ISSUE: WebIDL is almost certainly the wrong way to describe the way the
-<a>`Sec-Origin-Policy`</a> header's value is constructed. Still, it makes
+<a>`Sec-Origin-Manifest`</a> header's value is constructed. Still, it makes
 writing the spec quite a bit simpler, so. We'll come up with something better
 later. Possibly as part of the JSON HTTP Header Field encoding work
 ongoing in the HTTP WG.
@@ -557,12 +557,12 @@ Algorithms {#algorithms}
 </h3>
 
 Given an origin (|origin|), this algorithm returns `0` if no manifest is present
-in the user agent's <a>Origin Policy Store</a>, or a string representing the
+in the user agent's <a>Origin Manifest Store</a>, or a string representing the
 cached version otherwise.
 
 1.  Let |version| be `0`.
 
-2.  If the user agent's <a>Origin Policy Store</a> contains a tuple for
+2.  If the user agent's <a>Origin Manifest Store</a> contains a tuple for
     |origin|, let |version| be that tuple's first element.
 
 3.  Return |version|.
@@ -572,10 +572,10 @@ cached version otherwise.
 </h3>
 
 Given an origin (|origin|), this algorithm removes any cached manifest from the
-user agent's <a>Origin Policy Store</a>:
+user agent's <a>Origin Manifest Store</a>:
 
-1.  Instruct the user agent's <a>Origin Policy Store</a> to
-    <a lt="evict-policy-from-store" abstract-op>evict</a> any <a>Origin Policy object</a> stored
+1.  Instruct the user agent's <a>Origin Manifest Store</a> to
+    <a lt="evict-policy-from-store" abstract-op>evict</a> any <a>Origin Manifest object</a> stored
     for |origin|.
 
 HTML Integration {#monkey-patching-html}
@@ -591,7 +591,7 @@ At the end of the navigation algorithm, we'll do the following:
 At the end of the "run a worker" algorithm, we'll do the same thing.
 
 <h4 algorithm dfn id="html-apply-policy">
-  Apply Origin Policy to |settings|.
+  Apply Origin Manifest to |settings|.
 </h4>
 
 ISSUE: Write this algorithm.
@@ -602,17 +602,17 @@ Fetch Integration {#monkey-patching-fetch}
 During a navigation request, Fetch will hook into this specification in two ways:
 
 1.  At the top of the basic fetch algorithm, Fetch will call
-    [[#fetch-prepare-request]] in order to append `Sec-Origin-Policy` to the
+    [[#fetch-prepare-request]] in order to append `Sec-Origin-Manifest` to the
     request's header list with a value of `1` if no manifest is cached for its
     URL's origin, or a value of the verion of the manifest that is cached  (e.g.
     `"policy-1"`).
 
 2.  When a response is received during HTTP-network fetch algorithm, Fetch will
     call into [[#fetch-parse-response]] to sift through its headers, and
-    extract the `Sec-Origin-Policy` header. If present, and its value does not
+    extract the `Sec-Origin-Manifest` header. If present, and its value does not
     match the value of the locally cached manifest for the response's origin,
     we'll issue a synchronous request for a resource located on the request's
-    URL's origin at `/.well-known/origin-policy/{value}`, as defined in
+    URL's origin at `/.well-known/origin-manifest/{value}`, as defined in
     [[#fetch-parse-response]].
 
     The manifest request will fail in a draconian fashion: if
@@ -632,7 +632,7 @@ During a navigation request, Fetch will hook into this specification in two ways
     Otherwise, the preflight will be issued as usual.
 
 <h4 algorithm dfn id="fetch-prepare-request">
-  Prepare |request| with Origin Policy.
+  Prepare |request| with Origin Manifest.
 </h4>
 
 Given a request |request|, add appropriate headers to inform a server about a
@@ -648,29 +648,29 @@ client's active policy:
 
     Otherwise, let |version| be `1` (see [[#tracking]]).
 
-3.  Append a header named `Sec-Origin-Policy` with a value of |version| to
+3.  Append a header named `Sec-Origin-Manifest` with a value of |version| to
     |request|'s header list.
 
 <h4 algorithm dfn id="fetch-parse-response">
-  Process |response| for Origin Policy.
+  Process |response| for Origin Manifest.
 </h4>
 
 Given a response (|response|), the user agent will <dfn abstract-op>process |response|'s Origin
-Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Manifest</a>:
+Manifest</dfn> as follows, fetching or evicting the relevant <a>Origin Manifest</a>:
 
-*  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
+*  If no "`Sec-Origin-Manifest`" header is present, this algorithm returns
    "`No-op`".
 
-*  If an "`Sec-Origin-Policy`" header is present with a value of `0`, this
+*  If an "`Sec-Origin-Manifest`" header is present with a value of `0`, this
    algorithm will evict the relevant manifest, and return "`Success`".
 
-*  If an "`Sec-Origin-Policy`" header is present with a non-`0` value, this
+*  If an "`Sec-Origin-Manifest`" header is present with a non-`0` value, this
    algorithm will attempt to fetch the specified manifest. If successful,
    the manifest will be cached locally, and this algorithm will return
    "`Success`". If the fetch fails, this algorithm will return "`Failure`".
 
 <ol class="algorithm">
-  1.  Let |version| be the result of [=extracting header list values=] given `Sec-Origin-Policy` and
+  1.  Let |version| be the result of [=extracting header list values=] given `Sec-Origin-Manifest` and
       |response|'s [=response/header list=].
 
   2.  Let |url| be a copy of |response|'s [=response/URL=].
@@ -692,7 +692,7 @@ Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Mani
 
       2.  Return "`Success`".
 
-  7.  Replace |url|'s [=url/path=] with the concatenation of "`/.well-known/origin-policy/`" and
+  7.  Replace |url|'s [=url/path=] with the concatenation of "`/.well-known/origin-manifest/`" and
       |version|.
 
   8.  Let |request| be a new request with the following properties:
@@ -724,7 +724,7 @@ Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Mani
       3.  [=body/Wait=] for |response|'s [=response/body=].
 
       4.  Store the tuple (|version|, |response|'s [=response/body=]) in the user agent's <a>Origin
-          Policy Store</a> for |response|'s [=response/URL=]'s [=url/origin=].
+          Manifest Store</a> for |response|'s [=response/URL=]'s [=url/origin=].
 
       5.  Return "`Success`".
 
@@ -732,7 +732,7 @@ Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Mani
 </ol>
 
 <h4 algorithm dfn id="fetch-apply-policy">
-  Apply an Origin Policy to |response|.
+  Apply an Origin Manifest to |response|.
 </h4>
 
 Given a response (|response|), the following algorithm applies the relevant
@@ -744,8 +744,8 @@ Given a response (|response|), the following algorithm applies the relevant
     [[secure-contexts#is-origin-trustworthy]] returns "`Not Trustworthy`" when
     executed upon |origin|, abort these steps and return.
 
-3.  Let |object| be the result of instructing the user agent's <a>Origin Policy
-    Store</a> to <a lt="get-policy-from-store" abstract-op>retrieve an Origin Policy
+3.  Let |object| be the result of instructing the user agent's <a>Origin Manifest
+    Store</a> to <a lt="get-policy-from-store" abstract-op>retrieve an Origin Manifest
     object</a> for |origin|.
 
 4.  If |object| is `null`, abort these steps and return.
@@ -780,16 +780,16 @@ Given a response (|response|), the following algorithm applies the relevant
         performant algorithms making use of this invariant.
 
 <h4 algorithm dfn id="fetch-bypass-preflight">
-  Does Origin Policy bypass |request|'s CORS-preflight request?
+  Does Origin Manifest bypass |request|'s CORS-preflight request?
 </h4>
 
 Given a request (|request|), this algorithm returns "`Bypass`" if the
 <a>CORS-preflight request</a> required for |request| can be fulfilled by
-examining the target origin's <a>Origin Policy Manifest</a>, and "`Does Not
+examining the target origin's <a>Origin Manifest</a>, and "`Does Not
 Bypass`" if the preflight is required:
 
 1.  Let |manifest| be the result of <a lt="get-policy-from-store" abstract-op>retrieving an Origin
-    Policy</a> for |request|'s <a for="request">url</a>'s <a for="url">origin</a>.
+    Manifest</a> for |request|'s <a for="request">url</a>'s <a for="url">origin</a>.
 
 2.  If |manifest| is `null`, return "`Does Not Bypass`".
 
@@ -838,7 +838,7 @@ It might make sense to combine this mechanism with the manifest notion
 defined in [[APPMANIFEST]]. There are a few distinctions, however, which
 lead to the current design:
 
-1.  The [=Origin Policy Manifest=] is delivered synchronously during
+1.  The [=Origin Manifest=] is delivered synchronously during
     navigation, which gives it a number of valuable security properties. The
     web app manifest, on the other hand, is delivered inline via a <{link}>
     element, which makes it less valuable from that perspective.
@@ -857,12 +857,12 @@ Why `.well-known`? {#why-well-known}
 ------------------
 
 This document forces the manifest to live as a resource accessible under a
-"well-known location" specific to Origin Policy manifests. It would increase
+"well-known location" specific to Origin Manifest. It would increase
 flexibility of deployment and implementation if we allowed a developer to point
 to any location on an origin instead. Perhaps something like the following:
 
 ```
-  Sec-Origin-Policy: /path/to/manifest.json
+  Sec-Origin-Manifest: /path/to/manifest.json
 ```
 
 This would allow developers who control an application, but not the server on
@@ -886,7 +886,7 @@ accidentally pinned a policy to the entire origin which didn't account for the
 rest of the origin's contents. To mitigate that risk, this document forces the
 manifest to live in a shared location for an origin. The goal is explicitly to
 eilicit the kind of discussion and compromise within an origin that needs to
-happen in order to deploy an Origin Policy safely.
+happen in order to deploy an Origin Manifest safely.
 
 Authoring Considerations {#authoring}
 ========================
@@ -940,7 +940,7 @@ Content Security Policy has introduced some dynamic mechanisms that are quite
 valuable in terms of encouraging deployment. Nonces, along with the
 <a grammar>`'strict-dynamic'`</a> expression are a good example of an
 implementation which requires a server to send a fresh value down with each
-response. Origin Policy can support such deployments via the "`fallback`"
+response. Origin Manifest can support such deployments via the "`fallback`"
 mechanism as follows:
 
 <div class="example">
@@ -948,7 +948,7 @@ MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
 plugins and framing altogether, but which uses `'strict-dynamic'` along with a
 fresh nonce for each resource in order to reduce the risk of cross-site
 scripting. It can do so by combining a "`baseline`" and "`fallback`" policy in
-the <a>Origin Policy Manifest</a>, and delivering a `Content-Security-Policy`
+the <a>Origin Manifest</a> file, and delivering a `Content-Security-Policy`
 header along with each response.
 
 That is, the manifest file might contain the following JSON:
@@ -992,7 +992,7 @@ Privacy and Security Considerations {#privacy-and-security}
 Tracking {#tracking}
 --------
 
-We send an <a>`Sec-Origin-Policy`</a> header containing the currently cached
+We send an <a>`Sec-Origin-Manifest`</a> header containing the currently cached
 manifest version up to the server along with every <a>navigation request</a>
 in order to reduce the performance impact of the synchronous request for
 the manifest. By informing the server which manifest the user has cached,
@@ -1000,7 +1000,7 @@ the server can make intelligent decisions about when to initiate a server
 push, thereby avoiding the blocking behavior, and extra round-trip for a
 cancellation.
 
-That said, the value of the <a>`Sec-Origin-Policy`</a> header (as well as the
+That said, the value of the <a>`Sec-Origin-Manifest`</a> header (as well as the
 contents of the cached manifest), can be used to track users with only
 marginally less granularity and coverage than cookies allow. As such, the
 user agent MUST purge an origin's cached manifests whenever a user instructs
@@ -1012,7 +1012,7 @@ a particular cache entry.
 The `Sec-` prefix {#sec-prefix}
 -----------------
 
-The <a>`Sec-Origin-Policy`</a> header `Sec-` prefix ensures that it is treated
+The <a>`Sec-Origin-Manifest`</a> header `Sec-` prefix ensures that it is treated
 as a <a>forbidden header name</a> by Fetch: developers have no direct control
 over the header's value, and cannot forge the header by injecting it via APIs
 like `fetch()` or `XMLHttpRequest`. It remains under the control of the user
@@ -1021,14 +1021,14 @@ agent.
 IANA Considerations {#iana}
 ===================
 
-The `Sec-Origin-Policy` header {#iana-header}
+The `Sec-Origin-Manifest` header {#iana-header}
 --------------------------
 
 The permanent message header field registry should be updated
 with the following registration: [[!RFC3864]]
 
 :   Header field name
-::  `Sec-Origin-Policy`
+::  `Sec-Origin-Manifest`
 :   Applicable protocol
 ::  http
 :   Status
@@ -1036,27 +1036,27 @@ with the following registration: [[!RFC3864]]
 :   Author/Change controller
 ::  W3C
 :   Specification document
-::  This specification (see [[#origin-policy-header]])
+::  This specification (see [[#origin-manifest-header]])
 
-Creation of the well-known location `origin-policy` {#iana-well-known}
+Creation of the well-known location `origin-manifest` {#iana-well-known}
 ---------------------------------------------------
 
-This document defines a well-known location at which <a>Origin Policy
-manifests</a> may be found. In accordance with [[RFC5758]], the following
+This document defines a well-known location at which <a>Origin
+Manifests</a> may be found. In accordance with [[RFC5758]], the following
 registration should be made if and when the proposal in this document gains
 acceptance and implementation:
 
 :   URI Suffix
-::  `origin-policy`
+::  `origin-manifest`
 :   Change Controller
 ::  W3C
 :   Specification document
-::  This document (see [[#origin-policy-well-known]])
+::  This document (see [[#origin-manifest-well-known]])
 :   Related information
-::  The suffix `origin-policy` is expected to be followed by an additional path
-    component which names a specific <a>Origin Policy manifest</a> (e.g.
-    `/.well-known/origin-policy/name`). A request to
-    `/.well-known/origin-policy` can be expected to redirect to the most current
+::  The suffix `origin-manifest` is expected to be followed by an additional path
+    component which names a specific <a>Origin Manifest</a> (e.g.
+    `/.well-known/origin-manifest/name`). A request to
+    `/.well-known/origin-manifest` can be expected to redirect to the most current
     policy for an origin.
 
 Acknowledgements {#ack}

@@ -285,7 +285,7 @@ the latter to the response.
 
 <div class="example">
 MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
-It can do so by setting an `Sec-Origin-Policy` header with a value of `0` in the
+It can do so by setting a `Sec-Origin-Policy` header with a value of `0` in the
 response:
 
 <pre>
@@ -701,10 +701,10 @@ fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
 *  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
    "`No-op`".
 
-*  If an "`Sec-Origin-Policy`" header is present with a value of `0`, this
+*  If a "`Sec-Origin-Policy`" header is present with a value of `0`, this
    algorithm will evict the relevant manifest, and return "`Success`".
 
-*  If an "`Sec-Origin-Policy`" header is present with a non-`0` value, this
+*  If a "`Sec-Origin-Policy`" header is present with a non-`0` value, this
    algorithm will attempt to fetch the specified manifest. If successful,
    the manifest will be cached locally, and this algorithm will return
    "`Success`". If the fetch fails, this algorithm will return "`Failure`".

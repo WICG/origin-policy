@@ -357,6 +357,8 @@ The following ABNF defines that more formally:
 This header MUST be ignored if [[secure-contexts#is-url-trustworthy]] returns
 "`Not Trustworthy`" when executed upon the response's URL.
 
+If the server sends more than one `Sec-Origin-Policy` response header, the client MUST only process the first such header.
+
 The Origin Policy Manifest File {#manifest-file}
 ------------------------------------------------------
 
@@ -700,6 +702,10 @@ fetch or evict the relevant <a>Origin Policy Manifest</a> as follows:
 
 *  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
    "`No-op`".
+
+*  If more than one "`Sec-Origin-Policy`" header is present, only process the
+   first header in this algorithm, and ignore all following "`Sec-Origin-
+   Policy`" headers.
 
 *  If a "`Sec-Origin-Policy`" header is present with a value of `0`, this
    algorithm will evict the relevant manifest, and return "`Success`".

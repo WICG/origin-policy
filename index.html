@@ -1178,7 +1178,7 @@ Possible extra rowspan handling
 </style>
   <meta content="Bikeshed version cfc215e37709cbc3185e3eb5692e5598ed6801b3" name="generator">
   <link href="https://WICG.github.io/origin-policy" rel="canonical">
-  <meta content="303051f6998d8db2d0af69e6127d4cdeda366fb9" name="document-revision">
+  <meta content="f757564d02a81f7acea0c47f07650ee43764bdf3" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1735,6 +1735,7 @@ The following ABNF defines that more formally:</p>
 </pre>
    <p>This header MUST be ignored if <a href="https://www.w3.org/TR/secure-contexts/#is-url-trustworthy">Secure Contexts §is-url-trustworthy</a> returns
 "<code>Not Trustworthy</code>" when executed upon the response’s URL.</p>
+   <p>If the server sends more than one <code>Sec-Origin-Policy</code> response header, the client MUST only process the first such header.</p>
    <h3 class="heading settled" data-level="2.3" id="manifest-file"><span class="secno">2.3. </span><span class="content">The Origin Policy Manifest File</span><a class="self-link" href="#manifest-file"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" data-local-lt="manifest" id="origin-policy-manifest">Origin Policy Manifest</dfn> is a
 JSON-formatted document consisting of a top-level object with one or more
@@ -2006,6 +2007,9 @@ fetch or evict the relevant <a data-link-type="dfn" href="#origin-policy-manifes
     <li data-md="">
      <p>If no "<code>Sec-Origin-Policy</code>" header is present, this algorithm returns
  "<code>No-op</code>".</p>
+    <li data-md="">
+     <p>If more than one "<code>Sec-Origin-Policy</code>" header is present, only process the
+ first header in this algorithm, and ignore all following "<code>Sec-Origin- Policy</code>" headers.</p>
     <li data-md="">
      <p>If a "<code>Sec-Origin-Policy</code>" header is present with a value of <code>0</code>, this
  algorithm will evict the relevant manifest, and return "<code>Success</code>".</p>

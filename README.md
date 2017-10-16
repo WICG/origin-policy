@@ -1,19 +1,16 @@
 
 # Explainer: Origin Manifest
 
-**tl;dr** Origin Manifest (formerly Origin Policy) is a web platform mechanism
+**tl;dr** Origin Manifest is a web platform mechanism
 that aims to shift configuring the origin from web applications to the origin
 itself. For this the origin provides a manifest file in a predefined well-known
 location which browsers can load and apply.
-
-**Note:** Though the current draft still uses the name Origin Policy, we use the
-new term Origin Manifest here to avoid confusion with the Same Origin Policy.
 
 
 ## The Problems and Goals
 
 ### Configurations with origin-wide effects
-**Problem:** Some configurations, e.g. like HTTP headers, affect an entire
+**Problem:** Some configuration delivery mechanisms, e.g. like HTTP headers, affect an entire
   origin even though they might have been set through only a sub-resource load.
   Misconfiguration of font resource header can have dramatic effects for the
   origin, e.g. a wrong HPKP value.
@@ -23,8 +20,8 @@ new term Origin Manifest here to avoid confusion with the Same Origin Policy.
   through individual web applications sharing the same origin.
 
 ### HTTP header redundancy
-**Problem 1:** Same HTTP headers have to be sent again and again without the
-  values actually to change. Sometimes these headers add significant number of
+**Problem 1:** Some HTTP headers have to be sent again and again without actually changing the
+  values. Sometimes these headers add significant number of
   bytes, e.g. CSP.
 
 **Problem 2:** Some HTTP headers are sent with every response even though their
@@ -54,7 +51,7 @@ new term Origin Manifest here to avoid confusion with the Same Origin Policy.
 
 
 ## The Proposal
-We propse Origin Manifest as a web platform mechanism that aims to shift
+We propose Origin Manifest as a web platform mechanism that aims to shift
 configuring the origin from web applications to the origin itself.
 
 ### Server side
@@ -93,35 +90,26 @@ their cache and not use Origin Manifest otherwise.
 #### Opt-in
 In case no manifest is cached the client indicates support for the feature by
 setting the value 1.
-```
-Client                                                      Server
-  |    --- request with 'Sec-Origin-Manifest: 1' --------->   |
-  |    <-- response with 'Sec-Origin-Manifest: "v0"' ------   |
-  | defer processing response
-  |    --- request to '<origin>/originmanifest/v0.json' -->   |
-  |    <-- response with version0.json --------------------   |
-  | continue processing first response
-```
+![Opt-in](/images/opt_in.png)
 
 #### Updating and Confirming
 In case a manifest is cached the client informs the server about the currently
 cached version. If the version is accepted by the server the response simply
 confirms the header. No fetch is needed. Otherwise the new version is fetched.
-```
-Client                                                      Server
-  |    --- request with 'Sec-Origin-Manifest: "v0"' ------>   |
-  |    <-- response with 'Sec-Origin-Manifest: "v1"' ------   |
-  | defer processing response
-  |    --- request to '<origin>/originmanifest/v1.json' -->   |
-  |    <-- response with v1.json --------------------------   |
-  | continue processing first response
-```
+![Updating and Confirm](/images/update.png)
 
 #### Opt-out
 Servers can decide not no longer use Origin Manifest. If so they can set the
 `Sec-Origin-Manifest` header to 0 in the response. Clients then behave like no
 manifest was ever set and remove the currently cached manifest from cache (if
 any).
+
+## Related Work
+Mark Nottingham came up with basically the same idea around the same time
+[https://mnot.github.io/I-D/site-wide-headers/]{https://mnot.github.io/I-D/site-wide-headers/}.
+The goal is of course to pick the best parts from both approaches and to merge
+them into a useful mechanism.
+
 
 ## Discussion
 **Why is the current version sent?**
@@ -143,3 +131,6 @@ fundamentally different from Application Manifest (TODO: ref here).
 We need to process Origin Manifests differently from other data fetched over
 HTTP. In particular, it allows us to manage the different versions and to ensure
 that there exists at most only exactly one manifest per origin.
+Directly related to the above question "Why is the current version sent?",
+servers using HTTP/2 would start pushing the manifest to the client which clients
+would need to cancel. This imposes performance costs we want to avoid.

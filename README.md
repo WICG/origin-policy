@@ -106,7 +106,7 @@ any).
 
 ## Related Work
 Mark Nottingham came up with basically the same idea around the same time
-[https://mnot.github.io/I-D/site-wide-headers/]{https://mnot.github.io/I-D/site-wide-headers/}.
+https://mnot.github.io/I-D/site-wide-headers/.
 The goal is of course to pick the best parts from both approaches and to merge
 them into a useful mechanism.
 

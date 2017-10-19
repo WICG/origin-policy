@@ -1,9 +1,13 @@
 
-# Explainer: Origin Manifest
+# Explainer: Origin-wide configuration using Origin Manifests
 
 **tl;dr** Origin Manifest is a web platform mechanism
 that aims to shift configuring the origin from web applications to the origin
-itself. For this the origin provides a manifest file in a predefined well-known
+itself.
+That is instead of burdening web applications to set configuration options as
+HTTP response headers, Origin Manifest allows declaring those options
+out-of-band representing the entire origin, not particular web applications.
+For this the origin provides a manifest file in a predefined well-known
 location which browsers can load and apply.
 
 
@@ -70,7 +74,7 @@ configurations directly relate to HTTP headers, e.g. CSP.
 #### File Format
 Origin Manifests must be written in valid JSON format. The currently discussed
 schema will look like or similar to the one propsed by Mike West in
-[Issue 19]{https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817}.
+https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817.
 
 #### Versioning
 Updates to the Origin Manifest file are natural. To this end every manifest has
@@ -131,6 +135,7 @@ fundamentally different from Application Manifest (TODO: ref here).
 We need to process Origin Manifests differently from other data fetched over
 HTTP. In particular, it allows us to manage the different versions and to ensure
 that there exists at most only exactly one manifest per origin.
-Directly related to the above question "Why is the current version sent?",
-servers using HTTP/2 would start pushing the manifest to the client which clients
-would need to cancel. This imposes performance costs we want to avoid.
+Also, directly related to the above question "Why is the current version sent?",
+we need to store and notify the current version or servers using HTTP/2 would
+start pushing the manifest to the client which clients would need to cancel.
+This imposes performance costs we want to avoid.

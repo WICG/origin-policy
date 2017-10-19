@@ -127,7 +127,8 @@ it will be eventually fetched or not.
 
 Certain configuration options, e.g. CSP, require to be loaded before the actual
 content is processed, e.g. a HTML document is rendered. This makes it also
-fundamentally different from Application Manifest (TODO: ref here).
+fundamentally different from Application Manifest
+(https://w3c.github.io/manifest/).
 
 
 **Why not just using HTTP caching and ETag?**

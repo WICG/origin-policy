@@ -1,11 +1,11 @@
 
-# Explainer: Origin-wide configuration using Origin Policy
+# Explainer: Origin-wide configuration using Origin Manifests
 
-**tl;dr** Origin Policy is a web platform mechanism
+**tl;dr** Origin Manifest is a web platform mechanism
 that aims to shift configuring the origin from web applications to the origin
 itself.
 That is instead of burdening web applications to set configuration options as
-HTTP response headers, Origin Policy allows declaring those options
+HTTP response headers, Origin Manifest allows declaring those options
 out-of-band representing the entire origin, not particular web applications.
 For this the origin provides a manifest file in a predefined well-known
 location which browsers can load and apply.
@@ -55,11 +55,11 @@ location which browsers can load and apply.
 
 
 ## The Proposal
-We propose Origin Policy as a web platform mechanism that aims to shift
+We propose Origin Manifest as a web platform mechanism that aims to shift
 configuring the origin from web applications to the origin itself.
 
 ### Server side
-Origin Policy files are to be published in a well-known location on the
+Origin Manifest files are to be published in a well-known location on the
 server. This enforces that the origin and not the individual web apps defines
 them.
 
@@ -69,15 +69,15 @@ one manifest for an origin. The client enforces the configurations from a
 manifest similar to how HTTP headers are used. In fact, currently most
 configurations directly relate to HTTP headers, e.g. CSP.
 
-### Origin Policy File
+### Origin Manifest File
 
 #### File Format
-Origin Policys must be written in valid JSON format. The currently discussed
+Origin Manifests must be written in valid JSON format. The currently discussed
 schema will look like or similar to the one propsed by Mike West in
 https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817.
 
 #### Versioning
-Updates to the Origin Policy file are natural. To this end every manifest has
+Updates to the Origin Manifest file are natural. To this end every manifest has
 a by the server defined version identifier. This allows firstly to easily
 identify if a client needs to fetch a newer version. Secondly, it allows a web
 application to decide that a manifest cached in the client is "good enough" to
@@ -89,7 +89,7 @@ Clients always set the `Sec-Origin-Manifest` header to indicate the support for
 the mechanism. Servers can then opt-in to use the mechanism by sending back a
 `Sec-Origin-Manifest` header with the current manifest version. If servers
 should decide to not send the header, clients try to retreive a manifest from
-their cache and not use Origin Policy otherwise.
+their cache and not use Origin Manifest otherwise.
 
 #### Opt-in
 In case no manifest is cached the client indicates support for the feature by
@@ -103,7 +103,7 @@ confirms the header. No fetch is needed. Otherwise the new version is fetched.
 ![Updating and Confirm](/images/update.png)
 
 #### Opt-out
-Servers can decide not no longer use Origin Policy. If so they can set the
+Servers can decide not no longer use Origin Manifest. If so they can set the
 `Sec-Origin-Manifest` header to 0 in the response. Clients then behave like no
 manifest was ever set and remove the currently cached manifest from cache (if
 any).
@@ -133,7 +133,7 @@ fundamentally different from Application Manifest
 
 **Why not just using HTTP caching and ETag?**
 
-We need to process Origin Policys differently from other data fetched over
+We need to process Origin Manifests differently from other data fetched over
 HTTP. In particular, it allows us to manage the different versions and to ensure
 that there exists at most only exactly one manifest per origin.
 Also, directly related to the above question "Why is the current version sent?",

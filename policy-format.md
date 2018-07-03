@@ -1,14 +1,13 @@
-
 # Explainer: Format of Origin Policy documents
 
-**tl;dr** [Origin Policy](README.md) documents are JSON files  with top-level
-entries for each supported mechanism.
+**tl;dr** [Origin Policy](README.md) documents are JSON files with top-level
+entries for each supported policy mechanism.
 
 ## General File Format
 
 An origin policy document is a JSON document that contains a series of policy
-items. A top-level dictionary contains names policy items. Each type of
-(currently) supported policy item is described below.
+items. A top-level dictionary names each policy items and contains item specifc
+calues. Each type of (currently) supported policy item is described below.
 
 Example:
 

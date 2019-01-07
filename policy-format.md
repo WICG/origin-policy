@@ -1,102 +1,78 @@
 # Explainer: Format of Origin Policy documents
 
-**tl;dr** [Origin Policy](README.md) documents are JSON files with top-level
-entries for each supported policy mechanism.
+**tl;dr:** [Origin Policy](README.md) documents are JSON files with top-level
+entries for each supported policy mechanism. We try to re-use existing format
+syntax where applicable (e.g. where equivalent HTTP headers exist).
 
 ## General File Format
 
 An origin policy document is a JSON document that contains a series of policy
-items. A top-level dictionary names each policy items and contains item specifc
-calues. Each type of (currently) supported policy item is described below.
+items. Each top-level dictionary entry names a policy item and contains an
+item specifc dictionary. Each type of (currently) supported policy item is
+described below.
 
 Example:
 
 ```js
 {
-  "tls": .... ,
-  "content-security-policy": .... ,
+  // Example format with comments.
+  "features": .... ,
+  "content-security": .... ,
   "referrer": ....
 }
 ```
+
+Note: We sometimes use comments in the examples. The comment syntax is not
+      supported JSON and is not part of the actual format.
 
 ## Format Versioning and Error Handling
 
 Applications should
 
-- raise an error if the file is not well-formed JSON,
+- consider it a fatal error if the file is not well-formed JSON (or cannot be
+  fetched),
 - ignore any top-level section they do not understand,
 - consider it an error if they fail to parse a policy item that they do
-  understand.
+  understand. How to handle an error with a particular policy item should
+  be consistent with how errors are handled elsewhere for a comparable policy.
+  (For example, Feature Policy usually resorts to browser defaults if a policy
+  is not understood. It would be odd if this would lead to more drastic
+  failures if the same policy is declared in an Origin Policy.)
 
-**TODO:** Should there be a 'must understand' directive, so that site owners
-can determine themselves whether failure to understand a given policy item
-should be fatal ot nor?
-
-## Support Policy Items
+## Supported Policy Items
 
 ### Content Security Policy (CSP)
 
-The `content-security-policy` policy item contains the equivalent of one or more
+The `content-security` policy item contains the equivalent of one or
+more
 [Content-Security-Policy HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
 
-- The `"content-security-policy"` policy item contains an array of
-  content-security-policy directives.
-- Each CSP directive contains a `"policy"` string, containing the CSP format.
-- A `"disposition"` is either `"enforce"` or `"report"`.
+- The `"content-security"` policy item contains a dictionary with two
+  supported keys: "policy" and "policy-report-only", corresponding to the
+  "Content-Security-Policy" and "Content-Security-Policy-Report-Only" HTTP
+  headers.
+- Each contains an array of strings, with the same fomat as the HTTP headers.
+- Note that - just as the headers - you can chain multiple policies by either
+  listing them as seperate strings in the array of strings, or by merging them
+  into one string and separating them by a semicolon.
 
 Example:
 
 ```js
-"content-security-policy": [
-  {
-    "policy": "frame-ancestors 'none'; object-src 'none';",
-    "disposition": "enforce"
-  },{
-    "policy": "script-src 'self' https://cdn.example.com/js/",
-    "disposition": "report",
-  }
-]
-```
-
-
-### Transport-Level Security (TLS)
-
-The `tls` policy item contains several directives related to TLS, particularly:
-
-- [HTTP Strict Transport Security](https://tools.ietf.org/html/rfc6797)
-- [HTTP Public Key Pinning](https://tools.ietf.org/html/rfc7469)
-- [Expect-CT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT)
-
-Example:
-
-```js
-"tls": {
-  // Strict-Transport-Security
-  "required": true,
-
-  // Public-Key-Pins / Public-Key-Pins-Report-Only
-  "pinned-public-keys": {
-    "pins": [
-      "d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=",
-      "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=",
-      "LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ="
-    ],
-    "disposition": "enforce",
-    "report-to": "group-name",
-  },
-
-  // Expect-CT
-  "certificate-transparency": {
-    "disposition": "enforce",    // (or "report-only")
-    "report-to": "group-name"
-  },
-
-  // Others. `Expect-Staple`, etc.
-  ...
+"content-security": {
+  "policy": [ "frame-ancestors 'none'", "object-src 'none'" ],
+  "policy-report-only": [ "script-src 'self' https://cdn.example.com/js/" ]
 }
 ```
 
-Note: The actual format does not include comment syntax.
+Example:
+
+```js
+"content-security": {
+  "policy": [ "frame-ancestors 'none'; object-src 'none'" ]
+}
+```
+
 
 ### Feature Policy
 
@@ -108,6 +84,32 @@ Example:
 ```js
 "features": {
   "policy": "geolocation 'self' https://example.com"
+}
+```
+
+
+### Transport-Level Security (TLS)
+
+The `tls` policy item contains several directives related to TLS, particularly:
+
+- [HTTP Strict Transport Security](https://tools.ietf.org/html/rfc6797)
+- [Expect-CT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT)
+
+Example:
+
+```js
+"tls": {
+  // Strict-Transport-Security
+  "required": true,
+
+  // Expect-CT
+  "certificate-transparency": {
+    "disposition": "enforce",    // (or "report-only")
+    "report-to": "group-name"
+  },
+
+  // Others. `Expect-Staple`, etc.
+  ...
 }
 ```
 
@@ -152,11 +154,12 @@ Example:
 
 - Are there any generic properties (like 'must understand') that apply to all
   policy items, or is this merely a collection of otherwise unrelated policy
-  items.
-- Error handling: (E.g., reject malformed policies?) This would likely need
-  to be fully defined for cross-browser compatibility, but the exact definition
-  will have substantial impact on deployability and security. The present
-  course here seems unclear.
+  items?
+- Error handling: This would likely need to be fully defined for cross-browser
+  compatibility, but the exact definition will have substantial impact on
+  deployability and security. This should be revisited following early tester
+  feedback.
+
 
 ## File Format Evolution
 
@@ -167,6 +170,4 @@ Largely based on
 [this discussion](https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817)
 the format was revised to move away from being a header collection,
 towards a format that allows for custom formats for each policy item.
-
-
 

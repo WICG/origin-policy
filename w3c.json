@@ -1,5 +1,6 @@
  {
     "group":      ["80485"]
 ,   "contacts":   ["yoavweiss"]
-,   "shortName":  "origin-policy"
+,   "shortName":  "origin-policy",
+    "repo-type":  "cg-report"
 }

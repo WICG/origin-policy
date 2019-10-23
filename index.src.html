@@ -1,4 +1,4 @@
-<pre class='metadata'>
+<pre class="metadata">
 Title: Origin Policy
 Status: CG-DRAFT
 Group: WICG
@@ -18,8 +18,11 @@ Boilerplate: omit conformance, omit feedback-header
 !Participate: <a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/mikewest/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/mikewest/origin-policy/issues">open issues</a>)
 </pre>
 <pre class="link-defaults">
-spec:html; type:element; text:link
-spec:referrer-policy; type: dfn; text: referrer-policy
+spec: html; type: element; text: link
+spec: referrer-policy; type: dfn; text: referrer-policy
+
+# https://github.com/tabatkins/bikeshed/issues/1542
+spec: csp-3; type: grammar; text: base64-value
 </pre>
 <pre class="anchors">
 spec: RFC7540; urlPrefix: https://tools.ietf.org/html/rfc7540
@@ -31,12 +34,9 @@ spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
 spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   type: http-header
     text: Vary; url: section-7.1.4
-<!--
-   -   ABNF
-   -->
-type: grammar
-  text: base64-value; url: https://w3c.github.io/webappsec-csp/#grammardef-base64-value; spec: CSP3
-  text: DQUOTE; url: https://tools.ietf.org/html/rfc5234#appendix-B.1; spec: RFC5234
+spec: RFC5234; urlPrefix: https://tools.ietf.org/html/rfc5234
+  type: grammar
+    text: DQUOTE; url: appendix-B.1
 </pre>
 <pre class="biblio">
 {
@@ -153,7 +153,7 @@ according to the normal HTTP caching rules, and applied to pages on
 {
   "<a idl>headers</a>": [
     {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     },
@@ -163,7 +163,7 @@ according to the normal HTTP caching rules, and applied to pages on
       "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     }
     {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
@@ -269,7 +269,7 @@ Concepts {#concepts}
 --------
 
 An <dfn>origin policy object</dfn> is a tuple of a string
-(<dfn for="origin policy object">version</dfn>), and the contents of an
+(version), and the contents of an
 <a>origin policy manifest</a> (<dfn for="origin policy object">body</dfn>).
 
 User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
@@ -327,7 +327,7 @@ members. Each member defines a specific aspect of an origin's policy.
 {
   "<a idl>headers</a>": [
     {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     },
@@ -337,7 +337,7 @@ members. Each member defines a specific aspect of an origin's policy.
       "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
     }
     {
-      "<a idl>name</a>": "<a>Content-Security-Policy</a>",
+      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
       "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
       "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
     },
@@ -361,7 +361,7 @@ members. Each member defines a specific aspect of an origin's policy.
 ### The `origin-policy` well-known location ### {#origin-policy-well-known}
 
 <a>Origin Policy Manifest</a> files for a given origin MUST be located as
-suffixes to the well-known location `/.well-known/origin-policy` [[RFC5785]].
+suffixes to the well-known location `/.well-known/origin-policy` [[RFC8615]].
 Their names MUST be strings of characters matching the
 <a grammar>base64-value</a> grammar. That is, `/.well-known/origin-policy/a`
 might point to one <a>Origin Policy Manifest</a> file, while
@@ -591,7 +591,7 @@ At the end of the navigation algorithm, we'll do the following:
 At the end of the "run a worker" algorithm, we'll do the same thing.
 
 <h4 algorithm dfn id="html-apply-policy">
-  Apply Origin Policy to |settings|.
+  Apply Origin Policy to <var ignore>settings</var>.
 </h4>
 
 ISSUE: Write this algorithm.
@@ -975,7 +975,7 @@ That is, the manifest file might contain the following JSON:
 And each resource's response might contain the following header:
 
 <pre>
-  <a>Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
+  <a http-header>Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
 </pre>
 
 The baseline policy will be applied to every response, blocking plugins and

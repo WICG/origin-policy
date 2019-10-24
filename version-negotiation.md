@@ -12,7 +12,11 @@ Web applications want to be able to decide that a previously-downloaded origin p
 
 Web applications want to be able to decide that a certain policy is mandatory, and the page cannot load until it arrives and is applied.
 
-Similarly, web applications may have previously pushed a bad policy, which they need to replace before any further page loads continue.
+Similarly, web applications may have previously sent a bad policy, which they need to replace before any further page loads continue.
+
+### Kill switch
+
+There needs to be a way for a page to remove any previous origin policies, before the page loads. This is essentially a special case of sync update, which doesn't require loading a new policy since the browser already knows what the null policy looks like.
 
 ### Privacy-preserving
 
@@ -26,22 +30,27 @@ Conceptually, origin policies are stored in the HTTP cache, under the URL `$orig
 
 When the browser makes a request to _url_, it:
 
-* Checks if it has something cached, and not expired, for `$that_origin/.well-known/origin-policy`. If so, this is the _candidate origin policy_.
+* Checks if it has something cached, and not expired, for `$that_origin/.well-known/origin-policy`. If so, this is the _candidate origin policy_; otherwise the _candidate origin policy_ is the "none" policy.
 * Makes the request to _url_.
 * The response can contain a header of the form `Origin-Policy: allowed=(policyA polB polC none), preferred=policyZ`. This indicates that policies with identifiers `policyA`, `polB`, `polC`, or `policyZ` are acceptable to the site, or no origin policy at all. Call these the _list of acceptable policies_. If the response contains no such header, then the _list of acceptable policies_ contains just the "none" policy.
 * Checks the _list of acceptable policies_ against the _candidate origin policy_.
   * If the _candidate origin policy_ is in the _list of acceptable origin policies_, then:
-    * Apply the _candidate origin policy_ and load the response.
+    * Apply the _candidate origin policy_ and load the response. (This might apply the "none" policy.)
     * If _candidate origin policy_ is not the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
+  * Otherwise, if the _list of acceptable origin policies_ only contains the "none" policy but _candidate origin policy_ is not the none policy, then apply the "none" policy anyway, and load the response.
   * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any loading of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
 
-Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`. (Question: would it make sense to use the policy document's Etag for this instead?)
+Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`. If the value is `"none"` that is treated as a parse error. (Maybe we should create a space of reserved identifiers and change `"none"` to one of them? E.g. `"__none__"`?)
+
+(Question: would it make sense to use the policy document's Etag for this instead?)
 
 ### Evaluation
 
 This model allows async update by having sites send a list of acceptable policies, as well as a preferred policy. If any of these match, then page loading will not be blocked.
 
 This model allows sync update by having sites only include acceptable policies in the list of acceptable policies. If that policy isn't already downloaded, then page loading will not continue until the policy arrives.
+
+This model allows a kill switch by having sites send `Origin-Policy: allowed=(none)`. In that case the "none" policy will be applied without any further action.
 
 This model is privacy-preserving in that it uses the HTTP cache double-keying semantics for the origin policy data and behavior.
 

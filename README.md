@@ -1,5 +1,10 @@
+# Origin Policy
 
-# Explainer: Origin-wide configuration using Origin Manifests
+***Under construction***. This proposal is being picked back up again after some years of slow progress. At this point the repository is in an inconsistent state, with the below explainer and the spec out of sync with the latest discussions on the issue tracker, and with prototype implementations in browsers.
+
+For some of the latest thinking, see the issue tracker, as well as the mostly-updated ["Policy Format"](./policy-format.md) sub-explainer. Read other materials with an understanding that many of the proposed mechanisms are changing. We'll work to get the explainer and spec updated as soon as possible.
+
+---
 
 **tl;dr** Origin Manifest is a web platform mechanism
 that aims to shift configuring the origin from web applications to the origin

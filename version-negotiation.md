@@ -24,9 +24,7 @@ Any scenario in which the browser communicates previously-sent information back 
 
 ## Proposed model
 
-Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/WICG/origin-policy/issues/23): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking.
-
-(Question: should clearing the HTTP cache also clear any cached origin policy? Probably yes. Or should it be tied to clearing cookies?)
+Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin-policy`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/WICG/origin-policy/issues/23): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking. This also means that clearing of the cache should generally clear any origin policy.
 
 When the browser makes a request to _url_, it:
 
@@ -38,7 +36,7 @@ When the browser makes a request to _url_, it:
     * Apply the _candidate origin policy_ and load the response. (This might apply the "none" policy.)
     * If _candidate origin policy_ is not the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
   * Otherwise, if the _list of acceptable origin policies_ only contains the "none" policy but _candidate origin policy_ is not the none policy, then apply the "none" policy anyway, and load the response.
-  * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any loading of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
+  * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any processing of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
 
 Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`. If the value is `"none"` that is treated as a parse error. (Maybe we should create a space of reserved identifiers and change `"none"` to one of them? E.g. `"__none__"`?)
 

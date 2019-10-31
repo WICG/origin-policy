@@ -36,11 +36,10 @@ When the browser makes a request to _url_, it:
     * Apply the _candidate origin policy_ and load the response. (This might apply the "none" policy.)
     * If _candidate origin policy_ is not the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
   * Otherwise, if the _list of acceptable origin policies_ only contains the "none" policy but _candidate origin policy_ is not the none policy, then apply the "none" policy anyway, and load the response.
+    * TODO: should this also clear the cache for `$that_origin/.well-known/origin-policy`?
   * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any processing of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
 
 Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`. If the value is `"none"` that is treated as a parse error. (Maybe we should create a space of reserved identifiers and change `"none"` to one of them? E.g. `"__none__"`?)
-
-(Question: would it make sense to use the policy document's Etag for this instead?)
 
 ### Evaluation
 
@@ -70,3 +69,37 @@ The main drawback of this model is that it is slightly less efficient in some sy
 The previous model threaded this needle by sending the `Sec-Origin-Policy` header with the request, containing the current origin policy version, which allows the server to decide intelligently whether or not to push a new origin policy. However, this was universally disliked.
 
 We think this drawback is acceptable. In particular, we anticipate async updates being more common, so we should optimize for those cases. For truly mandatory sync updates, sites could use HTTP/2 Push; in that case, the result is largely the same as what sites are doing today by sending a bunch of headers with every response.
+
+## Potential extension
+
+To solve the drawback mentioned above, and allow efficient sync updates, user agents could more proactively fetch the `/.well-known/origin-policy` URL. In the extreme, they could fetch it along with every request they make, in parallel with the main request. The benefits of such a strategy are that, for cases where a site wants to mandate a specific policy before any page loads occur, the most-recent origin policy has already been requested in parallel with the main request to support that page load. That is, it eliminates the potential round trip or redundant HTTP/2 Push.
+
+### Cost evaluation
+
+This is not as scary as it sounds:
+
+* Most of the time this would result in 404 or 304 responses, or even no network activity at all if the previous origin policy was delivered with `max-age`.
+* The origin policy request is to the same origin as the main request, and could go over the same connection.
+* The origin policy request would HPACK well with the main request.
+
+However, it does have some drawbacks:
+
+* Even though the responses may be trivial (e.g. mostly 304s), this doubles all servers' queries per second, which can be a burden for server operators in terms of CPU time.
+* In HTTP/2 (and HTTP/3), servers impose a limit on the number of concurrent streams a client can open, which historically are tuned to limit the number of concurrent "actual" requests. Deploying this strategy would effectively halve the number of concurrent requests to a server, until or unless the server ecosystem raises their concurrent stream limits.
+
+### `Origin-Policy` header
+
+In this world, the `Origin-Policy` header becomes less necessary. With the browser proactively fetching "the current origin policy", the entry point no longer needs to be the page signaling a desire for an origin policy.
+
+However, the header still provides value in the following ways:
+
+* In the case where the main response headers have come back, before the origin policy response has completed, it allows the page to signal that it has no need to block main-response processing on retrieving the most-updated origin policy, as long as the currently-cached one is in the `allowed=` list.
+* Via the `Origin-Policy: allowed=(none)` kill switch, it provides an immediate way to signal to the browser that no origin policy should apply, regardless of the cache or origin policy response.
+
+Essentially, if we think of the origin policy request and the main request as racing, the `Origin-Policy` header allows the main request to declare itself the winner of the race, thus taking the overall latency from `max(main request/response round-trip time, origin policy request/response round trip time)` to just `main request/response round-trip time`.
+
+### Conclusion
+
+Given the above considerations, we feel justified in considering this avenue as a potential expansion to the main proposal, which can be developed and experimented with as a compatible extension to the main proposal. In particular, it will be helpful to find out how often web applications need sync policy updates in practice, and in such cases, how costly the redundant bytes or round-trips are.
+
+In the spirit of such experimentation, it's worth noting that this potential extension doesn't have to applied to the extreme of every response. We could specify something more flexible, allowing the browser to optionally send requests to `/.well-known/origin-policy` as desired. For example, browsers might do this for sites that users visit often—either concurrent with other requests to this origin, as above, or just in general idle time.

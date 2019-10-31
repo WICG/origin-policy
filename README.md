@@ -2,7 +2,7 @@
 
 ***Under construction***. This proposal is being picked back up again after some years of slow progress. At this point the repository is in an inconsistent state, with the below explainer and the spec out of sync with the latest discussions on the issue tracker, and with prototype implementations in browsers.
 
-For some of the latest thinking, see the issue tracker, as well as the mostly-updated ["Policy Format"](./policy-format.md) sub-explainer. Read other materials with an understanding that many of the proposed mechanisms are changing. We'll work to get the explainer and spec updated as soon as possible.
+For some of the latest thinking, see the issue tracker, as well as the mostly-updated [policy format](./policy-format.md) and [version negotiation](./version-negotiation.md) sub-explainers. Read other materials with an understanding that many of the proposed mechanisms are changing. We'll work to get the explainer and spec updated as soon as possible.
 
 ---
 

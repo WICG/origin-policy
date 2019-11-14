@@ -1,173 +1,176 @@
-# Explainer: Format of Origin Policy documents
+# Explainer: origin policy manifest format
 
-**tl;dr:** [Origin Policy](README.md) documents are JSON files with top-level
-entries for each supported policy mechanism. We try to re-use existing format
-syntax where applicable (e.g. where equivalent HTTP headers exist).
+[Origin policy](./README.md) manifests are JSON files with top-level entries for each supported policy mechanism. We try to reuse existing format syntax where applicable (e.g., where equivalent HTTP headers exist).
 
-## General File Format
+## General file format
 
-An origin policy document is a JSON document that contains a series of policy
-items. Each top-level dictionary entry names a policy item and contains an
-item specifc dictionary. Each type of (currently) supported policy item is
-described below.
+An origin policy document is a JSON document, whose top-level must be an object, that contains a series of policy items. Each key in the object names a policy item, and its value contains an item specific configuration. The keys and values for each proposed policy item are described below.
 
 Example:
 
 ```js
 {
-  // Example format with comments.
-  "features": .... ,
-  "content-security": .... ,
-  "referrer": ....
+  "features": ...,
+  "content-security": ...,
+  "referrer": ...
 }
 ```
 
-Note: We sometimes use comments in the examples. The comment syntax is not
-      supported JSON and is not part of the actual format.
+## Error handling
 
-## Format Versioning and Error Handling
+Various failures can be encountered when parsing an origin policy manifest. The [current proposal](https://github.com/WICG/origin-policy/issues/49) is that failures generally be "soft"; that is, unless the resource mandates an origin policy be applied, then an invalid origin policy manifest will be ignored. This is the case even if authoring errors make the origin policy manifest unparseable.
 
-Applications should
+Although the requirements will become more detailed as we write a full specification, the following is our current general proposal:
 
-- consider it a fatal error if the file is not well-formed JSON (or cannot be
-  fetched),
-- ignore any top-level section they do not understand,
-- consider it an error if they fail to parse a policy item that they do
-  understand. How to handle an error with a particular policy item should
-  be consistent with how errors are handled elsewhere for a comparable policy.
-  (For example, Feature Policy usually resorts to browser defaults if a policy
-  is not understood. It would be odd if this would lead to more drastic
-  failures if the same policy is declared in an Origin Policy.)
+* JSON parsing failures, or top-level schema failures (e.g. a JSON document consisting of an array or boolean instead of an object), are not recoverable.
+* Any top-level keys that the user agent doesn't understand must be ignored, for future compatibility.
+* Failures to parse the syntax of a specific policy item should be handled the same as how parsing errors are handled elsewhere for a comparable policy. (For example, Feature Policy usually resorts to browser defaults if a policy is not understood.)
 
-## Supported Policy Items
+## Supported policy items
 
-### Content Security Policy (CSP)
+### Mostly settled
 
-The `content-security` policy item contains the equivalent of one or
-more
-[Content-Security-Policy HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
+The following policy items are ones that we are reasonably sure on the format of, and hoping to draft spec text for ASAP.
 
-- The `"content-security"` policy item contains a dictionary with two
-  supported keys: "policy" and "policy-report-only", corresponding to the
-  "Content-Security-Policy" and "Content-Security-Policy-Report-Only" HTTP
-  headers.
-- Each contains an array of strings, with the same fomat as the HTTP headers.
-- Note that - just as the headers - you can chain multiple policies by either
-  listing them as seperate strings in the array of strings, or by merging them
-  into one string and separating them by a semicolon.
+#### [Content Security Policy](https://w3c.github.io/webappsec-csp/)
+
+The `"content_security"` policy item is an object with two possible keys:
+
+* `"policy"`, which contains an array of strings that are equivalent to [`Content-Security-Policy`](https://w3c.github.io/webappsec-csp/#csp-header) HTTP response headers, and
+* `"policy_report_only"`, which contains an array of strings that are equivalent to [`Content-Security-Policy-Report-Only`](https://w3c.github.io/webappsec-csp/#cspro-header) HTTP response headers.
+
+The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
+
+Just as with headers, you can chain multiple policies by either listing them as seperate strings in the array of strings, or by merging them into one string and separating them by a semicolon.
+
+Any CSP applied via HTTP headers or `<meta>` tags is applied after those from the origin policy.
+
+Examples:
+
+```json
+{
+  "id": "my-policy",
+  "content_security": {
+    "policy": ["frame-ancestors 'none'", "object-src 'none'"],
+    "policy_report_only": ["script-src 'self' https://cdn.example.com/js/"]
+  }
+}
+```
+
+```json
+{
+  "id": "my-policy",
+  "content_security": {
+    "policy": ["frame-ancestors 'none'; object-src 'none'"]
+  }
+}
+```
+
+#### [Feature Policy](https://w3c.github.io/webappsec-feature-policy/)
+
+The `"features"` policy item is an object with two possible keys:
+
+* `"policy"`, which is a string that is equivalent to a [`Feature-Policy`](https://w3c.github.io/webappsec-feature-policy/#feature-policy-http-header-field) HTTP response header, and
+* `"policy_report_only"`, which is a string that is equivalent to a [`Feature-Policy-Report-Only`](https://github.com/w3c/webappsec-feature-policy/blob/master/reporting.md#can-i-just-trigger-reports-without-actually-enforcing-the-policy) HTTP response header.
+
+The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
+
+Any feature policies applied via HTTP headers are applied after those from the origin policy.
+
+TODO: [string vs. array of strings for FP vs. CSP is strange](https://github.com/WICG/origin-policy/issues/50).
 
 Example:
 
-```js
-"content-security": {
-  "policy": [ "frame-ancestors 'none'", "object-src 'none'" ],
-  "policy-report-only": [ "script-src 'self' https://cdn.example.com/js/" ]
+```json
+{
+  "id": "my-policy",
+  "features": {
+    "policy": "geolocation 'self' https://example.com"
+  }
 }
 ```
 
-Example:
+### Still in flux
 
-```js
-"content-security": {
-  "policy": [ "frame-ancestors 'none'; object-src 'none'" ]
-}
-```
+The following policy items are still under discussion, with their formats not exactly settled. They will probably be specced after the above.
 
+#### [Origin isolation](https://github.com/domenic/origin-isolation)
 
-### Feature Policy
+The current proposal for enabling origin isolation is with a `"origin_isolated"` policy item, which can be set to two values:
 
-The `features` policy item contains the equivalent of one or more
-[Feature-Policy](https://wicg.github.io/feature-policy/) HTTP headers.
+* `"best-effort"` indicates origin isolation should be done, with a best-effort attempt at process separation
+* `"none"` indicates no origin isolation should be done
 
-Example:
+Any unrecognized values would be treated as `"best-effort"`, for future compatibility.
 
-```js
-"features": {
-  "policy": "geolocation 'self' https://example.com"
-}
-```
-
+This policy item is mainly under flux for naming reasons: both the [`"origin_isolated"` key](https://github.com/domenic/origin-isolation/issues/5) and the [`"best-effort"` value](https://github.com/domenic/origin-isolation/issues/1) need a bit more bikeshedding.
 
 ### Transport-Level Security (TLS)
 
-The `tls` policy item contains several directives related to TLS, particularly:
+The hypothesized `"tls"` policy item could contain various directives related to TLS. Ideas so far include:
 
-- [HTTP Strict Transport Security](https://tools.ietf.org/html/rfc6797)
-- [Expect-CT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT)
+- [HTTP Strict Transport Security](https://tools.ietf.org/html/rfc6797), via the `"required"` field
+- [Expect-CT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT), via the `"certificate-transparency"` field
 
 Example:
 
-```js
-"tls": {
-  // Strict-Transport-Security
-  "required": true,
-
-  // Expect-CT
-  "certificate-transparency": {
-    "disposition": "enforce",    // (or "report-only")
-    "report-to": "group-name"
-  },
-
-  // Others. `Expect-Staple`, etc.
-  ...
+```json
+{
+  "id": "my-policy",
+  "tls": {
+    "required": true,
+    "certificate-transparency": {
+      "disposition": "enforce",
+      "report-to": "group-name"
+    }
+  }
 }
 ```
 
-### Referrer Policy
+### [Referrer Policy](https://w3c.github.io/webappsec-referrer-policy/)
 
-Referrer policy might look like:
+Referrer policy configuration might look like:
 
-Example:
-
-```js
-"referrer": {
- "policy": "origin-when-cross-origin",
+```json
+{
+  "id": "my-policy",
+  "referrer-policy": "origin-when-cross-origin"
 }
 ```
 
-### Client Hints
+### [Client Hints](https://httpwg.org/http-extensions/client-hints.html)
 
-Example:
+Setting default client hints might look like:
 
-```js
-"client-hints": [ "DPR", "Width", "Viewport-Width" ],
-```
-
-### CORS:
-
-Example:
-
-```js
-"cors-preflights": {
-  "no-credentials": {
-    "origins": "*",
-  },
-  "unsafe-include-credentials": {
-    "origins": [ "https://trusted.example.com/" ]
-  },
+```json
+{
+  "id": "my-policy",
+  "client-hints": ["DPR", "Width", "Viewport-Width"]
 }
 ```
 
-# Notes & Appendices
+### [CORS protocol](https://fetch.spec.whatwg.org/#http-cors-protocol)
 
-## Open Questions
+Configuring the behavior of CORS preflights to the origin in question might look like:
 
-- Are there any generic properties (like 'must understand') that apply to all
-  policy items, or is this merely a collection of otherwise unrelated policy
-  items?
-- Error handling: This would likely need to be fully defined for cross-browser
-  compatibility, but the exact definition will have substantial impact on
-  deployability and security. This should be revisited following early tester
-  feedback.
+```json
+{
+  "id": "my-policy",
+  "cors_preflights": {
+    "no_credentials": {
+      "origins": "*",
+    },
+    "unsafe_include_credentials": {
+      "origins": ["https://trusted.example.com/"]
+    },
+  }
+}
+```
 
+It's not immediately obvious whether this credentials-bucketed structure is the best one, or how to fit in equivalents for `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, or `Access-Control-Expose-Headers`.
 
-## File Format Evolution
+## Appendix: file format evolution
 
-The original file format was focused on HTTP headers, and effectively described
-a series of header-values with some vaguely specified metadata in JSON.
+The original file format was focused on HTTP headers, and effectively described a series of header-values, as well as a separation between baseline and fallback values.
 
-Largely based on
-[this discussion](https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817)
-the format was revised to move away from being a header collection,
-towards a format that allows for custom formats for each policy item.
-
+Largely based on [discussion in #19](https://github.com/WICG/origin-policy/issues/19) the format was revised to move away from being a header collection, towards a format that allows for custom formats for each policy item. This will require more integration work for each policy item, but avoids constraining the format and evolution of the policy items.

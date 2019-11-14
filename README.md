@@ -1,147 +1,99 @@
 # Origin Policy
 
-***Under construction***. This proposal is being picked back up again after some years of slow progress. At this point the repository is in an inconsistent state, with the below explainer and the spec out of sync with the latest discussions on the issue tracker, and with prototype implementations in browsers.
+Origin policy is a web platform mechanism that allows origins to set their origin-wide configuration in a central location, instead of using per-response HTTP headers.
 
-For some of the latest thinking, see the issue tracker, as well as the mostly-updated [policy format](./policy-format.md) and [version negotiation](./version-negotiation.md) sub-explainers. Read other materials with an understanding that many of the proposed mechanisms are changing. We'll work to get the explainer and spec updated as soon as possible.
-
----
-
-**tl;dr** Origin Manifest is a web platform mechanism
-that aims to shift configuring the origin from web applications to the origin
-itself.
-That is instead of burdening web applications to set configuration options as
-HTTP response headers, Origin Manifest allows declaring those options
-out-of-band representing the entire origin, not particular web applications.
-For this the origin provides a manifest file in a predefined well-known
-location which browsers can load and apply.
-
-
-## The Problems and Goals
+## The problems and goals
 
 ### Configurations with origin-wide effects
-**Problem:** Some configuration delivery mechanisms, e.g. like HTTP headers, affect an entire
-  origin even though they might have been set through only a sub-resource load.
-  Misconfiguration of font resource header can have dramatic effects for the
-  origin, e.g. a wrong HPKP value.
 
-**Goals:** Configurations for web applications with effects on entire origin in
-  a more structured way to minimize the chances for origin misconfiguration
-  through individual web applications sharing the same origin.
+**Problem 1:** Using HTTP headers as a delivery mechanism for origin-wide configuration allows individual resources or web applications on an origin to misconfigure the entire origin. For example, if one page on an origin sets the [`Strict-Transport-Security`](https://tools.ietf.org/html/rfc6797) response header before all other pages are available over HTTPS, the other pages become inaccessible.
+
+**Problem 2:** Allowing different resources to give different values for origin-wide configuration, via different HTTP response headers, complicates the web- and browser-developer facing models for the features in question. Such cases require defining a conflict resolution procedure (e.g., HSTS's decision to choose the most-strict policy seen so far).
+
+**Goal:** Centralize configuration for entire origin, so that when used exclusively, origin policy ensures coordination between individual resources and applications sharing the same origin.
 
 ### HTTP header redundancy
-**Problem 1:** Some HTTP headers have to be sent again and again without actually changing the
-  values. Sometimes these headers add significant number of
-  bytes, e.g. CSP.
 
-**Problem 2:** Some HTTP headers are sent with every response even though their
-  effect has a lifetime, e.g. HSTS. Within the valid time frame these headers
-  do not need to be repeated.
+**Problem 1:** Some HTTP headers have to be sent again and again without actually changing their values. Sometimes these headers add significant number of bytes, e.g. [CSP](https://w3c.github.io/webappsec-csp/).
 
-**Goal:** Mechanism to download configurations like HTTP header values only
-  once. These values are only overridden when needed.
+**Problem 2:** Some HTTP headers are sent with every response, even though their effect has a lifetime, e.g. [HSTS](https://tools.ietf.org/html/rfc6797). Within the valid time frame these headers do not need to be repeated.
+
+**Goal:** Provide a mechanism to download origin-wide configurations only once per origin, instead of per request, and only update them when needed.
 
 ### Missing configurations
-**Problem:** For complex web applications it is easy to forget configuring
-  certain resources or pages, e.g. the error page.
 
-**Goal 1:** Fallback settings that are applied when HTTP headers are not set.
+**Problem:** For complex web applications it is easy to forget configuring certain resources or pages, e.g. the error page.
 
-**Goal 2:** Baseline settings that guaranteed to be applied, e.g. baseline CSP
-  which guarantees a certain least level of security for the entire origin.
+**Goal 1:** Allow applying origin-wide fallback settings that are applied when correpsonding HTTP headers are not set.
+
+**Goal 2:** Allow providing baseline settings that are guaranteed to be applied, e.g. baseline CSP which guarantees a certain minimum level of security for the entire origin.
 
 ### CORS-preflight overhead
-**Problem:** For certain resources the CORS-preflight decisions can be
-  pre-determined. That is, the server decision to (dis-)allow access is
-  independent of the actual request itself but static for certain requests, e.g.
-  "allow all requests from a.com".
 
-**Goal:** Mechanism to inform a browser about CORS access decisions beforehand
-  to avoid CORS-preflight request overhead.
+**Problem:** For certain resources the CORS-preflight decisions can be predetermined. That is, the server decision to (dis-)allow access is independent of the actual request itself, but is instead static for certain requests, e.g. "allow all requests from a.com" or "use the [basic safe CORS protocol setup](https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup)".
+
+**Goal:** Provide a mechanism to inform the browser about CORS access decisions beforehand, to avoid the CORS-preflight request overhead.
 
 
-## The Proposal
-We propose Origin Manifest as a web platform mechanism that aims to shift
-configuring the origin from web applications to the origin itself.
+## The proposal
 
-### Server side
-Origin Manifest files are to be published in a well-known location on the
-server. This enforces that the origin and not the individual web apps defines
-them.
+### The origin policy manifest
 
-### Client side
-Web clients fetch and cache manifests for an origin. There can always be at most
-one manifest for an origin. The client enforces the configurations from a
-manifest similar to how HTTP headers are used. In fact, currently most
-configurations directly relate to HTTP headers, e.g. CSP.
+Server operators can provide a per-origin **origin policy manifest**, at `/.well-known/origin-policy`, which is a JSON file that allows configuring various origin-wide settings. An example would be
 
-### Origin Manifest File
+```json
+{
+  "id": "my-policy",
+  "content_security": {
+    "policy": ["frame-ancestors 'none'", "object-src 'none'"],
+    "policy_report_only": ["script-src 'self' https://cdn.example.com/js/"]
+  },
+  "features": {
+    "policy": "geolocation 'self' https://example.com",
+    "policy_report_only": "document-domain 'none'"
+  },
+  "cors_preflights": {
+    "no_credentials": {
+      "origins": "*"
+    },
+    "unsafe_include_credentials": {
+      "origins": ["https://trusted.example.com/"]
+    },
+  },
+  "origin_isolated": "best-effort"
+}
+```
 
-#### File Format
-Origin Manifests must be written in valid JSON format. The currently discussed
-schema will look like or similar to the one propsed by Mike West in
-https://github.com/WICG/origin-policy/issues/19#issuecomment-321229817.
+For more on the policy format, see [the dedicated document](./policy-format.md).
 
-#### Versioning
-Updates to the Origin Manifest file are natural. To this end every manifest has
-a by the server defined version identifier. This allows firstly to easily
-identify if a client needs to fetch a newer version. Secondly, it allows a web
-application to decide that a manifest cached in the client is "good enough" to
-avoid fetching a newer version for performance reasons.
+### Fetching and applying the origin policy
 
+Browsers then fetch and cache origin policies for a given origin. They can optionally do so proactively (e.g. for frequently-visited origins), but generally will be driven by the web application sending a HTTP response header requesting that a given origin policy be fetched and applied:
 
-### Fetching Protocol
-Clients always set the `Sec-Origin-Manifest` header to indicate the support for
-the mechanism. Servers can then opt-in to use the mechanism by sending back a
-`Sec-Origin-Manifest` header with the current manifest version. If servers
-should decide to not send the header, clients try to retreive a manifest from
-their cache and not use Origin Manifest otherwise.
+```
+Origin-Policy: allowed=(none my-policy my-old-policy), preferred=my-policy
+```
 
-#### Opt-in
-In case no manifest is cached the client indicates support for the feature by
-setting the value 1.
-![Opt-in](/images/opt_in.png)
+Here the header specifies allowed and preferred policies, which correspond to the JSON document's `"id"` value. This allows servers to take on a variety of behaviors, including:
 
-#### Updating and Confirming
-In case a manifest is cached the client informs the server about the currently
-cached version. If the version is accepted by the server the response simply
-confirms the header. No fetch is needed. Otherwise the new version is fetched.
-![Updating and Confirm](/images/update.png)
+* Require that a given origin policy be available (either from the cache or via fetching) and applied, before proceeding with page initialization
+* Allow a previous revision of the policy, or no policy at all, to apply, but in the background do an asynchronous update of the policy so that future resource fetches will apply the preferred one.
 
-#### Opt-out
-Servers can decide not no longer use Origin Manifest. If so they can set the
-`Sec-Origin-Manifest` header to 0 in the response. Clients then behave like no
-manifest was ever set and remove the currently cached manifest from cache (if
-any).
+For more on the model for fetching and updating origin policies, see [the dedicated document](./version-negotiation.md).
 
-## Related Work
-Mark Nottingham came up with basically the same idea around the same time
-https://mnot.github.io/I-D/site-wide-headers/.
-The goal is of course to pick the best parts from both approaches and to merge
-them into a useful mechanism.
+### Configurable policies
 
+We anticipate specifying the following configurable policy items inside the origin policy:
 
-## Discussion
-**Why is the current version sent?**
+* [Origin Isolation](https://github.com/domenic/origin-isolation)
+* [Content Security Policy](https://w3c.github.io/webappsec-csp/)
+* [Feature Policy](https://w3c.github.io/webappsec-feature-policy/)
+* [Document Policy](https://github.com/w3c/webappsec-feature-policy/blob/master/document-policy-explainer.md)
+* [Referrer Policy](https://w3c.github.io/webappsec-referrer-policy/)
+* [Cross-Origin Resource Sharing](https://fetch.spec.whatwg.org/#http-cors-protocol)
+* TLS Configuration, including [Strict Transport Security](https://tools.ietf.org/html/rfc6797) and [Expect-CT](https://httpwg.org/http-extensions/expect-ct.html)
+* [Client Hints](https://httpwg.org/http-extensions/client-hints.html)
 
-The currently cached version is set in the request header to allow HTTP2 Push.
-In particular, the server can decide to push the manifest since it knows whether
-it will be eventually fetched or not.
+Some of these will be specified sooner than others, and plans may change as we do that specification and implementation work, but we hope to include at least origin isolation, content security policy, and feature policy in initial spec drafts.
 
-
-**Why does it defer the response?**
-
-Certain configuration options, e.g. CSP, require to be loaded before the actual
-content is processed, e.g. a HTML document is rendered. This makes it also
-fundamentally different from Application Manifest
-(https://w3c.github.io/manifest/).
-
-
-**Why not just using HTTP caching and ETag?**
-
-We need to process Origin Manifests differently from other data fetched over
-HTTP. In particular, it allows us to manage the different versions and to ensure
-that there exists at most only exactly one manifest per origin.
-Also, directly related to the above question "Why is the current version sent?",
-we need to store and notify the current version or servers using HTTP/2 would
-start pushing the manifest to the client which clients would need to cancel.
-This imposes performance costs we want to avoid.
+See the [policy format](./policy-format.md) sub-explainer for information on the syntax and semantics envisioned for each of these.

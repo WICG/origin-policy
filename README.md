@@ -98,4 +98,6 @@ We anticipate specifying the following configurable policy items inside the orig
 
 Some of these will be specified sooner than others, and plans may change as we do that specification and implementation work, but we hope to include at least origin isolation, content security policy, and feature policy in initial spec drafts.
 
+Note that generally, if a policy item can be configured both with origin policy and on a per-resource level, the per-resource headers will have precedence. The exact meaning of "precedence" depends on the policy item in question.
+
 See the [policy format](./policy-format.md) sub-explainer for information on the syntax and semantics envisioned for each of these.

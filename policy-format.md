@@ -43,9 +43,9 @@ The `"content_security"` policy item is an object with two possible keys:
 
 The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
 
-Just as with headers, you can chain multiple policies by either listing them as seperate strings in the array of strings, or by merging them into one string and separating them by a semicolon.
+Just as with headers, you can chain multiple policies by either listing them as seperate strings in the array of strings, or by merging them into one string and separating them by a comma.
 
-Any CSP applied via HTTP headers or `<meta>` tags is applied after those from the origin policy.
+Any CSP applied via HTTP headers or `<meta>` tags is applied after those from the origin policy, as if concatenated with a separating comma.
 
 Examples:
 
@@ -77,7 +77,7 @@ The `"features"` policy item is an object with two possible keys:
 
 The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
 
-Any feature policies applied via HTTP headers are applied after those from the origin policy.
+Any feature policies applied via HTTP headers are applied after those from the origin policy, as if concatenated with a separating comma.
 
 TODO: [string vs. array of strings for FP vs. CSP is strange](https://github.com/WICG/origin-policy/issues/50).
 
@@ -129,6 +129,8 @@ Example:
 }
 ```
 
+In general any `HSTS` or `Expect-CT` headers would override the expectations set by origin policy, although the details here are not yet clear.
+
 ### [Referrer Policy](https://w3c.github.io/webappsec-referrer-policy/)
 
 Referrer policy configuration might look like:
@@ -140,6 +142,8 @@ Referrer policy configuration might look like:
 }
 ```
 
+The origin policy-set referrer policy would be consulted last, after the current cascade of `noreferrer=""` → `referrerpolicy=""` → `<meta name="referrer">` → `Referrer-Policy` HTTP header.
+
 ### [Client Hints](https://httpwg.org/http-extensions/client-hints.html)
 
 Setting default client hints might look like:
@@ -150,6 +154,8 @@ Setting default client hints might look like:
   "client-hints": ["DPR", "Width", "Viewport-Width"]
 }
 ```
+
+These would be cumulative with any per-resource client hints set by the `Accept-CH` header or `<meta http-equiv="accept-ch">`.
 
 ### [CORS protocol](https://fetch.spec.whatwg.org/#http-cors-protocol)
 
@@ -170,6 +176,8 @@ Configuring the behavior of CORS preflights to the origin in question might look
 ```
 
 It's not immediately obvious whether this credentials-bucketed structure is the best one, or how to fit in equivalents for `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, or `Access-Control-Expose-Headers`.
+
+In general the CORS headers for a given resource would override those from the origin policy, which could cause interesting failures if the per-resource headers are stricter.
 
 ## Appendix: file format evolution
 

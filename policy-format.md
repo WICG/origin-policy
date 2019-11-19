@@ -16,6 +16,8 @@ Example:
 }
 ```
 
+The MIME type for origin policy manifest files is `application/originpolicy+json`.
+
 ## Error handling
 
 Various failures can be encountered when parsing an origin policy manifest. The [current proposal](https://github.com/WICG/origin-policy/issues/49) is that failures generally be "soft"; that is, unless the resource mandates an origin policy be applied, then an invalid origin policy manifest will be ignored. This is the case even if authoring errors make the origin policy manifest unparseable.

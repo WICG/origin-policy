@@ -81,7 +81,9 @@ Here the header specifies allowed and preferred policies, which correspond to th
 
 For more on the model for fetching and updating origin policies, see [the dedicated document](./version-negotiation.md).
 
-### Configurable policies
+Another important note is that the policy items in question automatically stop applying (in a policy item-specific way) when the origin policy stops applying. So, for example, removing the `"content_security"` member of the origin policy manifest above would cause any future loads that use that origin policy to not include the CSP in question. Combined with the usual HTTP cache expiry mechanisms for the `/.well-known/origin-policy` resource, this allows a general "max age" mechanism for origin-wide configuration, similar to the `max-age` parameter of [HSTS](https://tools.ietf.org/html/rfc6797), but for all policy items.
+
+### Configurable policy items
 
 We anticipate specifying the following configurable policy items inside the origin policy:
 

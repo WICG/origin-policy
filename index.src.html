@@ -2,11 +2,12 @@
 Title: Origin Policy
 Status: CG-DRAFT
 Group: WICG
-ED: https://WICG.github.io/origin-policy
 Repository: WICG/origin-policy
 Shortname: origin-policy
 Level: None
-Editor: Mike West 56384, Google Inc., mkwst@google.com
+URL: https://wicg.github.io/origin-policy/
+Editor: Domenic Denicola, Google https://www.google.com/, d@domenic.me, https://domenic.me/
+Former Editor: Mike West 56384, Google https://www.google.com/, mkwst@google.com
 Abstract:
   This specification defines a delivery mechanism for a number of policies
   which are to be applied to an entire origin. It compliments header-based
@@ -14,1074 +15,518 @@ Abstract:
   Referrer Policy, etc).
 Indent: 2
 Default Biblio Status: current
-Markup Shorthands: css off, markdown on
 Boilerplate: omit conformance, omit feedback-header
-!Participate: <a href="https://discourse.wicg.io/t/proposal-set-origin-wide-policies-via-a-manifest/1617">Discuss in the WICG</a>. <a href="https://github.com/WICG/origin-policy/issues/new">File an issue</a> (<a href="https://github.com/WICG/origin-policy/issues">open issues</a>)
+Complain About: accidental-2119 yes, missing-example-ids yes
+!Participate: <a href="https://github.com/WICG/origin-policy">GitHub WICG/origin-policy</a> (<a href="https://github.com/WICG/origin-policy/issues/new">new issue</a>, <a href="https://github.com/WICG/origin-policy/issues?state=open">open issues</a>)
 </pre>
-<pre class="link-defaults">
-spec: html; type: element; text: link
-spec: referrer-policy; type: dfn; text: referrer-policy
-spec: csp3; type: grammar; text: base64-value
-</pre>
+
 <pre class="anchors">
-spec: RFC7540; urlPrefix: https://tools.ietf.org/html/rfc7540
-  type: dfn
-    text: server push; url: section-8.2
 spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
-  type: dfn
-    text: Strict-Transport-Security; url: section-8.1
+  type: http-header
+    text: Strict-Transport-Security; url: section-6.1
 spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   type: http-header
     text: Vary; url: section-7.1.4
-spec: RFC5234; urlPrefix: https://tools.ietf.org/html/rfc5234
-  type: grammar
-    text: DQUOTE; url: appendix-B.1
 </pre>
+
 <pre class="biblio">
 {
+  "STRUCTURED-HEADERS": {
+    "authors": ["Mark Nottingham", "Poul-Henning Kamp"],
+    "href": "https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html",
+    "title": "Structured Headers for HTTP",
+    "status": "ID",
+    "publisher": "IETF"
+  },
   "SITE-WIDE-HEADERS": {
       "href": "https://mnot.github.io/I-D/site-wide-headers/",
       "title": "Site-Wide HTTP Headers",
-      "authors": [ "Mark Nottingham" ]
+      "authors": ["Mark Nottingham"]
   },
   "ORIGIN-WIDE-CORS": {
       "href": "https://github.com/tyoshino/origin-wide-cors/blob/master/README.md",
       "title": "Origin-Wide CORS",
-      "authors": [ "Takeshi Yoshino" ]
+      "authors": ["Takeshi Yoshino"]
   }
 }
 </pre>
 
-<details class="annoying-warning" open>
-  <summary>This spec needs major updates</summary>
+<pre class="link-defaults">
+spec:infra; type:dfn; text:list
+spec:infra; type:dfn; for:/; text:string
+spec:infra; type:dfn; for:list; text:for each
+spec:fetch; type:dfn; for:/; text:request
+spec:fetch; type:dfn; for:/; text:fetch
+spec:fetch; type:dfn; for:/; text:response
+</pre>
 
-  <p>This proposal is being picked back up again after some years of slow progress. At this point
-  the spec you are reading is out of sync with the explainer, the latest discussions on the issue
-  tracker, and with prototype implementations in browsers.</p>
+<pre class="anchors">
+spec: STRUCTURED-HEADERS; type: dfn; urlPrefix: https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#
+  text: parsing a structured header; url: text-parse
+  text: parameters; for: structured header; url: param
+  text: string; for: structured header; url: string
+  text: token; for: structured header; url: token
+  text: dictionary; for: structured header; url: dictionary
+  text: inner list; for: structured header; url: inner-list
+</pre>
 
-  <p>For some of the latest thinking, see the <a
-  href="https://github.com/WICG/origin-policy/blob/master/README.md">explainer</a> and linked
-  documents. Read this specification with an understanding that many of the proposed mechanisms are
-  changing.</p>
+<h2 id="intro">Introduction</h2>
 
-  <p>We'll work to get the spec updated as soon as possible.</p>
-</details>
+<div nonnormative>
 
-Introduction {#intro}
-=====================
+Developers set a number of properties associated with resources on an [=/origin=] by delivering resource-specific HTTP response headers and <{meta}> elements. This is becoming more common over time, and it's quite normal these days to see multiple kilobytes at the beginning of every response dedicated to such metadata. Setting this metadata is valuable indeed, as it can have a large impact on performance, security, and privacy.
 
-Developers set a number of properties associated with resources on an origin
-by delivering resource-specific HTTP response headers and <{meta}> elements.
-This is becoming more common over time, and it's quite normal these days to see
-multiple kilobytes at the beginning of every response dedicated to such
-metadata. Setting this metadata is valuable indeed, as it can have a large
-impact on performance, security, and privacy.
+However, the existing delivery mechanism is ill-suited to the task, suffering from a clear mismatch between the resource-specific nature of the metadata declarations on the one hand, and the origin-wide intent of the metadata on the other. Take `<a http-header><code>Strict-Transport-Security</code></a>`, for example, which explicitly alters the state of an entire origin, but is delivered as a resource-specific response header. [[RFC6797]]
 
-However, the existing delivery mechanism is ill-suited to the task, suffering
-from a clear mismatch between the resource-specific nature of the metadata
-declarations on the one hand, and the origin-wide intent of the metadata on the
-other. Take `Strict-Transport-Security` [[RFC6797]] and `Public-Key-Pins`
-[[RFC7469]], for example, which explicitly alter the state of an entire origin,
-but are delivered in resource-specific response headers.
-
-Moreover, many resource-specific headers are deployed in such a way as to be
-<i lang="la">de facto</i> static across all resources that an origin serves.
-`Content-Security-Policy` [[CSP3]], for instance, can be very granular indeed,
-but is commonly implemented by setting a single policy which is delivered for
-an entire application.
+Moreover, many resource-specific headers are deployed in such a way as to be <i lang="la">de facto</i> static across all resources that an origin serves. `<a http-header><code>Content-Security-Policy</code></a>`, for instance, can be very granular indeed, but is commonly implemented by setting a single policy which is delivered for an entire application. [[CSP]]
 
 A number of implications follow:
 
-1.  Servers are required to repeat themselves. At length.
-    `Content-Security-Policy` alone can easily eat multiple kilobytes of each
-    navigational response, bandwidth which could instead be dedicated to content
-    a user might care about. This has obvious and direct impact on the delay a
-    user experiences when navigating, but has less obvious knock-on effects that
-    reduce performance further. HTTP/2's HPACK [[RFC7541]] header compression
-    is limited to ~4k of state for processing, for instance, meaning that these
-    verbose headers can greatly reduce its effectiveness
+1. Servers are required to repeat themselves. At length. `<a http-header><code>Content-Security-Policy</code></a>` alone can easily eat multiple kilobytes of each navigational response, bandwidth which could instead be dedicated to content a user might care about. This has obvious and direct impact on the delay a user experiences when navigating, but has less obvious knock-on effects that reduce performance further. HTTP/2's HPACK header compression is limited to ~4k of state for processing, for instance, meaning that these verbose headers can greatly reduce its effectiveness. [[RFC7541]]
 
-2.  Servers are required to repeat themselves. Unerringly. When policy applies
-    strictly to a resource, and not to the origin, then a server must send that
-    policy down with every response. If the developer forgets a page (which is
-    actually a very common occurence: when's the last time you thought about
-    your 404 error page? How about your 417? Or 505?), then the policy's
-    protections don't apply to that resource, leaving an exploitable hole.
+2. Servers are required to repeat themselves. Unerringly. When policy applies strictly to a resource, and not to the origin, then a server must send that policy down with every response. If the developer forgets a page (especially common on error pages), then the policy's protections don't apply to that resource, leaving an exploitable hole.
 
-This document introduces a new delivery mechanism for policies which are meant
-to apply to an entire origin. In short, a server will provide an <a>Origin
-Policy Manifest</a> file at a well-known location. This file contains all of the
-metadata the server would like to set for each response. User agents can be
-instructed to synchronously download and process this manifest before completing
-a navigation to an origin's resources, ensuring that the policy contained therin
-will be safely applied to each resource, and allowing the server to skip the
-overhead of including the relevant headers with each response. Typically, the
-server can speed things up even more by using HTTP/2 Server Push ([[RFC7540]],
-section 8.2) to proactively send the manifest file along with the response to
-the user agent's first request.
+This document introduces a new delivery mechanism for policies which are meant to apply to an entire origin. The server provides an [=origin policy manifest=] at a well-known location. This file contains origin-wide configuration metadata, which can affect all requests to and responses from that origin. Then, individual HTTP responses can instruct the user agent to download and process this manifest. Depending on the preference expressed by the server for a given resource, processing of the response can be blocked until the manifest is fetched and its policy items applied. Alternately, the server can indicate that previously-downloaded [=origin policy manifests=], or indeed no origin policy at all, are acceptable for a given resource.
 
-Examples {#examples}
---------------------
-
-<div class="example">
-MegaCorp, Inc. wishes to ensure that a baseline content security policy is
-applied to each of the pages on `https://example.com`, while avoiding the
-overhead associated with large response headers, and the uncertainty that
-they've really covered everything that lives on the origin.
-
-When they see a request come in that contains a <a>`Sec-Origin-Policy`</a>
-header, they can respond in kind, pointing the client to a manifest file
-in a well-known location on their server. That is, given the following
-request:
-
-<pre>
-GET / HTTP/1.1
-Host: example.com
-Connection: keep-alive
-...
-<a>Sec-Origin-Policy</a>: 1
-...
-</pre>
-
-MegaCorp, Inc. can respond with:
-
-<pre>
-HTTP/1.1 200 OK
-Content-Encoding: gzip
-Accept-Ranges: bytes
-Cache-Control: max-age=604800
-Content-Type: text/html
-...
-<a>Sec-Origin-Policy</a>: "policy-1"
-<a http-header>Vary</a>: sec-origin-policy
-...
-</pre>
-
-The client will parse the response headers, and synchronously request
-`https://example.com/.well-known/origin-policy/policy-1` before completing
-the navigation. The policies contained in that file will be cached
-according to the normal HTTP caching rules, and applied to pages on
-`https://example.com/` (including the current navigation).
-
-<pre>
-{
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Referrer-Policy</a>",
-      "<a idl>value</a>": "origin-when-cross-origin",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
-    }
-    {
-      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
-      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a http-header>X-Content-Type-Options</a>",
-      "<a idl>value</a>": "nosniff",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    }
-  ],
-  "<a>cors-preflight</a>": {
-    "<a for="CORSOptions" idl>origins</a>": "*"
-  }
-}
-</pre>
-
-Subsequent requests from the same client will contain the version of
-the policy currently cached for the origin (with a slight caveat: see
-[[#tracking]]). In this case:
-
-<pre>
-GET / HTTP/1.1
-Host: example.com
-Connection: keep-alive
-...
-<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
-...
-</pre>
-
-Note: MegaCorp, Inc. can signficantly speed up this interaction by proactively
-pushing the current manifest down to the client along with the initial response.
-See [[#server-push]] for details.
 </div>
 
-<div class="example">
-MegaCorp, Inc. wishes to update the origin policy it has distributed to clients.
-It can do so by setting an appropriate `Sec-Origin-Policy` header in the response.
-That is, given the following request:
+<h3 id="examples">Examples</h3>
 
-<pre>
-GET / HTTP/1.1
-Host: example.com
-Connection: keep-alive
-...
-<a>Sec-Origin-Policy</a>: "<strong>policy-1</strong>"
-...
-</pre>
+<div class="example" id="example-initial-policy">
+  MegaCorp, Inc. wishes to ensure that a baseline [=content security policy=] is applied to each of the pages on <code>https://example.com</code>, while avoiding the overhead associated with large response headers, and the uncertainty that they've really covered everything that lives on the origin.
 
-MegaCorp, Inc. can respond with:
+  The first thing MegaCorp does is ensure that <code>https://example.com/.well-known/origin-policy</code> serves an appropriate policy. They place a UTF-8 encoded JSON file at that location, containing the following:
 
-<pre>
-HTTP/1.1 200 OK
-Content-Encoding: gzip
-Accept-Ranges: bytes
-Cache-Control: max-age=604800
-Content-Type: text/html
-...
-<a>Sec-Origin-Policy</a>: "policy-2"
-<a http-header>Vary</a>: sec-origin-policy
-...
-</pre>
-
-The client will process the header, replace the `policy-1` manifest it downloaded
-in the previous example with the newly specified `policy-2` manifest, and apply
-the latter to the response.
-</div>
-
-<div class="example">
-MegaCorp, Inc. wishes to remove the origin policy it has distributed to clients.
-It can do so by setting an `Sec-Origin-Policy` header with a value of `0` in the
-response:
-
-<pre>
-HTTP/1.1 200 OK
-Content-Encoding: gzip
-Accept-Ranges: bytes
-Cache-Control: max-age=604800
-Content-Type: text/html
-...
-<a>Sec-Origin-Policy</a>: 0
-...
-</pre>
-
-The client will process the header, and evict any origin policy for the
-response's origin.
-
-Note: The manifest itself will be removed, but some of the policies it set may
-still be effective. For example, if the <a>Strict-Transport-Security</a> header
-was set, the `maxage` property it contained may still force TLS on any connection
-to the origin's host. Those kinds of behaviors will need to be cleared
-individually, as appropriate for the feature. For example, to remove HSTS, the
-server could send `Strict-Transport-Security: maxage=0`.
-</div>
-
-Framework {#framework}
-======================
-
-Concepts {#concepts}
---------
-
-An <dfn>origin policy object</dfn> is a tuple of a string
-(version), and the contents of an
-<a>origin policy manifest</a> (<dfn for="origin policy object">body</dfn>).
-
-User agents have a <dfn export>Origin Policy Store</dfn>, which is a key/value
-store that constitutes a 1:1 mapping between <a>origin policy objects</a> and
-<a for="/">origins</a>.
-
-When asked to <dfn abstract-op local-lt="get-policy-from-store">retrieve an Origin
-Policy for an origin</dfn>, an <a>Origin Policy Store</a> will return either a
-single <a>origin policy object</a> (if one is stored for the given origin), or
-`null` (if nothing is stored for the given origin).
-
-When asked to <dfn abstract-op local-lt="evict-policy-from-store">evict an Origin
-policy for an origin</dfn>, an <a>Origin Policy Store</a> will discard any
-<a>origin policy object</a> associated with the given origin.
-
-This document uses ABNF grammar to specify syntax, as defined in [[!RFC5234]]. It also relies on
-the `#rule` ABNF extension defined in
-<a href="https://tools.ietf.org/html/rfc7230#section-7">Section 7</a> of [[!RFC7230]].
-
-This document depends on the Infra Standard for a number of foundational concepts used in its
-algorithms and prose [[!INFRA]].
-
-The `Sec-Origin-Policy` HTTP Header Field {#origin-policy-header}
------------------------------------------------------------------
-
-The <dfn export>`Sec-Origin-Policy`</dfn> HTTP request header field is sent with
-navigational HTTP requests in order to advertise support generally for the
-origin policy manifest mechanism defined in this document, and to inform
-the server which version of its origin policy is cached locally. Its value
-MUST be either `1` or a base64-encoded value, wrapped in double-quotes.
-
-The same header is sent by the server in responses to such requests to
-inform the client that a origin policy manifest is available to fetch. Its
-value MUST be either `0` or a base64-encoded value, wrapped in double-quotes.
-The following ABNF defines that more formally:
-
-<pre class="abnf" dfn-type="grammar" link-type="grammar">
-  Sec-Origin-Policy: 0 / 1 / <a>manifest-name</a>
-  <dfn>manifest-name</dfn>: <a>DQUOTE</a> <a>base64-value</a> <a>DQUOTE</a>
-  ; base64-value is defined in [[!CSP3]]
-  ; DQUOTE is defined in [[!RFC5234]]
-</pre>
-
-This header MUST be ignored if [[secure-contexts#is-url-trustworthy]] returns
-"`Not Trustworthy`" when executed upon the response's URL.
-
-The Origin Policy Manifest File {#manifest-file}
-------------------------------------------------------
-
-The <dfn export local-lt="manifest">Origin Policy Manifest</dfn> is a
-JSON-formatted document consisting of a top-level object with one or more
-members. Each member defines a specific aspect of an origin's policy.
-
-<pre class="example">
-{
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>script-src</a> 'self' https://cdn.example.com",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Referrer-Policy</a>",
-      "<a idl>value</a>": "origin-when-cross-origin",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>fallback</a>"
-    }
-    {
-      "<a idl>name</a>": "<a http-header>Content-Security-Policy</a>",
-      "<a idl>value</a>": "<a>object-src</a> 'none'; <a>frame-ancestors</a> 'none'",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a>Strict-Transport-Security</a>",
-      "<a idl>value</a>": "max-age=10886400; includeSubDomains; preload",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    },
-    {
-      "<a idl>name</a>": "<a http-header>X-Content-Type-Options</a>",
-      "<a idl>value</a>": "nosniff",
-      "<a for="HTTPHeader" idl>type</a>": "<a idl>baseline</a>"
-    }
-  ],
-  "<a>cors-preflight</a>": {
-    "<a for="CORSOptions" idl>origins</a>": "*"
-  }
-}
-</pre>
-
-### The `origin-policy` well-known location ### {#origin-policy-well-known}
-
-<a>Origin Policy Manifest</a> files for a given origin MUST be located as
-suffixes to the well-known location `/.well-known/origin-policy` [[RFC8615]].
-Their names MUST be strings of characters matching the
-<a grammar>base64-value</a> grammar. That is, `/.well-known/origin-policy/a`
-might point to one <a>Origin Policy Manifest</a> file, while
-`/.well-known/origin-policy/b` might point to another.
-
-Servers MUST respond to a `GET` request to `/.well-known/origin-policy` with a
-302 redirect whose `Location` header points to the origin's current <a>Origin
-Policy Manifest</a>, or with a 404 response if no such policy is available.
-
-Note: This redirect can be used as a discovery mechanism. User agents might
-prefetch such manifest files for origins a user is likely to visit, testing
-services might give developers automated feedback on their origin's manifest,
-etc.
-
-### The `headers` member ### {#headers-member}
-
-The <dfn export>`headers`</dfn> member defines a set of HTTP response headers
-which will be automatically appended to resources delivered from the manifest's
-origin. The headers specified in this member's value are categorized either as
-<dfn>baseline headers</dfn> which appended to <em>every</em> resource served by
-the origin, or as <dfn>fallback headers</dfn> which are appended only to those
-resources which don't themselves deliver the header.
-
-The `headers` member's value MUST be a sequence of {{HTTPHeader}} dictionaries,
-each containing the following members:
-
-:   <dfn for="HTTPHeader" dict-member>name</dfn>
-::  A string representing the header's name: "`Content-Security-Policy`", for
-    example. This member is required.
-:   <dfn for="HTTPHeader" dict-member>value</dfn>
-::  A string representing the header's value: "script-src 'none'", for example.
-    This member is required.
-:   <dfn for="HTTPHeader" dict-member>type</dfn>
-::  Either "<dfn for="HTTPHeaderType" enum-value>`baseline`</dfn>" or
-    "<dfn for="HTTPHeaderType" enum-value>`fallback`</dfn>", designating this header as
-    either a <a>baseline header</a> or <a>fallback header</a> respectively. If
-    this member is not explicitly present, it defaults to "`baseline`".
-
-Members other than those specified here will be ignored, and will not cause
-parse failures.
-
-ISSUE: It may be a dangerous (or at least confusing) footgun to allow certain
-headers to be set on an origin (consider `Content-Type` or `Content-Length`,
-for instance). Perhaps it would be reasonable to limit the <a>`headers`</a>
-member to some whitelist of expected headers?
-
-### The `cors-preflight` and `unsafe-cors-preflight-with-credentials` members ### {#cors-preflight-member}
-
-The <dfn export>`cors-preflight`</dfn> and
-<dfn export>`unsafe-cors-preflight-with-credentials`</dfn> members assert that
-an origin understands the CORS protocol, and that the user agent can therefore
-assume success for certain types of <a>CORS-preflight requests</a>. The former
-governs uncredentialed requests, the latter credentialed.
-
-Both members values MUST be a {{CORSOptions}} dictionary, with the following
-members:
-
-:   <dfn for="CORSOptions" dict-member>origins</dfn>
-::  Either the string "<dfn for="Wildcard" enum-value>`*`</dfn>" or a sequence
-    of strings, representing the origins for which <a>CORS-preflight
-    requests</a> may be bypassed. This member is required.
-
-    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
-    its value MUST not be "{{*}}".
-:   <dfn for="CORSOptions" dict-member>methods</dfn>
-::  Either the string "{{*}}" or a sequence
-    of strings, representing the non-<a>CORS-safelisted method</a>
-    <a for="request">methods</a> for which <a>CORS-preflight request</a> may
-    be bypassed. This member is optional.
-
-    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
-    its value MUST not be "{{*}}".
-:   <dfn for="CORSOptions" dict-member>headers</dfn>
-::  Either the string "{{*}}" or a sequence
-    of strings, representing the non-<a>CORS-safelisted request-header</a>
-    <a>headers</a> which <a>CORS-preflight request</a> may be bypassed. This
-    member is optional.
-
-    If this is a member of <a>`unsafe-cors-preflight-with-credentials`</a>, then
-    its value MUST not be "{{*}}".
-
-Note: This member does <em>not</em> set CORS headers for responses in general;
-it only allows the user agent to skip the `OPTIONS` preflight request for a
-defined set of requests.
-
-#### Examples #### {#cors-examples}
-
-<div class="example">
-  MegaCorp, Inc. has a partnership with Excellent Examples, GmbH., and wishes to
-  allow the latter to make otherwise unsafely credentialed cross-origin requests
-  without the overhead of CORS preflight requests. They can do so with the
-  following manifest:
-
-  <pre>
+  <pre highlight="json">
   {
-    "<a>unsafe-cors-preflight-with-credentials</a>": {
-      "<a for="CORSOptions" idl>origins</a>": [ "https://excellent-example.test/" ]
+    "<a for="origin policy manifest">id</a>": "policy-1",
+    "content_security": {
+      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
     }
   }
   </pre>
 
-  As spelled out in [[#fetch-bypass-preflight]], this bypasses <a>CORS-preflight
-  requests</a> for credentialed requests coming from
-  `https://excellent-example.text`, as long as they don't set strange headers,
-  or use strange HTTP methods.
-
-  If the API required a special header (say `X-Examples-Are-Excellent`), or a
-  custom HTTP method (say `EXAMPLE`), MegaCorp, Inc. could bypass preflights
-  for those as well by changing their manifest as follows:
+  They then modify all responses from their origin to contain a `<a http-header><code>Origin-Policy</code></a>` header requiring that this policy be fetched and applied. For example, given:
 
   <pre>
-  {
-    "<a>unsafe-cors-preflight-with-credentials</a>": {
-      "<a for="CORSOptions" idl>origins</a>": [ "https://excellent-example.test/" ],
-      "<a for="CORSOptions" idl>methods</a>": [ "EXAMPLE" ],
-      "<a for="CORSOptions" idl>headers</a>": [ "X-Examples-Are-Excellent" ]
-    }
-  }
-  </pre>
-</div>
-
-<div class="example">
-  MegaCorp, Inc. is a staunch advocate of open data, and wishes to make all of
-  the API endpoints on `https://open.example.com/` available for uncredentialed
-  requests from any origin. They can do so with the following manifest:
-
-  <pre>
-  {
-    "<a idl>headers</a>": [
-      {
-        "<a for="HTTPHeader" idl>name</a>": "Access-Control-Allow-Origin",
-        "<a for="HTTPHeader" idl>value</a>": "*",
-        "<a for="HTTPHeader" idl>type</a>": "<a enum-value>fallback</a>"
-      }
-    ],
-    "<a>cors-preflight</a>": {
-      "<a for="CORSOptions" idl>origins</a>": "*"
-    }
-  }
-  </pre>
-
-  As spelled out in [[#fetch-bypass-preflight]], this bypasses <a>CORS-preflight
-  requests</a> for uncredentialed requests from any origin. Further, it appends
-  an `Access-Control-Allow-Origin: *` header to each response that doesn't set
-  a custom value for that header.
-
-  Note: This doesn't allow anything more than the
-  "<a href="https://fetch.spec.whatwg.org/#basic-safe-cors-protocol-setup">Basic
-  safe CORS protocol setup</a>", as `*` will not allow credentialed access to any
-  resource and the static manifest cannot be configured to echo the actual origin
-  of the requestor.
-</div>
-
-### Syntax ### {#syntax}
-
-<pre class="idl">
-  //
-  // `header` member:
-  //
-  enum HTTPHeaderType { "baseline", "fallback" };
-
-  dictionary HTTPHeader {
-    required USVString name;
-    required USVString value;
-    HTTPHeaderType type = "baseline";
-  };
-
-
-  //
-  // `cors-preflight` and `unsafe-cors-preflight-with-credentials`
-  //
-  enum Wildcard { "*" };
-  typedef (Wildcard or sequence&lt;USVString&gt;) CORSOptionList;
-
-  dictionary CORSOptions {
-    CORSOptionList origins;
-    CORSOptionList? methods;
-    CORSOptionList? headers;
-  };
-</pre>
-
-ISSUE: WebIDL is almost certainly the wrong way to describe the way the
-<a>`Sec-Origin-Policy`</a> header's value is constructed. Still, it makes
-writing the spec quite a bit simpler, so. We'll come up with something better
-later. Possibly as part of the JSON HTTP Header Field encoding work
-ongoing in the HTTP WG.
-
-Algorithms {#algorithms}
-==========
-
-<h3 algorithm dfn id="version-for-origin">
-  Retrieve |origin|'s manifest version.
-</h3>
-
-Given an origin (|origin|), this algorithm returns `0` if no manifest is present
-in the user agent's <a>Origin Policy Store</a>, or a string representing the
-cached version otherwise.
-
-1.  Let |version| be `0`.
-
-2.  If the user agent's <a>Origin Policy Store</a> contains a tuple for
-    |origin|, let |version| be that tuple's first element.
-
-3.  Return |version|.
-
-<h3 algorithm dfn id="evict-for-origin">
-  Evict |origin|'s cached manifest.
-</h3>
-
-Given an origin (|origin|), this algorithm removes any cached manifest from the
-user agent's <a>Origin Policy Store</a>:
-
-1.  Instruct the user agent's <a>Origin Policy Store</a> to
-    <a lt="evict-policy-from-store" abstract-op>evict</a> any <a>Origin Policy object</a> stored
-    for |origin|.
-
-HTML Integration {#monkey-patching-html}
-----------------
-
-At the end of the navigation algorithm, we'll do the following:
-
-1.  If we have a policy for the origin to which we've navigated (or we're inheriting the
-    origin for an `about:blank` or `about:srcdoc` (or if we're Firefox, `data:...`),
-    then we apply the policy to the document as defined in [[#html-apply-policy]] (which
-    I haven't written yet.
-
-At the end of the "run a worker" algorithm, we'll do the same thing.
-
-<h4 algorithm dfn id="html-apply-policy">
-  Apply Origin Policy to <var ignore>settings</var>.
-</h4>
-
-ISSUE: Write this algorithm.
-
-Fetch Integration {#monkey-patching-fetch}
------------------
-
-During a navigation request, Fetch will hook into this specification in two ways:
-
-1.  At the top of the basic fetch algorithm, Fetch will call
-    [[#fetch-prepare-request]] in order to append `Sec-Origin-Policy` to the
-    request's header list with a value of `1` if no manifest is cached for its
-    URL's origin, or a value of the verion of the manifest that is cached  (e.g.
-    `"policy-1"`).
-
-2.  When a response is received during HTTP-network fetch algorithm, Fetch will
-    call into [[#fetch-parse-response]] to sift through its headers, and
-    extract the `Sec-Origin-Policy` header. If present, and its value does not
-    match the value of the locally cached manifest for the response's origin,
-    we'll issue a synchronous request for a resource located on the request's
-    URL's origin at `/.well-known/origin-policy/{value}`, as defined in
-    [[#fetch-parse-response]].
-
-    The manifest request will fail in a draconian fashion: if
-    [[#fetch-parse-response]] returns "`Failure`", the response to the request
-    which triggered the manifest request will be set to a <a>network error</a>.
-
-    ISSUE: Should we allow service workers to intercept/set policy? Maybe only if they
-    are scoped to the whole origin?
-
-3.  Directly after Fetch calls into [[#fetch-parse-response]], it will call into
-    [[#fetch-apply-policy]] to apply any cached policy to the response.
-
-4.  Before issuing a <a>CORS-preflight request</a>, Fetch will call into
-    [[#fetch-bypass-preflight]] in order to determine whether the preflight is
-    necessary. If that algorithm returns "`Bypass`", Fetch will not issue a
-    preflight request, but instead proceed as though the preflight succeeded.
-    Otherwise, the preflight will be issued as usual.
-
-<h4 algorithm dfn id="fetch-prepare-request">
-  Prepare |request| with Origin Policy.
-</h4>
-
-Given a request |request|, add appropriate headers to inform a server about a
-client's active policy:
-
-1.  If |request| is not a navigation request, or if
-    [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
-    executed upon |request|'s <a for="request">url</a>, then abort these steps.
-
-2.  If the user agent is configured to include cookies with |request|, then
-    let |version| be the result of executing [[#version-for-origin]] on
-    |request|'s URL's origin.
-
-    Otherwise, let |version| be `1` (see [[#tracking]]).
-
-3.  Append a header named `Sec-Origin-Policy` with a value of |version| to
-    |request|'s header list.
-
-<h4 algorithm dfn id="fetch-parse-response">
-  Process |response| for Origin Policy.
-</h4>
-
-Given a response (|response|), the user agent will <dfn abstract-op>process |response|'s Origin
-Policy</dfn> as follows, fetching or evicting the relevant <a>Origin Policy Manifest</a>:
-
-*  If no "`Sec-Origin-Policy`" header is present, this algorithm returns
-   "`No-op`".
-
-*  If an "`Sec-Origin-Policy`" header is present with a value of `0`, this
-   algorithm will evict the relevant manifest, and return "`Success`".
-
-*  If an "`Sec-Origin-Policy`" header is present with a non-`0` value, this
-   algorithm will attempt to fetch the specified manifest. If successful,
-   the manifest will be cached locally, and this algorithm will return
-   "`Success`". If the fetch fails, this algorithm will return "`Failure`".
-
-<ol class="algorithm">
-  1.  Let |version| be the result of [=extracting header list values=] given `Sec-Origin-Policy` and
-      |response|'s [=response/header list=].
-
-  2.  Let |url| be a copy of |response|'s [=response/URL=].
-
-  3.  Return "`No-op`" if any of the following statements are true:
-
-      1.  |version| is `null`.
-
-      2.  [[secure-contexts#is-url-trustworthy]] returns "`Not Trustworthy`" when
-          executed upon |url|.
-
-  4.  Assert: |url| is not an [=opaque origin=].
-
-  5.  Return "`Failure`" if |version| does not match the <a grammar>manifest-name</a> grammar.
-
-  6.  If |version| is `0`:
-
-      1.  Execute [[#evict-for-origin]] upon |url|'s [=url/origin=].
-
-      2.  Return "`Success`".
-
-  7.  Replace |url|'s [=url/path=] with the concatenation of "`/.well-known/origin-policy/`" and
-      |version|.
-
-  8.  Let |request| be a new request with the following properties:
-
-      :   [=request/url=]
-      ::  |url|
-      :   [=request/client=]
-      ::  `null`
-      :   [=request/service-workers mode=]
-      ::  "`none`"
-      :   [=request/destination=]
-      ::  "`manifest`"
-      :   [=request/mode=]
-      ::  "`same-origin`"
-      :   [=request/redirect mode=]
-      ::  "`error`"
-
-  9.  Let |response| be the result of [=/fetching=] |request|.
-
-  10. If |response|'s [=response/status=] is an [=ok status=]:
-
-      1.  Let |MIME type| be the result of
-          <a for="header list" lt="extract a MIME type">extracting a MIME type</a>
-          from |response|'s [=response/header list=].
-
-      2.  If |MIME type| is not `application/manifest+json`, abort these steps and return
-          "`Failure`".
-
-      3.  [=body/Wait=] for |response|'s [=response/body=].
-
-      4.  Store the tuple (|version|, |response|'s [=response/body=]) in the user agent's <a>Origin
-          Policy Store</a> for |response|'s [=response/URL=]'s [=url/origin=].
-
-      5.  Return "`Success`".
-
-  11. Return "`Failure`"
-</ol>
-
-<h4 algorithm dfn id="fetch-apply-policy">
-  Apply an Origin Policy to |response|.
-</h4>
-
-Given a response (|response|), the following algorithm applies the relevant
-<a>origin policy object</a>:
-
-1.  Let |origin| be |response|'s URL's origin.
-
-2.  If |origin| is an opaque origin, or if
-    [[secure-contexts#is-origin-trustworthy]] returns "`Not Trustworthy`" when
-    executed upon |origin|, abort these steps and return.
-
-3.  Let |object| be the result of instructing the user agent's <a>Origin Policy
-    Store</a> to <a lt="get-policy-from-store" abstract-op>retrieve an Origin Policy
-    object</a> for |origin|.
-
-4.  If |object| is `null`, abort these steps and return.
-
-5.  Set |policy| to |object|'s <a for="origin policy object">body</a>.
-
-6.  For each member (|member|) in |policy|, execute the steps associated with
-    the matching statement below:
-
-    :   <a>`headers`</a>
-    ::  1.  If |member|'s value is not valid as defined in [[#headers-member]],
-            abort these steps and return.
-
-            ISSUE: Is there a better way to define validity? JSON schema?
-
-        2.  For each |header| in |member|'s value:
-
-            1.  Let |name| be |header|'s {{HTTPHeader/name}}, and |value| be
-                |header|'s {{HTTPHeader/value}}.
-
-            2.  If |header|'s {{HTTPHeader/type}} is "`fallback`", and the result of [=extracting
-                header list values=] given |name| and |response|'s [=response/header list=] is not
-                `null`, <a>continue</a>.
-
-                Note: We check the header's presence <em>before</em> applying
-                <a>baseline headers</a> to |response|.
-
-            3.  Append |name|/|value| to |response|'s <a for="response">header list</a>.
-
-        Note: Once a policy is cached for an origin, the headers it applies
-        will never change. User agents are encouraged to implement more
-        performant algorithms making use of this invariant.
-
-<h4 algorithm dfn id="fetch-bypass-preflight">
-  Does Origin Policy bypass |request|'s CORS-preflight request?
-</h4>
-
-Given a request (|request|), this algorithm returns "`Bypass`" if the
-<a>CORS-preflight request</a> required for |request| can be fulfilled by
-examining the target origin's <a>Origin Policy Manifest</a>, and "`Does Not
-Bypass`" if the preflight is required:
-
-1.  Let |manifest| be the result of <a lt="get-policy-from-store" abstract-op>retrieving an Origin
-    Policy</a> for |request|'s <a for="request">url</a>'s <a for="url">origin</a>.
-
-2.  If |manifest| is `null`, return "`Does Not Bypass`".
-
-3.  Set |manifest| to |manifest|'s <a for="origin policy object">body</a>.
-
-3.  Let |options| be |manifest|'s <a>`cors-preflight`</a> member's value if
-    |request|'s <a for="request">credentials mode</a> is "`omit`", and
-    |manifest|'s <a>`unsafe-cors-preflight-with-credentials`</a> member's value
-    otherwise.
-
-4.  Return "`Does Not Bypass`" if any of the following are true:
-
-    1.  |options| is not a {{CORSOptions}} object.
-
-    2.  |request|'s <a for="request">credentials mode</a> is "`include`", and
-        any of |options|'s {{CORSOptions/origins}}, {{CORSOptions/methods}},
-        or {{CORSOptions/headers}} member's values are "{{*}}".
-
-    3.  |options|'s {{CORSOptions/origins}} is not "{{*}}", and the
-        <a lt="ASCII serialization of an origin">serialization</a> of
-        |request|'s <a for="request">origin</a> is not an <a>case-sensitive</a>
-        match for any of the items in |options|'s {{CORSOptions/origins}}
-        sequence.
-
-    4.  |request|'s <a for="request">method</a> (|method|) is not a
-        <a>CORS-safelisted method</a>, and |options|'s {{CORSOptions/methods}}
-        is not "{{*}}", and |method| is not a <a>case-sensitive</a> match for
-        any of the items in |options|'s {{CORSOptions/methods}} sequence.
-
-    5.  |request|'s <a for="request">header list</a> (|list|) contains headers
-        which are not <a>CORS-safelisted request-headers</a>, and |options|'s
-        {{CORSOptions/headers}} is not "{{*}}", and one or more of |list|'s
-        non-<a>CORS-safelisted request-headers</a>' <a for="header">names</a>
-        is not an <a>ASCII case-insensitive</a> match for any of the items in
-        |options|'s {{CORSOptions/headers}} sequence.
-
-5.  Return "`Bypass`".
-
-Specification Considerations {#specification}
-=============================
-
-Relation to Web App Manifests {#app-manifest}
------------------------------
-
-It might make sense to combine this mechanism with the manifest notion
-defined in [[APPMANIFEST]]. There are a few distinctions, however, which
-lead to the current design:
-
-1.  The [=Origin Policy Manifest=] is delivered synchronously during
-    navigation, which gives it a number of valuable security properties. The
-    web app manifest, on the other hand, is delivered inline via a <{link}>
-    element, which makes it less valuable from that perspective.
-
-2.  Web app manifests can live anywhere on an origin, and anywhere on any other
-    origin, for that matter. This might make sense for the feature set it wishes
-    to expose, but it would expose an origin to unnecessary risk to be quite so
-    loose with [=origin policy manifest=] files.
-
-Nevertheless, we should consider ways to merge this policy with [[APPMANIFEST]].
-Perhaps we could accept a certain set of attributes was parsed iff certain
-properties of the request are true (same-origin, specific path, etc). Something
-to look into. For now, we've done the simple thing as a strawman.
-
-Why `.well-known`? {#why-well-known}
-------------------
-
-This document forces the manifest to live as a resource accessible under a
-"well-known location" specific to Origin Policy manifests. It would increase
-flexibility of deployment and implementation if we allowed a developer to point
-to any location on an origin instead. Perhaps something like the following:
-
-```
-  Sec-Origin-Policy: /path/to/manifest.json
-```
-
-This would allow developers who control an application, but not the server on
-which the application runs, to define policy for themselves without bothering
-the sysadmins and filing internal tickets to get a `.well-known` directory
-created, populated, and mapped to something externally accessible.
-
-So why does this document force a well-known location?
-
-In short, this document posits that setting a policy for an origin is an action
-that should, in fact, involve the folks responsible for running the origin's
-server, as it has cross-cutting effects upon <em>every</em> application hosted
-on an origin. Unlike a response-specific `Content-Security-Policy` header, the
-<a>`headers`</a> member can apply a baseline policy to <em>all</em> the responses
-an origin emits. This can be hugely benificial, but also hugely destructive.
-
-Consider, for example, MegaCorp, Inc.'s `https://example.com`, which
-hosts a mail application, a mapping application, a document editing application,
-and so on. It would be unfortunate indeed if one of these applications
-accidentally pinned a policy to the entire origin which didn't account for the
-rest of the origin's contents. To mitigate that risk, this document forces the
-manifest to live in a shared location for an origin. The goal is explicitly to
-eilicit the kind of discussion and compromise within an origin that needs to
-happen in order to deploy an Origin Policy safely.
-
-Authoring Considerations {#authoring}
-========================
-
-Caching {#vary}
--------
-
-Authors SHOULD set an appropriate <a http-header>`Vary`</a> header in order to
-ensure that responses are cached correctly based on the relevant origin
-manifest.
-
-ISSUE: Expand upon this.
-
-Headers To Set {#headers-to-set}
---------------
-
-Authors SHOULD explicitly set a number of headers to construct a reasonable
-policy for their sites. Among the most important are:
-
-*   `Content-Security-Policy` [[CSP3]]
-*   `Strict-Transport-Security` [[RFC6797]]
-*   `X-Content-Type-Options` [[FETCH]]
-
-ISSUE: Give some reasonable recommendations here, with links to tutorials if possible.
-
-Performance {#perf}
------------
-
-Servers SHOULD set a long cache lifetime for the manifest file, using the version
-to change policy for an origin as opposed to changing the existing policy and
-relying on cache expiration.
-
-Server Push {#server-push}
------------
-
-To speed up the initial, synchronous request for the manifest file, servers
-SHOULD use the <a>Server Push</a> mechanism defined in [[RFC7540]] to get the
-manifest down to the client as quickly as possible.
-
-1.  Send a `PUSH_PROMISE` frame with a minimal request for the manifest,
-    aligning with the request generated in [[#fetch-parse-response]].
-
-2.  Begin delivering the response to the `PUSH_PROMISE` request.
-
-ISSUE: Spell this out with an example.
-
-CSP: Nonces and `'strict-dynamic'` {#strict-dynamic}
-----------------------------------
-
-Content Security Policy has introduced some dynamic mechanisms that are quite
-valuable in terms of encouraging deployment. Nonces, along with the
-<a grammar>`'strict-dynamic'`</a> expression are a good example of an
-implementation which requires a server to send a fresh value down with each
-response. Origin Policy can support such deployments via the "`fallback`"
-mechanism as follows:
-
-<div class="example">
-MegaCorp, Inc. wishes to deploy a strong Content Security Policy which blocks
-plugins and framing altogether, but which uses `'strict-dynamic'` along with a
-fresh nonce for each resource in order to reduce the risk of cross-site
-scripting. It can do so by combining a "`baseline`" and "`fallback`" policy in
-the <a>Origin Policy Manifest</a>, and delivering a `Content-Security-Policy`
-header along with each response.
-
-That is, the manifest file might contain the following JSON:
-
-<pre>
-{
+  GET / HTTP/1.1
+  Host: example.com
+  Connection: keep-alive
   ...
-  "<a idl>headers</a>": [
-    {
-      "<a idl>name</a>": "Content-Security-Policy",
-      "<a idl>value</a>": "script-src 'none'",
-      "<a for="HTTPHeader" idl>type</a>": "fallback"
-    },
-    {
-      "<a idl>name</a>": "Content-Security-Policy",
-      "<a idl>value</a>": "object-src 'none'; frame-ancestors 'self'",
-      "<a for="HTTPHeader" idl>type</a>": "baseline"
-    }
-  },
+  </pre>
+
+  the server can respond with
+
+  <pre>
+  HTTP/1.1 200 OK
+  Content-Type: text/html
   ...
-}
-</pre>
+  <a http-header>Origin-Policy</a>: allowed=("policy-1")
+  <a http-header>Vary</a>: origin-policy
+  ...
+  </pre>
 
-And each resource's response might contain the following header:
+  Upon seeing the `<a http-header><code>Origin-Policy</code></a>` header, the browser will check if it has an origin policy for <code>https://example.com/</code> with ID "<code>policy-1</code>" cached. For this first request, no such cache entry is found. Since the [=null policy=] is not in the header's <code>allowed</code> list, this means that although the browser can continue to download the response body, further processing of the response (in this case [=navigate|navigation=]) is blocked on retrieving and applying the origin policy. So the browser does that:
 
-<pre>
-  <a http-header>Content-Security-Policy</a>: script-src 'nonce-{nonce-goes-here}' 'strict-dynamic'
-</pre>
+  <pre>
+  GET /.well-known/origin-policy HTTP/1.1
+  Host: example.com
+  Connection: keep-alive
+  ...
+  </pre>
 
-The baseline policy will be applied to every response, blocking plugins and
-restricting framing regardless of the response's other headers.
+  and gets back
 
-The fallback policy will be applied iff the response doesn't itself provide a
-Content Security Policy, meaning that the resource's policy will be applied,
-the nonce will be active, and script will execute as expected.
+  <pre>
+  HTTP/1.1 200 OK
+  Content-Type: application/originpolicy+json
+  Cache-Control: max-age=86400
+  ... response body as above ...
+  </pre>
+
+  The navigation to <code>https://example.com/</code> then proceeds as normal, with the [=content security policy=] indicated in the [=origin policy manifest=] applied.
 </div>
 
-Privacy and Security Considerations {#privacy-and-security}
-===================================
+<div class="example" id="example-repeat-visit">
+  From the landing page at <code>https://example.com/</code>, the user clicks a link and navigates to <code>https://example.com/about</code>. The request and response headers are the same as in the previous example, but this time the browser handles things a bit differently.
 
-Tracking {#tracking}
---------
+  This time, when the browser goes to look for "<code>policy-1</code>", it finds it in the HTTP cache. (We're assuming here that less than 86400 seconds have passed.) So no requests to <code>https://example.com/.well-known/origin-policy</code> need to be made, and the response for <code>https://example.com/about</code> can be immediately processed, with the "<code>policy-1</code>" origin policy applied.
+</div>
 
-We send an <a>`Sec-Origin-Policy`</a> header containing the currently cached
-manifest version up to the server along with every <a>navigation request</a>
-in order to reduce the performance impact of the synchronous request for
-the manifest. By informing the server which manifest the user has cached,
-the server can make intelligent decisions about when to initiate a server
-push, thereby avoiding the blocking behavior, and extra round-trip for a
-cancellation.
+<div class="example" id="example-third-party">
+  GigaCorp, Inc., located at <code>https://example.net</code>, wishes to include a widget from MegaCorp on their page. They embed it using an <{iframe}>:
 
-That said, the value of the <a>`Sec-Origin-Policy`</a> header (as well as the
-contents of the cached manifest), can be used to track users with only
-marginally less granularity and coverage than cookies allow. As such, the
-user agent MUST purge an origin's cached manifests whenever a user instructs
-it to clear cookies or cached data for that origin. Additionally, if the user
-agent is configured to not attach cookies to a given request it MUST send `1`
-instead of the manifest version, advertising support for the feature, but not
-a particular cache entry.
+  <xmp highlight="html">
+    <iframe src="https://example.com/widget"></iframe>
+  </xmp>
 
-The `Sec-` prefix {#sec-prefix}
------------------
+  When a user visits <code>https://example.net</code>, the subresource request for <code>https://example.com/widget</code> goes through the same origin policy retrieval process as in <a href="#example-initial-policy">the first visit</a>. Note that this is true <em>even if the user has already visited <code>https://example.com</code></em>, because origin policies are stored in the HTTP cache, which is <a href="https://github.com/whatwg/fetch/pull/943">partitioned</a> by top-level origin. <!-- TODO xref top-level origin when it's defined --> <!-- TODO xref privacy and security considerations section when it exists and discusses this issue --> That is, there is no cache entry for <code>https://example.com/.well-known/origin-policy</code> in the HTTP cache partition corresponding to <code>https://example.net</code>.
 
-The <a>`Sec-Origin-Policy`</a> header `Sec-` prefix ensures that it is treated
-as a <a>forbidden header name</a> by Fetch: developers have no direct control
-over the header's value, and cannot forge the header by injecting it via APIs
-like `fetch()` or `XMLHttpRequest`. It remains under the control of the user
-agent.
+  But the HTTP cache still helps: repeat visits to <code>https://example.net</code> will be able to use the <code>https://example.com/.well-known/origin-policy</code> cache entry in the <code>https://example.net</code> cache partition, and avoid fetching the origin policy for the embedded <{iframe}>.
+</div>
 
-IANA Considerations {#iana}
-===================
+<div class="example" id="example-policy-update">
+  <!-- TODO will this become document policy? -->
+  MegaCorp., Inc. is interested in removing all uses of synchronous {{XMLHttpRequest}} from their site. They think they've got them all, but they'd like to roll out a report-only [=feature policy=] to be sure.
 
-The `Sec-Origin-Policy` header {#iana-header}
---------------------------
+  They update their [=origin policy manifest=] to include such reporting:
 
-The permanent message header field registry should be updated
-with the following registration: [[!RFC3864]]
+  <pre highlight="json">
+  {
+    "<a for="origin policy manifest">id</a>": "policy-1",
+    "content_security": {
+      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    },
+  <mark>  "features": {
+      "policy_report_only": "<a spec="xhr">sync-xhr</a> 'none'"
+    }</mark>
+  }
+  </pre>
 
-:   Header field name
-::  `Sec-Origin-Policy`
-:   Applicable protocol
-::  http
-:   Status
-::  WIP
-:   Author/Change controller
-::  W3C
-:   Specification document
-::  This specification (see [[#origin-policy-header]])
+  New visitors to their site, who download the origin policy manifest for the first time, will get this updated policy, and thus their browsers will report any synchronous XHRs. The same is true for visitors whose cache entry for the origin policy manifest expires, once they re-fetch the updated one. But can we do better?
 
-Creation of the well-known location `origin-policy` {#iana-well-known}
----------------------------------------------------
+  Yes, we can! The trick is to leverage the [=origin policy/ID|policy ID=] mechanism. First, update the manifest with a new ID:
 
-This document defines a well-known location at which <a>Origin Policy
-manifests</a> may be found. In accordance with [[RFC5758]], the following
-registration should be made if and when the proposal in this document gains
-acceptance and implementation:
+  <pre highlight="json">
+  {
+  <mark>  "<a for="origin policy manifest">id</a>": "policy-2"</mark>,
+    "content_security": {
+      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    },
+    "features": {
+      "policy_report_only": "<a spec="xhr">sync-xhr</a> 'none'"
+    }
+  }
+  </pre>
 
-:   URI Suffix
-::  `origin-policy`
-:   Change Controller
-::  W3C
-:   Specification document
-::  This document (see [[#origin-policy-well-known]])
-:   Related information
-::  The suffix `origin-policy` is expected to be followed by an additional path
-    component which names a specific <a>Origin Policy manifest</a> (e.g.
-    `/.well-known/origin-policy/name`). A request to
-    `/.well-known/origin-policy` can be expected to redirect to the most current
-    policy for an origin.
+  Then, change the `<a http-header><code>Origin-Policy</code></a>` response header to indicate that this new policy is preferred:
 
-Acknowledgements {#ack}
-================
+  <pre>
+  <a http-header>Origin-Policy</a>: allowed=("policy-1" "policy-2"), preferred="policy-2"
+  </pre>
 
-Mark Nottingham came up with more or less the same idea at more or less the
-same time (after waiting ~years for me to write this up) [[SITE-WIDE-HEADERS]].
-I've swiped large swaths of his introduction, and turned a mess of a syntax into
-<a>`headers`</a>, as it's better than what I was coming up with. Likewise,
-Takeshi Yoshino's [[ORIGIN-WIDE-CORS]] proposal covers similar ground.
+  When the browser sees this header value on any response from <code>https://example.com</code>, one of three things will happen:
 
-Mike O'Neill and Brad Hill helped mitigate the privacy implications of an
-earlier design for the feature-advertising request header. Anne van Kesteren
-helped ensure that the CORS-request preflight bits were sane.
+  * It will have no origin policy cached for <code>https://example.com</code>. Then, the browser will fetch <code>https://example.com/.well-known/origin-policy</code> before processing the response, and get "<code>policy-2</code>". Thus the response will be loaded with the feature policy applied.
+
+  * It will have "<code>policy-1</code>" cached. In this case, because "<code>policy-1</code>" is in the <code>allowed</code> list, it applies "<code>policy-1</code>" to the resource being loaded, without blocking response processing on any origin policy fetches. This means the feature policy does not apply to the loaded resource. But because "<code>policy-2</code>" was marked as <code>preferred</code>, the browser will additionally fetch <code>https://example.com/.well-known/origin-policy</code> to update its cache entry, so that any future fetches for <code>https://example.com</code> can benefit from "<code>policy-2</code>", and have the feature policy applied.
+
+  * It will have "<code>policy-2</code>" cached. In this case, the <code>preferred</code> policy is available, so the browser uses that, and does not need to bother re-fetching the origin policy manifest.
+
+  In this way, MegaCorp can deploy the new "<code>policy-2</code>" origin policy even to clients within the 24-hour <code>max-age</code> window for the origin policy resource, without incurring any extra fetches if the good-enough "<code>policy-1</code>" is available for immediate use.
+</div>
+
+<div class="example" id="example-killswitch">
+  MegaCorp wishes to remove the origin policy, and ensure that any visitors to its site no longer get any of its effects. It can do so by using the following `<a http-header><code>Origin-Policy</code></a>` response header:
+
+  <pre>
+  <a http-header>Origin-Policy</a>: allowed=(null)
+  </pre>
+
+  When the browser recieves this header, it will ensure that no origin policy is applied for the response, since only the [=null policy=] is allowed. It will also evict any cache entries for <code>https://example.com/.well-known/origin-policy</code>.
+</div>
+
+</div>
+
+<h2 id="framework">Framework</h2>
+
+<h3 id="origin-policy-header">The `<code>Origin-Policy</code>` HTTP header</h3>
+
+The `<dfn http-header><code>Origin-Policy</code></dfn>` response [=header=] can be used to indicate the allowed and preferred [=/origin policy=] used when processing a [=response=]. It may be sent on any HTTP response, in order to update the user agent's record of a given [=/origin=]'s [=/origin policy=].
+
+`<a http-header><code>Origin-Policy</code></a>` is a [=structured header/dictionary=] structured header. The dictionary has two keys: [[!STRUCTURED-HEADERS]]
+
+* <code>allowed</code>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, and
+* <code>preferred</code>, whose value is a string.
+
+At least one of these two entries needs to be provided for the header to have useful behavior.
+
+No [=structured header/parameters=] are used in any locations within the structured header.
+
+The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the [=null policy|null origin policy=] for processing the [=response=]. The processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=].
+
+<h3 id="manifest-file">The origin policy manifest</h3>
+
+The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of a top-level object with one or more members. Its [=MIME type=] is <dfn export><code>application/originpolicy+json</code></dfn>, and it is always treated as [=UTF-8=].
+
+<div class="example" id="example-manifest-structure">
+  <pre highlight="json">
+  {
+    "<a for="origin policy manifest">id</a>": "my-policy",
+    "content_security": {
+      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    }
+  }
+  </pre>
+</div>
+
+This section gives an overview of the file format, as well authoring requirements. The processing model for the manifest, including how to deal with violations of these authoring requirements, are handled by the algorithms in [[#parsing]].
+
+The "<dfn for="origin policy manifest"><code>id</code></dfn>" member defines the [=origin policy/ID=] of the [=/origin policy=]. This is used, in conjunction with the `<a http-header><code>Origin-Policy</code></a>` header, to allow [=/origins=] to express their preferences and requirements among any previously-cached revisions of the [=origin policy manifest=]. It must be present, and must be a [=valid origin policy ID=] string.
+
+<h3 id="origin-policy-well-known">The <code>origin-policy</code> well-known URL</h3>
+
+[=Origin policy manifests=] for a given [=/origin=] are located at the well-known URL <code>/.well-known/origin-policy</code>. [[!RFC8615]]
+
+Servers who wish to provide an origin policy will need to respond to `<code>GET</code>` [=requests=] to this URL with the contents of their [=origin policy manifest=], including setting the correct value of <a><code>application/originpolicy+json</code></a> for the response's `<code>Content-Type</code>` header.
+
+The usual caching strategies (e.g. long <code>max-age</code>, or using the `<code>Etag</code>` header) are quite useful in conjunction with the <code>/.well-known/origin-policy</code> resource, especially since the `<a http-header><code>Origin-Policy</code></a>` header can be used to force a cache refresh.
+
+The processing model for how browsers send [=requests=] to this URL is given in [[#updating]].
+
+<h2 id="data-model">Data model</h2>
+
+An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/items=]:
+
+: <dfn for="origin policy">ID</dfn>
+:: A [=/string=], which is a [=valid origin policy ID=], or null.
+
+The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
+
+A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
+
+* It is not the empty string
+* It only contains [=code points=] in the range U+0020 SPACE through U+007E (~), inclusive. (This is the same as the range specified to be parseable as a string via structured headers. [[STRUCTURED-HEADERS]])
+
+<h2 id="processing-model">Processing model</h2>
+
+<h3 id="from-response">Response processing</h3>
+
+This section details the entry point algorithms, for determining which origin policy applies to an incoming [=response=].
+
+<div algorithm>
+  To <dfn>update the origin policy from a response</dfn>, given a [=response=] |response|:
+
+  1. If |response|'s [=response/URL=] is null, then return "<code>success</code>".
+  1. Let |header| be the result of [=header list/getting=] `<a http-header><code>Origin-Policy</code></a>` from |response|'s [=response/header list=].
+  1. If |header| is null, then return "<code>success</code>".
+  1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return "<code>success</code>".
+  1. Let |origin| be |response|'s [=response/URL=]'s [=url/origin=].
+  1. Return the result of [=updating an origin's origin policy=] for |origin| given |allowedIds|. If |preferredId| is not null, pass it along too.
+</div>
+
+<div algorithm>
+  To <dfn data-lt="parse an `Origin-Policy` header|parsing an `Origin-Policy` header">parse an `<code>Origin-Policy</code>` header</dfn> given a [=byte sequence=] |headerBytes|:
+
+  1. Let |parsedHeader| be the result of [=parsing a structured header=] given |headerBytes| and "<code>dictionary</code>". If this fails, then return "<code>unparseable</code>".
+  1. Let |allowedIds| be an empty [=ordered set=].
+  1. If |parsedHeader|["<code>allowed</code>"] [=map/exists=]:
+    1. If |parsedHeader|["<code>allowed</code>"][0] is not a [=list=], then return "<code>unparseable</code>".
+    1. Let |rawAllowedList| be |parsedHeader|["<code>allowed</code>"][0].
+    1. [=For each=] |itemTuple| in |rawAllowedList|:
+      1. Let |allowedId| be |itemTuple|[0].
+      1. If |allowedId| is not a [=structured header/string=] or the [=structured header/token=] <code>null</code>, then return "<code>unparseable</code>".
+      1. Assert: if |allowedId| is a string, then it is a [=valid origin policy ID=].
+      1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null. <span class="note">This is just a "type conversion" into our usual value space of Infra values. [[!INFRA]]</span>
+      1. [=set/Append=] |allowedId| to |allowedIds|.
+  1. Let |preferredId| be null.
+  1. If |parsedHeader|["<code>preferred</code>"] [=map/exists=]:
+    1. Set |preferredId| to |parsedHeader|["<code>preferred</code>"][0].
+    1. If |preferredId| is not a [=structured header/string=], or is the empty string, then return "<code>unparseable</code>".
+    1. Assert: |preferredId| is a [=valid origin policy ID=].
+  1. Return the [=tuple=] (|allowedIds|, |preferredId|).
+
+  <p class="note">The constant lookups of the 0th [=tuple/item=] in [=tuples=] above is due to the way that structured header parse results are generally packaged as tuples where the 0th item is the value of interest, and the 1st item is an associated [=ordered map=] of [=structured header/parameters=]. In all cases we ignore the parameters.</p>
+</div>
+
+<h3 id="updating">Updating the origin policy</h3>
+
+<div algorithm>
+  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given a [=list=] of strings |allowedIds| and an optional string |preferredId|:
+
+  1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] for |origin|.
+  1. If |preferredId| was given, and equals |cachedPolicy|'s [=origin policy/ID=], then return "<code>success</code>".
+     <p class="note">Since |preferredId| is always a [=valid origin policy ID=], and in particular is not null, this step will never match if |cachedPolicy| is the [=null policy=].</p>
+  1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
+  1. If |url| is null, then return "<code>success</code>".
+  1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is null, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>no-cache</code>".
+  1. If |allowedIds| contains |cachedPolicy|'s [=origin policy/ID=], then:
+    1. If |cachedPolicy|'s [=origin policy/ID=] is null, or |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+    1. Return "<code>success</code>".
+  1. If |allowedIds| contains null, then:
+    1. If |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+    1. Return "<code>success</code>".
+  1. Let |networkResponse| be the result of [=fetching=] |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
+  1. Let |networkPolicy| be the result of [=getting an origin policy from a manifest response=] given |networkResponse|.
+  1. If either of the following is true:
+      * |preferredId| was given, and equals |networkPolicy|'s [=origin policy/ID=]; or
+      * |allowedIds| [=list/contains=] |networkPolicy|'s [=origin policy/ID=],
+    then return "<code>success</code>".
+  1. Return "<code>failure</code>".
+
+  <p class="note">Although this specification uses the full [=fetching=] mechanism to check the HTTP cache for an origin policy, and then [=getting an origin policy from a manifest response|re-parses=] the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
+
+  <div class="note">
+    The following provides a non-normative summary of the outcomes of the above algorithm under various conditions:
+
+    * |preferredId| matches |cachedPolicy|: use |cachedPolicy|.
+    * |preferredId| mismatches |cachedPolicy| or is not provided:
+      * |cachedPolicy| is the [=null policy=]:
+        * |allowedIds| contains null: use the [=null policy=], and refresh the HTTP cache in the background.
+        * |allowedIds| does not contain null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
+      * |cachedPolicy| is not the [=null policy=]:
+        * |allowedIds| contains |cachedPolicy|'s [=origin policy/ID=]: use |cachedPolicy|, and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| does not contain |cachedPolicy|'s [=origin policy/ID=] but does contain null: use the [=null policy=], and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| contains neither |cachedPolicy|'s [=origin policy/ID=] nor null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
+  </div>
+</div>
+
+<!-- TODO: should this behave more like stale-while-revalidate, in particular the prevent no-cache cache-control header modification flag?-->
+
+<div algorithm="retrieve the cached origin policy">
+  To <dfn lt="retrieve the cached origin policy|retrieving the cached origin policy">retrieve the cached origin policy</dfn> for an [=/origin=] |origin|:
+
+  1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
+  1. If |url| is null, return the [=null policy=].
+  1. Let |cacheCheckRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is null, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>only-if-cached</code>".
+  1. Let |cachedResponse| be the result of [=fetching=] |cacheCheckRequest|.
+  1. Return the result of [=getting an origin policy from a manifest response=] given |cachedResponse|.
+
+  We define the <dfn for="origin" export>origin policy</dfn> for a given [=/origin=] to be the result of [=retrieving the cached origin policy=] for that origin.
+</div>
+
+<div algorithm>
+  To <dfn lt="get the origin policy manifest URL|getting the origin policy manifest URL">get the origin policy manifest URL</dfn> for an [=/origin=] |origin|:
+
+  1. If |origin| is not [=potentially trustworthy origin|potentially trusthworthy=], then return null.
+  1. Return the result of [=URL parser|parsing=] the concatenation of the [=serialization of an origin|serialization=] of |origin| and "<code>/.well-known/origin-policy</code>".
+</div>
+
+<div algorithm>
+  To <dfn lt="get an origin policy from a manifest response|getting an origin policy from a manifest response">get an origin policy from a response</dfn> given a [=response=] |response|:
+
+  1. If |response|'s [=response/status=] is not an [=ok status=], then return the [=null policy=].
+  1. Let |mimeType| be the result of [=extracting a MIME type=] from |response|'s [=response/header list=].
+  1. If |mimeType|'s [=MIME type/essence=] is not "<code>application/originpolicy+json</code>", then return the [=null policy=].
+  1. [=Wait=] for |response|'s [=response/body=].
+  1. Let |string| be the result of [=UTF-8 decoding=] |response|'s [=response/body=] (treating it as a [=byte sequence=]).
+  1. Return the result of [=parsing a string into an origin policy=] given |string|.
+</div>
+
+<h3 id="parsing">Parsing</h3>
+
+This section details the parsing and validation algorithms for the JSON structure of the origin policy, i.e. turning [=strings=] into [=/origin policy=] [=structs=].
+
+<div algorithm>
+  To <dfn lt="parse a string into an origin policy|parsing a string into an origin policy">parse a string into an origin policy</dfn> given a [=string=] |string|:
+
+  1. Let |parsed| be the result of [=parse JSON into Infra values|parsing JSON into Infra values=] given |string|. If this throws an exception, then return the [=null policy=].
+  1. If |parsed| is not a [=map=], then return the [=null policy=].
+  1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] does not [=map/exist=], then return the [=null policy=].
+  1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] is not a [=valid origin policy ID=], then return the [=null policy=].
+  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"].
+</div>
+
+<h2 id="monkeypatches">Patches to other specifications</h2>
+
+The following patches to other specifications would be incorporated as appropriate once this specification graduates from incubation.
+
+<h3 id="monkeypatch-fetch">Fetch</h3>
+
+The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a step after step 5, i.e. after request body streaming has begun but before response body streaming begins. This must call [=update the origin policy from a response=] given the response. (This could cause the algorithm to block while it fetches an origin policy, if required do to so by the `<a http-header><code>Origin-Policy</code></a>` header.)
+
+<h2 id="privacy-and-security">Privacy and security considerations</h2>
+
+<h3 id="tracking">Tracking</h3>
+
+The use of HTTP responses and the HTTP cache as the source of truth for origin policies, as outlined in [[#updating]], brings with it the usual privacy considerations related to the HTTP cache. In particular, to avoid using an origin policy as a tracking vector, user agents need to implement the full HTTP cache semantics for origin policies, including recent innovations such as <a href="https://github.com/whatwg/fetch/issues/904">double-keying</a>. Similarly, user agents need to ensure that when the user clears their HTTP cache entries for an origin, any cached origin policies are similarly cleared.
+
+We mention these concerns here because although the processing model uses the HTTP cache directly, we anticipate that implementations might use a separate storage mechanism for origin policies behind the scenes, e.g. for performance reasons. That is, these concerns are taken care of automatically at the specification level, but might require extra care while implementing.
+
+<h3 id="well-known-security">The use of a well-known URL</h3>
+
+This specification forces the [=origin policy manifest=] to live at a specific URL, <code>/.well-known/origin-policy</code>. Compared to using a configurable location, this choice enhances security.
+
+In particular, the action of setting a policy for an entire origin is an action that should involve the folks responsible for running the origin's server, as it has cross-cutting effects upon every application hosted on an origin. That is, the use of a well-known URL ensures that individual web application developers, without access to the entire server and its configuration, cannot interfere with other web applications running on that same origin.
+
+Consider, for example, MegaCorp, Inc.'s <code>https://example.com</code>, which hosts a mail application, a mapping application, a document editing application, and so on. It would be unfortunate indeed if one of these applications accidentally pinned a policy to the entire origin which didn't account for the rest of the origin's contents. To mitigate that risk, this specification forces the manifest to live in a shared location for all of <code>https://example.com</code>. The goal is explicitly to elicit the kind of discussion and compromise within an origin that needs to happen in order to deploy an origin policy safely.
+
+<h2 id="iana">IANA Considerations</h2>
+
+<h3 id="iana-header">The `<code>Origin-Policy</code>` header</h3>
+
+This section provides the provisional registration of the [=header=] `<a http-header><code>Origin-Policy</code></a>` in accordance with <cite>Registration Procedures for Message Header Fields</cite>. [[!RFC3864]]
+
+: Header field name
+:: <code>Origin-Policy</code>
+: Applicable protocol
+:: http
+: Status
+:: standard
+: Author/Change controller
+:: WICG
+: Specification document(s)
+:: <a href="https://wicg.github.io/origin-policy/">https://wicg.github.io/origin-policy/</a> (see [[#origin-policy-header]])
+
+<h3 id="iana-mime-type">The <code>application/originpolicy+json</code> MIME type</h3>
+
+This section provides the provisional registration of the [=MIME type=] <a><code>application/originpolicy+json</code></a> in accordance with <cite>Media Type Specifications and Registration Procedures</cite>. [[!RFC6838]]
+
+: Type name
+:: <code>application</code>
+: Subtype name
+:: <code>originpolicy+json</code>
+: Required parameters
+:: N/A
+: Optional parameters
+:: N/A
+: Encoding considerations
+:: 8bit (always UTF-8)
+: Security considerations
+:: See [[#privacy-and-security]]
+: Interoperability considerations
+:: TODO
+: Published specification
+:: <a href="https://wicg.github.io/origin-policy/">https://wicg.github.io/origin-policy/</a> (see [[#manifest-file]])
+: Applications that use this media type
+:: Web browsers
+: Fragment identifier considerations
+:: N/A
+: Additional information
+  <dd>
+    <dl>
+      : Deprecated alias names for this type
+      :: N/A
+      : Magic number(s)
+      :: N/A
+      : File extension(s)
+      :: None. Often these files will be named <code>origin-policy</code> (with no extension) on typical server setups.
+      : Macintosh file type code
+      :: Same as for <code>application/json</code> [[!RFC8259]]
+    </dl>
+  </dd>
+: Person & email address to contact for further information
+:: Domenic Denicola <a href="mailto:d@domenic.me">d@domenic.me</a>
+: Intended usage
+:: Common
+: Restrictions on usage
+:: No restrictions apply.
+: Change controller
+:: WICG
+
+<h3 id="iana-well-known">Well-known <code>origin-policy</code> URI</h3>
+
+This section provides the provisional registration of the <code>origin-policy</code> well-known URI in the Well-Known URIs registry in accordance with <cite>Well-Known Uniform Resource Identifiers (URIs)</cite>. [[!RFC8615]]
+
+<p class="note">Although the rest of this specification, and indeed the rest of the web platform, <a href="https://url.spec.whatwg.org/#url-apis-elsewhere">use the term "URL"</a>, this section in particular intersects with a community that uses the term "URI".</p>
+
+: URI suffix
+:: <code>origin-policy</code>
+: Change controller
+:: WICG
+: Specification document(s)
+:: <a href="https://wicg.github.io/origin-policy/">https://wicg.github.io/origin-policy/</a> (see [[#origin-policy-well-known]])
+: Related information
+:: N/A
+
+<h2 id="ack">Acknowledgments</h2>
+
+Thanks to Mark Nottingham for his <cite>Site-Wide HTTP Headers</cite> draft, which provided inspiration. Likewise, Takeshi Yoshino's <cite>Origin-Wide CORS</cite> proposal attempts to address some of the same problems as origin policy. [[SITE-WIDE-HEADERS]] [[ORIGIN-WIDE-CORS]]
+
+Thanks to
+Anne van Kesteren,
+Daniel Hausknecht,
+Daniel Vogelheim,
+Jeffrey Yasskin, and
+Nihanth Subramanya
+for being awesome!

@@ -184,3 +184,13 @@ In general the CORS headers for a given resource would override those from the o
 The original file format was focused on HTTP headers, and effectively described a series of header-values, as well as a separation between baseline and fallback values.
 
 Largely based on [discussion in #19](https://github.com/WICG/origin-policy/issues/19) the format was revised to move away from being a header collection, towards a format that allows for custom formats for each policy item. This will require more integration work for each policy item, but avoids constraining the format and evolution of the policy items.
+
+## Appendix: relation to web app manifest
+
+Folks might wonder, could we combine this with the [web app manifest](https://w3c.github.io/manifest/)? It turns out that there are a few distinctions which make this a bad choice:
+
+* The origin policy manifest can be delivered synchronously during navigation, which gives it a number of valuable security properties. The web app manifest, on the other hand, is delivered inline via a `<link>` element, which makes it less valuable from that perspective.
+
+* Web app manifests can live anywhere on an origin, and anywhere on any other origin, for that matter. This makes sense for web app manifest features, but it would expose an origin to unnecessary risk to be quite so loose with an origin policy manifest.
+
+* Multiple web app manifests can exist on a single origin; for example one origin may host a mail application, a mapping application, a document editing application, and so on. But there must exist only one origin policy per origin, by definition.

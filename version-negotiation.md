@@ -24,7 +24,7 @@ Any scenario in which the browser communicates previously-sent information back 
 
 ## Proposed model
 
-Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin-policy`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/WICG/origin-policy/issues/23): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking. This also means that clearing of the cache should generally clear any origin policy.
+Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin-policy`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/whatwg/fetch/issues/904): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking. This also means that clearing of the cache should generally clear any origin policy.
 
 When the browser makes a request to _url_, it:
 

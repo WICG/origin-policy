@@ -28,18 +28,21 @@ Conceptually, origin policies are stored in the HTTP cache, under the URL `$orig
 
 When the browser makes a request to _url_, it:
 
-* Checks if it has something cached, and not expired, for `$that_origin/.well-known/origin-policy`. If so, this is the _candidate origin policy_; otherwise the _candidate origin policy_ is the "none" policy.
+* Checks if it has something cached, and not expired, for `$that_origin/.well-known/origin-policy`. If so, this is the _candidate origin policy_; otherwise the _candidate origin policy_ is the null policy.
 * Makes the request to _url_.
-* The response can contain a header of the form `Origin-Policy: allowed=(policyA polB polC none), preferred=policyZ`. This indicates that policies with identifiers `policyA`, `polB`, `polC`, or `policyZ` are acceptable to the site, or no origin policy at all. Call these the _list of acceptable policies_. If the response contains no such header, then the _list of acceptable policies_ contains just the "none" policy.
+* The response can contain a header of the form `Origin-Policy: allowed=("policyA" "polB" "polC" null), preferred="policyZ"`. This indicates that policies with identifiers `"policyA"`, `"polB"`, `"polC"`, or `"policyZ"` are acceptable to the site, or the null origin policy. Call these the _list of acceptable policies_. If the response contains no such header, then the _list of acceptable policies_ contains just the null policy.
 * Checks the _list of acceptable policies_ against the _candidate origin policy_.
   * If the _candidate origin policy_ is in the _list of acceptable origin policies_, then:
-    * Apply the _candidate origin policy_ and load the response. (This might apply the "none" policy.)
+    * Apply the _candidate origin policy_ and load the response. (This might apply the null policy.)
     * If _candidate origin policy_ is not the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
-  * Otherwise, if the _list of acceptable origin policies_ only contains the "none" policy but _candidate origin policy_ is not the none policy, then apply the "none" policy anyway, and load the response.
-    * TODO: should this also clear the cache for `$that_origin/.well-known/origin-policy`?
+  * Otherwise, if the _list of acceptable origin policies_ only contains the null policy but _candidate origin policy_ is not the null policy, then:
+    * Apply the null policy anyway, and load the response with it.
+    * In the background, re-fetch `$that_origin/.well-known/origin-policy` to refresh the HTTP cache.
   * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any processing of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
 
-Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`. If the value is `"none"` that is treated as a parse error. (Maybe we should create a space of reserved identifiers and change `"none"` to one of them? E.g. `"__none__"`?)
+Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`.
+
+Note the distinction between string-based policy identifiers, surrounded by quotes (e.g. `"policyA"`), and the `null` token, which is not quoted. This distinction is given to use by the structured headers specification.
 
 ### Evaluation
 
@@ -47,7 +50,7 @@ This model allows async update by having sites send a list of acceptable policie
 
 This model allows sync update by having sites only include acceptable policies in the list of acceptable policies. If that policy isn't already downloaded, then page loading will not continue until the policy arrives.
 
-This model allows a kill switch by having sites send `Origin-Policy: allowed=(none)`. In that case the "none" policy will be applied without any further action.
+This model allows a kill switch by having sites send `Origin-Policy: allowed=(null)`. In that case the null policy will be applied without any further action.
 
 This model is privacy-preserving in that it uses the HTTP cache double-keying semantics for the origin policy data and behavior.
 
@@ -94,7 +97,7 @@ In this world, the `Origin-Policy` header becomes less necessary. With the brows
 However, the header still provides value in the following ways:
 
 * In the case where the main response headers have come back, before the origin policy response has completed, it allows the page to signal that it has no need to block main-response processing on retrieving the most-updated origin policy, as long as the currently-cached one is in the `allowed=` list.
-* Via the `Origin-Policy: allowed=(none)` kill switch, it provides an immediate way to signal to the browser that no origin policy should apply, regardless of the cache or origin policy response.
+* Via the `Origin-Policy: allowed=(null)` kill switch, it provides an immediate way to signal to the browser that no origin policy should apply, regardless of the cache or origin policy response.
 
 Essentially, if we think of the origin policy request and the main request as racing, the `Origin-Policy` header allows the main request to declare itself the winner of the race, thus taking the overall latency from `max(main request/response round-trip time, origin policy request/response round trip time)` to just `main request/response round-trip time`.
 

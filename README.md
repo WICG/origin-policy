@@ -71,7 +71,7 @@ For more on the policy format, see [the dedicated document](./policy-format.md).
 Browsers then fetch and cache origin policies for a given origin. They can optionally do so proactively (e.g. for frequently-visited origins), but generally will be driven by the web application sending a HTTP response header requesting that a given origin policy be fetched and applied:
 
 ```
-Origin-Policy: allowed=(none my-policy my-old-policy), preferred=my-policy
+Origin-Policy: allowed=(null "my-policy" "my-old-policy"), preferred="my-policy"
 ```
 
 Here the header specifies allowed and preferred policies, which correspond to the JSON document's `"id"` value. This allows servers to take on a variety of behaviors, including:

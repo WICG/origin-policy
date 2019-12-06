@@ -17,6 +17,7 @@ Indent: 2
 Default Biblio Status: current
 Boilerplate: omit conformance, omit feedback-header
 Complain About: accidental-2119 yes, missing-example-ids yes
+Markup Shorthands: css no
 !Participate: <a href="https://github.com/WICG/origin-policy">GitHub WICG/origin-policy</a> (<a href="https://github.com/WICG/origin-policy/issues/new">new issue</a>, <a href="https://github.com/WICG/origin-policy/issues?state=open">open issues</a>)
 </pre>
 
@@ -68,6 +69,10 @@ spec: STRUCTURED-HEADERS; type: dfn; urlPrefix: https://httpwg.org/http-extensio
   text: token; for: structured header; url: token
   text: dictionary; for: structured header; url: dictionary
   text: inner list; for: structured header; url: inner-list
+spec: FEATURE-POLICY; type: dfn; urlPrefix: https://w3c.github.io/webappsec-feature-policy/
+  text: feature policy directive; url: policy-directive
+  text: parsing a feature policy directive; url: parse-policy-directive
+  text: create a feature policy for a browsing context; url: create-for-browsingcontext
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -253,8 +258,8 @@ The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of
   <pre highlight="json">
   {
     "<a for="origin policy manifest">id</a>": "my-policy",
-    "content_security": {
-      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    "<a for="origin policy manifest">features</a>": {
+      "<a for="origin policy manifest/features">policy</a>": "fullscreen 'none'; geolocation 'none'"
     }
   }
   </pre>
@@ -262,7 +267,42 @@ The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of
 
 This section gives an overview of the file format, as well authoring requirements. The processing model for the manifest, including how to deal with violations of these authoring requirements, are handled by the algorithms in [[#parsing]].
 
-The "<dfn for="origin policy manifest"><code>id</code></dfn>" member defines the [=origin policy/ID=] of the [=/origin policy=]. This is used, in conjunction with the `<a http-header><code>Origin-Policy</code></a>` header, to allow [=/origins=] to express their preferences and requirements among any previously-cached revisions of the [=origin policy manifest=]. It must be present, and must be a [=valid origin policy ID=] string.
+<h4 id="manifest-id">The "<code>id</code>" member</h4>
+
+The "<dfn for="origin policy manifest"><code>id</code></dfn>" member defines the [=origin policy/ID=] of the [=/origin policy=]. This is used, in conjunction with the `<a http-header><code>Origin-Policy</code></a>` header, to allow [=/origins=] to express their preferences and requirements among any previously-cached revisions of the [=origin policy manifest=].
+
+It must be present, and must be a [=valid origin policy ID=] string.
+
+<h4 id="policy-item-features">The "<code>features</code>" policy item</h4>
+
+The "<dfn for="origin policy manifest"><code>features</code></dfn>" member defines the baseline [=feature policy=] to apply to any responses from the origin.
+
+If present, it must be an object, with one possible key: "<dfn for="origin policy manifest/features"><code>policy</code></dfn>". The "<code>policy</code>" sub-member's value must be a string that matches the <a spec="FEATURE-POLICY"><code>serialized-feature-policy</code></a> production. [[!FEATURE-POLICY]]
+
+<p class="note">Although the `<a http-header><code>Feature-Policy</code></a>` header tolerates using commas as a separator, that is an artifact of the HTTP header serialization, and commas will cause parsing failures inside an [=origin policy manifest=].</p>
+
+As per the processing model in [[#monkeypatch-fp]], feature policy directives supplied here serve as a baseline, which the `<a http-header><code>Feature-Policy</code></a>` header on individual responses can override on an individual feature basis.
+
+<div class="example" id="example-feature-policy">
+  If a response is processed with the [=origin policy manifest=] given by
+
+  <pre highlight="json">
+  {
+    "<a for="origin policy manifest">id</a>": "my-policy",
+    "<a for="origin policy manifest">features</a>": {
+      "<a for="origin policy manifest/features">policy</a>": "fullscreen 'self'; geolocation 'none'"
+    }
+  }
+  </pre>
+
+  and the `<a http-header><code>Feature-Policy</code></a>` header
+
+  <pre>
+    <a http-header>Feature-Policy</a>: fullscreen https://example.com; camera 'self'
+  </pre>
+
+  then the resulting {{Document}}'s <a for="Document" spec="HTML">feature policy</a> will be «[ "fullscreen" → «https://example.com/», "geolocation" → «'none'», "camera" → «'self'» ]». Note how the allowlists are overwritten; they do not combine.
+</div>
 
 <h3 id="origin-policy-well-known">The <code>origin-policy</code> well-known URL</h3>
 
@@ -280,8 +320,10 @@ An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/it
 
 : <dfn for="origin policy">ID</dfn>
 :: A [=/string=], which is a [=valid origin policy ID=], or null.
+: <dfn for="origin policy">feature policy</dfn>
+:: A [=feature policy directive=]. [[!FEATURE-POLICY]]
 
-The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
+The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=] and an empty [=origin policy/feature policy=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
 
 A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
 
@@ -414,7 +456,9 @@ This section details the parsing and validation algorithms for the JSON structur
   1. If |parsed| is not a [=map=], then return the [=null policy=].
   1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] does not [=map/exist=], then return the [=null policy=].
   1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] is not a [=valid origin policy ID=], then return the [=null policy=].
-  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"].
+  1. Let |featurePolicy| be an empty [=feature policy directive=].
+  1. If |parsed|["<a for="origin policy manifest"><code>features</code></a>"] exists and is a [=map=], and |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"] exists and is a string, then set |featurePolicy| to the result of [=parsing a feature policy directive=] given |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"].
+  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"] and [=origin policy/feature policy=] is |featurePolicy|.
 </div>
 
 <h2 id="monkeypatches">Patches to other specifications</h2>
@@ -424,6 +468,12 @@ The following patches to other specifications would be incorporated as appropria
 <h3 id="monkeypatch-fetch">Fetch</h3>
 
 The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a step after step 5, i.e. after request body streaming has begun but before response body streaming begins. This must call [=update the origin policy from a response=] given the response. (This could cause the algorithm to block while it fetches an origin policy, if required do to so by the `<a http-header><code>Origin-Policy</code></a>` header.)
+
+<h3 id="monkeypatch-fp">Feature Policy</h3>
+
+The [=create a feature policy for a browsing context=] algorithm is modified by modifying the returned [=feature policy=]'s <a spec="FEATURE-POLICY">declared policy</a> to be a [=map/clone=] of <var ignore>origin</var>'s [=origin/origin policy=]'s [=origin policy/feature policy=].
+
+<p class="note">This means any allowlists provided in the `<a http-header><code>Feature-Policy</code></a>` header will override those provided by the origin policy.</p>
 
 <h2 id="privacy-and-security">Privacy and security considerations</h2>
 

@@ -142,7 +142,7 @@ Referrer policy configuration might look like:
 }
 ```
 
-The origin policy-set referrer policy would be consulted last, after the current cascade of `noreferrer=""` → `referrerpolicy=""` → `<meta name="referrer">` → `Referrer-Policy` HTTP header.
+The origin policy-set referrer policy would be consulted last, after the current cascade of `rel="noreferrer"` → `referrerpolicy=""` → `<meta name="referrer">` → `Referrer-Policy` HTTP header.
 
 ### [Client Hints](https://httpwg.org/http-extensions/client-hints.html)
 

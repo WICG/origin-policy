@@ -59,6 +59,7 @@ spec:infra; type:dfn; for:list; text:for each
 spec:fetch; type:dfn; for:/; text:request
 spec:fetch; type:dfn; for:/; text:fetch
 spec:fetch; type:dfn; for:/; text:response
+spec:csp; type:dfn; for:/; text:csp list
 </pre>
 
 <pre class="anchors">
@@ -73,6 +74,8 @@ spec: FEATURE-POLICY; type: dfn; urlPrefix: https://w3c.github.io/webappsec-feat
   text: feature policy directive; url: policy-directive
   text: parsing a feature policy directive; url: parse-policy-directive
   text: create a feature policy for a browsing context; url: create-for-browsingcontext
+spec: CSP; type: dfn; urlPrefix: https://w3c.github.io/webappsec-csp/
+  text: set response's CSP list; url: set-response-csp-list
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -98,15 +101,15 @@ This document introduces a new delivery mechanism for policies which are meant t
 <h3 id="examples">Examples</h3>
 
 <div class="example" id="example-initial-policy">
-  MegaCorp, Inc. wishes to ensure that a baseline [=content security policy=] is applied to each of the pages on <code>https://example.com</code>, while avoiding the overhead associated with large response headers, and the uncertainty that they've really covered everything that lives on the origin.
+  MegaCorp, Inc. wishes to ensure that a baseline [=/content security policy=] is applied to each of the pages on <code>https://example.com</code>, while avoiding the overhead associated with large response headers, and the uncertainty that they've really covered everything that lives on the origin.
 
   The first thing MegaCorp does is ensure that <code>https://example.com/.well-known/origin-policy</code> serves an appropriate policy. They place a UTF-8 encoded JSON file at that location, containing the following:
 
   <pre highlight="json">
   {
     "<a for="origin policy manifest">id</a>": "policy-1",
-    "content_security": {
-      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     }
   }
   </pre>
@@ -149,7 +152,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   ... response body as above ...
   </pre>
 
-  The navigation to <code>https://example.com/</code> then proceeds as normal, with the [=content security policy=] indicated in the [=origin policy manifest=] applied.
+  The navigation to <code>https://example.com/</code> then proceeds as normal, with the [=/content security policy=] indicated in the [=origin policy manifest=] applied.
 </div>
 
 <div class="example" id="example-repeat-visit">
@@ -179,10 +182,10 @@ This document introduces a new delivery mechanism for policies which are meant t
   <pre highlight="json">
   {
     "<a for="origin policy manifest">id</a>": "policy-1",
-    "content_security": {
-      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     },
-  <mark>  "features": {
+  <mark>  "<a for="origin policy manifest">features</a>": {
       "policy_report_only": "<a spec="xhr">sync-xhr</a> 'none'"
     }</mark>
   }
@@ -195,10 +198,10 @@ This document introduces a new delivery mechanism for policies which are meant t
   <pre highlight="json">
   {
   <mark>  "<a for="origin policy manifest">id</a>": "policy-2"</mark>,
-    "content_security": {
-      "policy": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     },
-    "features": {
+    "<a for="origin policy manifest">features</a>": {
       "policy_report_only": "<a spec="xhr">sync-xhr</a> 'none'"
     }
   }
@@ -260,6 +263,10 @@ The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of
     "<a for="origin policy manifest">id</a>": "my-policy",
     "<a for="origin policy manifest">features</a>": {
       "<a for="origin policy manifest/features">policy</a>": "fullscreen 'none'; geolocation 'none'"
+    },
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>frame-ancestors</a> 'none'", "<a>object-src</a> 'none'"],
+      "<a for="origin policy manifest/content_security">policies_report_only</a>": ["<a>script-src</a> 'self' https://cdn.example.com/js/"]
     }
   }
   </pre>
@@ -304,6 +311,20 @@ As per the processing model in [[#monkeypatch-fp]], feature policy directives su
   then the resulting {{Document}}'s <a for="Document" spec="HTML">feature policy</a> will be «[ "fullscreen" → «https://example.com/», "geolocation" → «'none'», "camera" → «'self'» ]». Note how the allowlists are overwritten; they do not combine.
 </div>
 
+<h4 id="policy-item-content_security">The "<code>content_security</code>" policy item</h4>
+
+The "<dfn for="origin policy manifest"><code>content_security</code></dfn>" member defines zero or more [=/content security policies=] to apply to any responses from the origin.
+
+If present, it must be an object, with two possible keys: "<dfn for="origin policy manifest/content_security"><code>policies</code></dfn>" and "<dfn for="origin policy manifest/content_security"><code>policies_report_only</code></dfn>". Both sub-members' values must be arrays containing zero or more strings, where the strings match the [=serialized CSP=] production. [[!CSP]]
+
+<p class="note">Although the `<a http-header><code>Content-Security-Policy</code></a>` and `<a http-header><code>Content-Security-Policy-Report-Only</code></a>` headers tolerate using commas as a separator, that is an artifact of the HTTP header serialization, and commas will cause parsing failures inside an [=origin policy manifest=]. Instead, [=CSP lists=] are represented as arrays, so if you wish to use multiple [=/content security policies=], include them as multiple array members.</p>
+
+As per the processing model in [[#monkeypatch-csp]], content security policies supplied here are applied before any from the `<a http-header><code>Content-Security-Policy</code></a>`/`<a http-header><code>Content-Security-Policy-Report-Only</code></a>` headers on individual responses. When used together, they combine  the usual manner for multi-item [=CSP lists=].
+
+<div class="example" id="example-csp">
+  TODO give a similar example to the above.
+</div>
+
 <h3 id="origin-policy-well-known">The <code>origin-policy</code> well-known URL</h3>
 
 [=Origin policy manifests=] for a given [=/origin=] are located at the well-known URL <code>/.well-known/origin-policy</code>. [[!RFC8615]]
@@ -322,8 +343,10 @@ An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/it
 :: A [=/string=], which is a [=valid origin policy ID=], or null.
 : <dfn for="origin policy">feature policy</dfn>
 :: A [=feature policy directive=]. [[!FEATURE-POLICY]]
+: <dfn for="origin policy">content security policies</dfn>
+:: A [=list=] of <a lt="content security policy object">content security policies</a>. [[!CSP]]
 
-The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=] and an empty [=origin policy/feature policy=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
+The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=] and empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
 
 A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
 
@@ -458,7 +481,17 @@ This section details the parsing and validation algorithms for the JSON structur
   1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] is not a [=valid origin policy ID=], then return the [=null policy=].
   1. Let |featurePolicy| be an empty [=feature policy directive=].
   1. If |parsed|["<a for="origin policy manifest"><code>features</code></a>"] exists and is a [=map=], and |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"] exists and is a string, then set |featurePolicy| to the result of [=parsing a feature policy directive=] given |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"].
-  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"] and [=origin policy/feature policy=] is |featurePolicy|.
+  1. Let |contentSecurityPolicies| be an empty [=list=].
+  1. If |parsed|["<a for="origin policy manifest"><code>content_security</code></a>"] exists and is a [=map=], then:
+    1. If |parsed|["<a for="origin policy manifest"><code>content_security</code></a>"]["<a for="origin policy manifest/content_security"><code>policies</code></a>"] exists and is a [=list=], then [=list/for each=] |potentialPolicyString| in |parsed|["<a for="origin policy manifest"><code>content_security</code></a>"]["<a for="origin policy manifest/content_security"><code>policies</code></a>"]:
+      1. If |potentialPolicyString| is not a [=string=], then [=continue=].
+      1. Let |policy| be the result of [$parse a serialized CSP|parsing a serialized CSP$] given |potentialPolicyString|, "<code>header</code>", and "<code>enforce</code>".
+      1. If |policy|'s [=policy/directive set=] is not empty, then [=list/append=] |policy| to |contentSecurityPolicies|.
+    1. If |parsed|["<a for="origin policy manifest"><code>content_security</code></a>"]["<a for="origin policy manifest/content_security"><code>policies_report_only</code></a>"] exists and is a [=list=], then [=list/for each=] |potentialPolicyString| in |parsed|["<a for="origin policy manifest"><code>content_security</code></a>"]["<a for="origin policy manifest/content_security"><code>policies_report_only</code></a>"]:
+      1. If |potentialPolicyString| is not a [=string=], then [=continue=].
+      1. Let |policy| be the result of [$parse a serialized CSP|parsing a serialized CSP$] given |potentialPolicyString|, "<code>header</code>", and "<code>report</code>".
+      1. If |policy|'s [=policy/directive set=] is not empty, then [=list/append=] |policy| to |contentSecurityPolicies|.
+  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"], [=origin policy/feature policy=] is |featurePolicy|, and [=origin policy/content security policies=] is |contentSecurityPolicies|.
 </div>
 
 <h2 id="monkeypatches">Patches to other specifications</h2>
@@ -474,6 +507,26 @@ The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a 
 The [=create a feature policy for a browsing context=] algorithm is modified by modifying the returned [=feature policy=]'s <a spec="FEATURE-POLICY">declared policy</a> to be a [=map/clone=] of <var ignore>origin</var>'s [=origin/origin policy=]'s [=origin policy/feature policy=].
 
 <p class="note">This means any allowlists provided in the `<a http-header><code>Feature-Policy</code></a>` header will override those provided by the origin policy.</p>
+
+<h3 id="monkeypatch-csp">Content Security Policy</h3>
+
+The two main substantive steps of the [=set response's CSP list=] algorithm are modified from
+
+<blockquote>
+  2.  Let |policies| be the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>enforce</code>".
+
+  3. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy-Report-Only</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>report</code>".
+</blockquote>
+
+to
+
+<blockquote>
+  2. Let |policies| be a [=list/clone=] of |response|'s [=response/URL=]'s [=url/origin=]'s [=origin/origin policy=]'s [=origin policy/content security policies=].
+
+  3. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>enforce</code>".
+
+  4. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy-Report-Only</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>report</code>".
+</blockquote>
 
 <h2 id="privacy-and-security">Privacy and security considerations</h2>
 

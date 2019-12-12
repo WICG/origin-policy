@@ -60,6 +60,7 @@ spec:fetch; type:dfn; for:/; text:request
 spec:fetch; type:dfn; for:/; text:fetch
 spec:fetch; type:dfn; for:/; text:response
 spec:csp; type:dfn; for:/; text:csp list
+spec:html; type:element; text:script
 </pre>
 
 <pre class="anchors">
@@ -291,7 +292,7 @@ If present, it must be an object, with one possible key: "<dfn for="origin polic
 As per the processing model in [[#monkeypatch-fp]], feature policy directives supplied here serve as a baseline, which the `<a http-header><code>Feature-Policy</code></a>` header on individual responses can override on an individual feature basis.
 
 <div class="example" id="example-feature-policy">
-  If a response is processed with the [=origin policy manifest=] given by
+  If a [=response=] is processed with the [=origin policy manifest=] given by
 
   <pre highlight="json">
   {
@@ -322,7 +323,24 @@ If present, it must be an object, with two possible keys: "<dfn for="origin poli
 As per the processing model in [[#monkeypatch-csp]], content security policies supplied here are applied before any from the `<a http-header><code>Content-Security-Policy</code></a>`/`<a http-header><code>Content-Security-Policy-Report-Only</code></a>` headers on individual responses. When used together, they combine  the usual manner for multi-item [=CSP lists=].
 
 <div class="example" id="example-csp">
-  TODO give a similar example to the above.
+  If a [=response=] is processed with the [=origin policy manifest=] given by
+
+  <pre highlight="json">
+  {
+    "<a for="origin policy manifest">id</a>": "my-policy",
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> cdn.example.org 'unsafe-inline'; <a>object-src</a> 'none'"]
+    }
+  }
+  </pre>
+
+  and the `<a http-header><code>Content-Security-Policy</code></a>` header
+
+  <pre>
+    <a http-header>Content-Security-Policy</a>: <a>script-src</a> 'nonce-random123' 'strict-dynamic' 'unsafe-inline' https:
+  </pre>
+
+  then the resulting {{Document}}'s [=Document/CSP list=] will contain two separate [=content security policy object|content security policies=], with the combined effect of only allowing scripts which match both policies. In this case, it will accept scripts with a nonce of <code>random123</code> (per the header policy) which are either inline <{script}> blocks or come from <code>cdn.example.org</code> (per the origin policy).
 </div>
 
 <h3 id="origin-policy-well-known">The <code>origin-policy</code> well-known URL</h3>
@@ -344,7 +362,7 @@ An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/it
 : <dfn for="origin policy">feature policy</dfn>
 :: A [=feature policy directive=]. [[!FEATURE-POLICY]]
 : <dfn for="origin policy">content security policies</dfn>
-:: A [=list=] of <a lt="content security policy object">content security policies</a>. [[!CSP]]
+:: A [=list=] of [=content security policy object|content security policies=]. [[!CSP]]
 
 The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=] and empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
 
@@ -611,7 +629,7 @@ This section provides the provisional registration of the [=MIME type=] <a><code
 
 This section provides the provisional registration of the <code>origin-policy</code> well-known URI in the Well-Known URIs registry in accordance with <cite>Well-Known Uniform Resource Identifiers (URIs)</cite>. [[!RFC8615]]
 
-<p class="note">Although the rest of this specification, and indeed the rest of the web platform, <a href="https://url.spec.whatwg.org/#url-apis-elsewhere">use the term "URL"</a>, this section in particular intersects with a community that uses the term "URI".</p>
+<p class="note">Although the rest of this specification, and indeed the rest of the web platform, <a href="https://url.spec.whatwg.org/#url-apis-elsewhere">uses the term "URL"</a>, this section in particular intersects with a community that uses the term "URI".</p>
 
 : URI suffix
 :: <code>origin-policy</code>

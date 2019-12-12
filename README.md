@@ -45,8 +45,8 @@ Server operators can provide a per-origin **origin policy manifest**, at `/.well
 {
   "id": "my-policy",
   "content_security": {
-    "policy": ["frame-ancestors 'none'", "object-src 'none'"],
-    "policy_report_only": ["script-src 'self' https://cdn.example.com/js/"]
+    "policies": ["frame-ancestors 'none'", "object-src 'none'"],
+    "policies_report_only": ["script-src 'self' https://cdn.example.com/js/"]
   },
   "features": {
     "policy": "geolocation 'self' https://example.com",

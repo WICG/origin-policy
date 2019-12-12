@@ -1213,7 +1213,7 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 47da574d087224b1f2154c030537253784334f71" name="generator">
+  <meta content="Bikeshed version c2a4ab239714a7c0374d0c7ad8cb001030becba3" name="generator">
   <link href="https://wicg.github.io/origin-policy/" rel="canonical">
 <style>/* style-md-lists */
 
@@ -1472,7 +1472,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-09">9 December 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-12">12 December 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1527,6 +1527,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
        <ol class="toc">
         <li><a href="#manifest-id"><span class="secno">2.2.1</span> <span class="content">The "<code>id</code>" member</span></a>
         <li><a href="#policy-item-features"><span class="secno">2.2.2</span> <span class="content">The "<code>features</code>" policy item</span></a>
+        <li><a href="#policy-item-content_security"><span class="secno">2.2.3</span> <span class="content">The "<code>content_security</code>" policy item</span></a>
        </ol>
       <li><a href="#origin-policy-well-known"><span class="secno">2.3</span> <span class="content">The <code>origin-policy</code> well-known URL</span></a>
      </ol>
@@ -1543,6 +1544,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <ol class="toc">
       <li><a href="#monkeypatch-fetch"><span class="secno">5.1</span> <span class="content">Fetch</span></a>
       <li><a href="#monkeypatch-fp"><span class="secno">5.2</span> <span class="content">Feature Policy</span></a>
+      <li><a href="#monkeypatch-csp"><span class="secno">5.3</span> <span class="content">Content Security Policy</span></a>
      </ol>
     <li>
      <a href="#privacy-and-security"><span class="secno">6</span> <span class="content">Privacy and security considerations</span></a>
@@ -1593,8 +1595,8 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
     <p>The first thing MegaCorp does is ensure that <code>https://example.com/.well-known/origin-policy</code> serves an appropriate policy. They place a UTF-8 encoded JSON file at that location, containing the following:</p>
 <pre class="highlight"><c- p>{</c->
   <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"policy-1"</c-><c- p>,</c->
-  <c- f>"content_security"</c-><c- p>:</c-> <c- p>{</c->
-    <c- f>"policy"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security"><c- f>content_security</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies"><c- f>policies</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
   <c- p>}</c->
 <c- p>}</c->
 </pre>
@@ -1642,10 +1644,10 @@ Cache-Control: max-age=86400
     <p>They update their <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest③">origin policy manifest</a> to include such reporting:</p>
 <pre class="highlight"><c- p>{</c->
   <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id①"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"policy-1"</c-><c- p>,</c->
-  <c- f>"content_security"</c-><c- p>:</c-> <c- p>{</c->
-    <c- f>"policy"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src①"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security①"><c- f>content_security</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies①"><c- f>policies</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src①"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
   <c- p>},</c->
-<mark>  <c- f>"features"</c-><c- p>:</c-> <c- p>{</c->
+<mark>  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
     <c- f>"policy_report_only"</c-><c- p>:</c-> <c- u>"</c-><a data-link-type="dfn" href="https://xhr.spec.whatwg.org/#sync-xhr" id="ref-for-sync-xhr"><c- u>sync-xhr</c-></a><c- u> 'none'"</c->
   <c- p>}</c-></mark>
 <c- p>}</c->
@@ -1654,10 +1656,10 @@ Cache-Control: max-age=86400
     <p>Yes, we can! The trick is to leverage the <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id">policy ID</a> mechanism. First, update the manifest with a new ID:</p>
 <pre class="highlight"><c- p>{</c->
 <mark>  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id②"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"policy-2"</c-></mark><c- p>,</c->
-  <c- f>"content_security"</c-><c- p>:</c-> <c- p>{</c->
-    <c- f>"policy"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src②"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security②"><c- f>content_security</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies②"><c- f>policies</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src②"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com"</c-><c- p>]</c->
   <c- p>},</c->
-  <c- f>"features"</c-><c- p>:</c-> <c- p>{</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features①"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
     <c- f>"policy_report_only"</c-><c- p>:</c-> <c- u>"</c-><a data-link-type="dfn" href="https://xhr.spec.whatwg.org/#sync-xhr" id="ref-for-sync-xhr①"><c- u>sync-xhr</c-></a><c- u> 'none'"</c->
   <c- p>}</c->
 <c- p>}</c->
@@ -1701,8 +1703,12 @@ Cache-Control: max-age=86400
     <a class="self-link" href="#example-manifest-structure"></a> 
 <pre class="highlight"><c- p>{</c->
   <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id③"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"my-policy"</c-><c- p>,</c->
-  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features②"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
     <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy"><c- f>policy</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"fullscreen 'none'; geolocation 'none'"</c->
+  <c- p>},</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security③"><c- f>content_security</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies③"><c- f>policies</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#frame-ancestors" id="ref-for-frame-ancestors"><c- u>frame-ancestors</c-></a><c- u> 'none'"</c-><c- p>,</c-> <c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#object-src" id="ref-for-object-src"><c- u>object-src</c-></a><c- u> 'none'"</c-><c- p>],</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies_report_only" id="ref-for-origin-policy-manifest-content_security-policies_report_only"><c- f>policies_report_only</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src③"><c- u>script-src</c-></a><c- u> 'self' https://cdn.example.com/js/"</c-><c- p>]</c->
   <c- p>}</c->
 <c- p>}</c->
 </pre>
@@ -1717,10 +1723,10 @@ Cache-Control: max-age=86400
    <p class="note" role="note">Although the `<a data-link-type="http-header" href="https://wicg.github.io/feature-policy/#feature-policy-header" id="ref-for-feature-policy-header"><code>Feature-Policy</code></a>` header tolerates using commas as a separator, that is an artifact of the HTTP header serialization, and commas will cause parsing failures inside an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑤">origin policy manifest</a>.</p>
    <p>As per the processing model in <a href="#monkeypatch-fp">§ 5.2 Feature Policy</a>, feature policy directives supplied here serve as a baseline, which the `<a data-link-type="http-header" href="https://wicg.github.io/feature-policy/#feature-policy-header" id="ref-for-feature-policy-header①"><code>Feature-Policy</code></a>` header on individual responses can override on an individual feature basis.</p>
    <div class="example" id="example-feature-policy">
-    <a class="self-link" href="#example-feature-policy"></a> If a response is processed with the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑥">origin policy manifest</a> given by 
+    <a class="self-link" href="#example-feature-policy"></a> If a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response②">response</a> is processed with the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑥">origin policy manifest</a> given by 
 <pre class="highlight"><c- p>{</c->
   <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id④"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"my-policy"</c-><c- p>,</c->
-  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features①"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features③"><c- f>features</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
     <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy①"><c- f>policy</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"fullscreen 'self'; geolocation 'none'"</c->
   <c- p>}</c->
 <c- p>}</c->
@@ -1730,9 +1736,28 @@ Cache-Control: max-age=86400
 </pre>
     <p>then the resulting <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document">Document</a></code>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/dom.html#concept-document-feature-policy" id="ref-for-concept-document-feature-policy">feature policy</a> will be «[ "fullscreen" → «https://example.com/», "geolocation" → «'none'», "camera" → «'self'» ]». Note how the allowlists are overwritten; they do not combine.</p>
    </div>
+   <h4 class="heading settled" data-level="2.2.3" id="policy-item-content_security"><span class="secno">2.2.3. </span><span class="content">The "<code>content_security</code>" policy item</span><a class="self-link" href="#policy-item-content_security"></a></h4>
+   <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-content_security"><code>content_security</code></dfn>" member defines zero or more <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy" id="ref-for-content-security-policy②">content security policies</a> to apply to any responses from the origin.</p>
+   <p>If present, it must be an object, with two possible keys: "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest/content_security" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-content_security-policies"><code>policies</code></dfn>" and "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest/content_security" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-content_security-policies_report_only"><code>policies_report_only</code></dfn>". Both sub-members' values must be arrays containing zero or more strings, where the strings match the <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#serialized-csp" id="ref-for-serialized-csp">serialized CSP</a> production. <a data-link-type="biblio" href="#biblio-csp">[CSP]</a></p>
+   <p class="note" role="note">Although the `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy②"><code>Content-Security-Policy</code></a>` and `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only" id="ref-for-header-content-security-policy-report-only"><code>Content-Security-Policy-Report-Only</code></a>` headers tolerate using commas as a separator, that is an artifact of the HTTP header serialization, and commas will cause parsing failures inside an <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑦">origin policy manifest</a>. Instead, <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#csp-list" id="ref-for-csp-list">CSP lists</a> are represented as arrays, so if you wish to use multiple <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy" id="ref-for-content-security-policy③">content security policies</a>, include them as multiple array members.</p>
+   <p>As per the processing model in <a href="#monkeypatch-csp">§ 5.3 Content Security Policy</a>, content security policies supplied here are applied before any from the `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy③"><code>Content-Security-Policy</code></a>`/`<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only" id="ref-for-header-content-security-policy-report-only①"><code>Content-Security-Policy-Report-Only</code></a>` headers on individual responses. When used together, they combine  the usual manner for multi-item <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#csp-list" id="ref-for-csp-list①">CSP lists</a>.</p>
+   <div class="example" id="example-csp">
+    <a class="self-link" href="#example-csp"></a> If a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response③">response</a> is processed with the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑧">origin policy manifest</a> given by 
+<pre class="highlight"><c- p>{</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑤"><c- f>id</c-></a><c- f>"</c-><c- p>:</c-> <c- u>"my-policy"</c-><c- p>,</c->
+  <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security④"><c- f>content_security</c-></a><c- f>"</c-><c- p>:</c-> <c- p>{</c->
+    <c- f>"</c-><a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies④"><c- f>policies</c-></a><c- f>"</c-><c- p>:</c-> <c- p>[</c-><c- u>"</c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src④"><c- u>script-src</c-></a><c- u> cdn.example.org 'unsafe-inline'; </c-><a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#object-src" id="ref-for-object-src①"><c- u>object-src</c-></a><c- u> 'none'"</c-><c- p>]</c->
+  <c- p>}</c->
+<c- p>}</c->
+</pre>
+    <p>and the `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy④"><code>Content-Security-Policy</code></a>` header</p>
+<pre><a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy⑤">Content-Security-Policy</a>: <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#script-src" id="ref-for-script-src⑤">script-src</a> 'nonce-random123' 'strict-dynamic' 'unsafe-inline' https:
+</pre>
+    <p>then the resulting <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document" id="ref-for-document①">Document</a></code>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/dom.html#concept-document-csp-list" id="ref-for-concept-document-csp-list">CSP list</a> will contain two separate <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy-object" id="ref-for-content-security-policy-object">content security policies</a>, with the combined effect of only allowing scripts which match both policies. In this case, it will accept scripts with a nonce of <code>random123</code> (per the header policy) which are either inline <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/scripting.html#script" id="ref-for-script">script</a></code> blocks or come from <code>cdn.example.org</code> (per the origin policy).</p>
+   </div>
    <h3 class="heading settled" data-level="2.3" id="origin-policy-well-known"><span class="secno">2.3. </span><span class="content">The <code>origin-policy</code> well-known URL</span><a class="self-link" href="#origin-policy-well-known"></a></h3>
-   <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑦">Origin policy manifests</a> for a given <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin④">origin</a> are located at the well-known URL <code>/.well-known/origin-policy</code>. <a data-link-type="biblio" href="#biblio-rfc8615">[RFC8615]</a></p>
-   <p>Servers who wish to provide an origin policy will need to respond to `<code>GET</code>` <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request">requests</a> to this URL with the contents of their <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑧">origin policy manifest</a>, including setting the correct value of <a data-link-type="dfn" href="#application-originpolicyjson" id="ref-for-application-originpolicyjson"><code>application/originpolicy+json</code></a> for the response’s `<code>Content-Type</code>` header.</p>
+   <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑨">Origin policy manifests</a> for a given <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin④">origin</a> are located at the well-known URL <code>/.well-known/origin-policy</code>. <a data-link-type="biblio" href="#biblio-rfc8615">[RFC8615]</a></p>
+   <p>Servers who wish to provide an origin policy will need to respond to `<code>GET</code>` <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request">requests</a> to this URL with the contents of their <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest①⓪">origin policy manifest</a>, including setting the correct value of <a data-link-type="dfn" href="#application-originpolicyjson" id="ref-for-application-originpolicyjson"><code>application/originpolicy+json</code></a> for the response’s `<code>Content-Type</code>` header.</p>
    <p>The usual caching strategies (e.g. long <code>max-age</code>, or using the `<code>Etag</code>` header) are quite useful in conjunction with the <code>/.well-known/origin-policy</code> resource, especially since the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑨"><code>Origin-Policy</code></a>` header can be used to force a cache refresh.</p>
    <p>The processing model for how browsers send <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request①">requests</a> to this URL is given in <a href="#updating">§ 4.2 Updating the origin policy</a>.</p>
    <h2 class="heading settled" data-level="3" id="data-model"><span class="secno">3. </span><span class="content">Data model</span><a class="self-link" href="#data-model"></a></h2>
@@ -1744,8 +1769,11 @@ Cache-Control: max-age=86400
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="origin policy" data-dfn-type="dfn" data-noexport id="origin-policy-feature-policy">feature policy</dfn>
     <dd data-md>
      <p>A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#policy-directive" id="ref-for-policy-directive">feature policy directive</a>. <a data-link-type="biblio" href="#biblio-feature-policy">[FEATURE-POLICY]</a></p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="origin policy" data-dfn-type="dfn" data-noexport id="origin-policy-content-security-policies">content security policies</dfn>
+    <dd data-md>
+     <p>A <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a> of <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#content-security-policy-object" id="ref-for-content-security-policy-object①">content security policies</a>. <a data-link-type="biblio" href="#biblio-csp">[CSP]</a></p>
    </dl>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="null-policy">null policy</dfn> is an <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy④">origin policy</a> with null <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id②">ID</a> and an empty <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy②">feature policy</a>. As enforced by the processing model, no other policy can have a null <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id③">ID</a>.</p>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="null-policy">null policy</dfn> is an <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy④">origin policy</a> with null <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id②">ID</a> and empty lists for its <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy②">feature policy</a> and <a data-link-type="dfn" href="#origin-policy-content-security-policies" id="ref-for-origin-policy-content-security-policies">content security policies</a>. As enforced by the processing model, no other policy can have a null <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id③">ID</a>.</p>
    <p>A <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> is a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="valid-origin-policy-id">valid origin policy ID</dfn> if all of the following are true:</p>
    <ul>
     <li data-md>
@@ -1755,9 +1783,9 @@ Cache-Control: max-age=86400
    </ul>
    <h2 class="heading settled" data-level="4" id="processing-model"><span class="secno">4. </span><span class="content">Processing model</span><a class="self-link" href="#processing-model"></a></h2>
    <h3 class="heading settled" data-level="4.1" id="from-response"><span class="secno">4.1. </span><span class="content">Response processing</span><a class="self-link" href="#from-response"></a></h3>
-   <p>This section details the entry point algorithms, for determining which origin policy applies to an incoming <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response②">response</a>.</p>
+   <p>This section details the entry point algorithms, for determining which origin policy applies to an incoming <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response④">response</a>.</p>
    <div class="algorithm" data-algorithm="update the origin policy from a response">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="update-the-origin-policy-from-a-response">update the origin policy from a response</dfn>, given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response③">response</a> <var>response</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="update-the-origin-policy-from-a-response">update the origin policy from a response</dfn>, given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑤">response</a> <var>response</var>: 
     <ol>
      <li data-md>
       <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url" id="ref-for-concept-response-url">URL</a> is null, then return "<code>success</code>".</p>
@@ -1784,7 +1812,7 @@ Cache-Control: max-age=86400
       <p>If <var>parsedHeader</var>["<code>allowed</code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>:</p>
       <ol>
        <li data-md>
-        <p>If <var>parsedHeader</var>["<code>allowed</code>"][0] is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a>, then return "<code>unparseable</code>".</p>
+        <p>If <var>parsedHeader</var>["<code>allowed</code>"][0] is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①">list</a>, then return "<code>unparseable</code>".</p>
        <li data-md>
         <p>Let <var>rawAllowedList</var> be <var>parsedHeader</var>["<code>allowed</code>"][0].</p>
        <li data-md>
@@ -1821,7 +1849,7 @@ Cache-Control: max-age=86400
    </div>
    <h3 class="heading settled" data-level="4.2" id="updating"><span class="secno">4.2. </span><span class="content">Updating the origin policy</span><a class="self-link" href="#updating"></a></h3>
    <div class="algorithm" data-algorithm="update an origin’s origin policy">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="update an origin’s origin policy|updating an origin’s origin policy" data-noexport id="update-an-origins-origin-policy">update an origin’s origin policy</dfn> for an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin⑤">origin</a> <var>origin</var> given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①">list</a> of strings <var>allowedIds</var> and an optional string <var>preferredId</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="update an origin’s origin policy|updating an origin’s origin policy" data-noexport id="update-an-origins-origin-policy">update an origin’s origin policy</dfn> for an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin⑤">origin</a> <var>origin</var> given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a> of strings <var>allowedIds</var> and an optional string <var>preferredId</var>: 
     <ol>
      <li data-md>
       <p>Let <var>cachedPolicy</var> be the result of <a data-link-type="dfn" href="#retrieve-the-cached-origin-policy" id="ref-for-retrieve-the-cached-origin-policy">retrieving the cached origin policy</a> for <var>origin</var>.</p>
@@ -1838,7 +1866,7 @@ Cache-Control: max-age=86400
       <p>If <var>allowedIds</var> contains <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id⑤">ID</a>, then:</p>
       <ol>
        <li data-md>
-        <p>If <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id⑥">ID</a> is null, or <var>preferredId</var> was provided, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response④">response</a> will not be used.)</p>
+        <p>If <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id⑥">ID</a> is null, or <var>preferredId</var> was provided, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑥">response</a> will not be used.)</p>
        <li data-md>
         <p>Return "<code>success</code>".</p>
       </ol>
@@ -1846,7 +1874,7 @@ Cache-Control: max-age=86400
       <p>If <var>allowedIds</var> contains null, then:</p>
       <ol>
        <li data-md>
-        <p>If <var>preferredId</var> was provided, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑤">response</a> will not be used.)</p>
+        <p>If <var>preferredId</var> was provided, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑦">response</a> will not be used.)</p>
        <li data-md>
         <p>Return "<code>success</code>".</p>
       </ol>
@@ -1923,7 +1951,7 @@ Cache-Control: max-age=86400
     </ol>
    </div>
    <div class="algorithm" data-algorithm="get an origin policy from a manifest response">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get an origin policy from a manifest response|getting an origin policy from a manifest response" data-noexport id="get-an-origin-policy-from-a-manifest-response">get an origin policy from a response</dfn> given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑥">response</a> <var>response</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get an origin policy from a manifest response|getting an origin policy from a manifest response" data-noexport id="get-an-origin-policy-from-a-manifest-response">get an origin policy from a response</dfn> given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑧">response</a> <var>response</var>: 
     <ol>
      <li data-md>
       <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status">status</a> is not an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status">ok status</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑨">null policy</a>.</p>
@@ -1949,15 +1977,41 @@ Cache-Control: max-age=86400
      <li data-md>
       <p>If <var>parsed</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①②">null policy</a>.</p>
      <li data-md>
-      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑤"><code>id</code></a>"] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exist</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①③">null policy</a>.</p>
+      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑥"><code>id</code></a>"] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exist</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①③">null policy</a>.</p>
      <li data-md>
-      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑥"><code>id</code></a>"] is not a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑥">valid origin policy ID</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>.</p>
+      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑦"><code>id</code></a>"] is not a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑥">valid origin policy ID</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>.</p>
      <li data-md>
       <p>Let <var>featurePolicy</var> be an empty <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#policy-directive" id="ref-for-policy-directive①">feature policy directive</a>.</p>
      <li data-md>
-      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features②"><code>features</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map②">map</a>, and <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features③"><code>features</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy②"><code>policy</code></a>"] exists and is a string, then set <var>featurePolicy</var> to the result of <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#parse-policy-directive" id="ref-for-parse-policy-directive">parsing a feature policy directive</a> given <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features④"><code>features</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy③"><code>policy</code></a>"].</p>
+      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features④"><code>features</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map②">map</a>, and <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features⑤"><code>features</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy②"><code>policy</code></a>"] exists and is a string, then set <var>featurePolicy</var> to the result of <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#parse-policy-directive" id="ref-for-parse-policy-directive">parsing a feature policy directive</a> given <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-features" id="ref-for-origin-policy-manifest-features⑥"><code>features</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-features-policy" id="ref-for-origin-policy-manifest-features-policy③"><code>policy</code></a>"].</p>
      <li data-md>
-      <p>Return a new <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑥">origin policy</a> whose <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id①②">ID</a> is <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑦"><code>id</code></a>"] and <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy③">feature policy</a> is <var>featurePolicy</var>.</p>
+      <p>Let <var>contentSecurityPolicies</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list③">list</a>.</p>
+     <li data-md>
+      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑤"><code>content_security</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map③">map</a>, then:</p>
+      <ol>
+       <li data-md>
+        <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑥"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies⑤"><code>policies</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list④">list</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate①">for each</a> <var>potentialPolicyString</var> in <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑦"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies⑥"><code>policies</code></a>"]:</p>
+        <ol>
+         <li data-md>
+          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue">continue</a>.</p>
+         <li data-md>
+          <p>Let <var>policy</var> be the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp" id="ref-for-abstract-opdef-parse-a-serialized-csp">parsing a serialized CSP</a> given <var>potentialPolicyString</var>, "<code>header</code>", and "<code>enforce</code>".</p>
+         <li data-md>
+          <p>If <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set">directive set</a> is not empty, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append">append</a> <var>policy</var> to <var>contentSecurityPolicies</var>.</p>
+        </ol>
+       <li data-md>
+        <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑧"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies_report_only" id="ref-for-origin-policy-manifest-content_security-policies_report_only①"><code>policies_report_only</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑤">list</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate②">for each</a> <var>potentialPolicyString</var> in <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑨"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies_report_only" id="ref-for-origin-policy-manifest-content_security-policies_report_only②"><code>policies_report_only</code></a>"]:</p>
+        <ol>
+         <li data-md>
+          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑦">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a>.</p>
+         <li data-md>
+          <p>Let <var>policy</var> be the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp" id="ref-for-abstract-opdef-parse-a-serialized-csp①">parsing a serialized CSP</a> given <var>potentialPolicyString</var>, "<code>header</code>", and "<code>report</code>".</p>
+         <li data-md>
+          <p>If <var>policy</var>’s <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-directive-set" id="ref-for-policy-directive-set①">directive set</a> is not empty, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append①">append</a> <var>policy</var> to <var>contentSecurityPolicies</var>.</p>
+        </ol>
+      </ol>
+     <li data-md>
+      <p>Return a new <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑥">origin policy</a> whose <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id①②">ID</a> is <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑧"><code>id</code></a>"], <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy③">feature policy</a> is <var>featurePolicy</var>, and <a data-link-type="dfn" href="#origin-policy-content-security-policies" id="ref-for-origin-policy-content-security-policies①">content security policies</a> is <var>contentSecurityPolicies</var>.</p>
     </ol>
    </div>
    <h2 class="heading settled" data-level="5" id="monkeypatches"><span class="secno">5. </span><span class="content">Patches to other specifications</span><a class="self-link" href="#monkeypatches"></a></h2>
@@ -1967,12 +2021,33 @@ Cache-Control: max-age=86400
    <h3 class="heading settled" data-level="5.2" id="monkeypatch-fp"><span class="secno">5.2. </span><span class="content">Feature Policy</span><a class="self-link" href="#monkeypatch-fp"></a></h3>
    <p>The <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#create-for-browsingcontext" id="ref-for-create-for-browsingcontext">create a feature policy for a browsing context</a> algorithm is modified by modifying the returned <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy④">feature policy</a>'s <a data-link-type="dfn" href="https://wicg.github.io/feature-policy/#declared-policy" id="ref-for-declared-policy">declared policy</a> to be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-clone" id="ref-for-map-clone">clone</a> of <var>origin</var>’s <a data-link-type="dfn" href="#origin-origin-policy" id="ref-for-origin-origin-policy">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy⑤">feature policy</a>.</p>
    <p class="note" role="note">This means any allowlists provided in the `<a data-link-type="http-header" href="https://wicg.github.io/feature-policy/#feature-policy-header" id="ref-for-feature-policy-header④"><code>Feature-Policy</code></a>` header will override those provided by the origin policy.</p>
+   <h3 class="heading settled" data-level="5.3" id="monkeypatch-csp"><span class="secno">5.3. </span><span class="content">Content Security Policy</span><a class="self-link" href="#monkeypatch-csp"></a></h3>
+   <p>The two main substantive steps of the <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#set-response-csp-list" id="ref-for-set-response-csp-list">set response’s CSP list</a> algorithm are modified from</p>
+   <blockquote>
+    <ol start="2">
+     <li data-md>
+      <p>Let <var>policies</var> be the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list" id="ref-for-abstract-opdef-parse-a-serialized-csp-list">parsing</a> the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values" id="ref-for-extract-header-list-values">extracting header list values</a> given `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy⑥"><code>Content-Security-Policy</code></a>` and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list②">header list</a>, with a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source">source</a> of "<code>header</code>", and a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition">disposition</a> of "<code>enforce</code>".</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append②">Append</a> to <var>policies</var> the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list" id="ref-for-abstract-opdef-parse-a-serialized-csp-list①">parsing</a> the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values" id="ref-for-extract-header-list-values①">extracting header list values</a> given `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only" id="ref-for-header-content-security-policy-report-only②"><code>Content-Security-Policy-Report-Only</code></a>` and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list③">header list</a>, with a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source①">source</a> of "<code>header</code>", and a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition①">disposition</a> of "<code>report</code>".</p>
+    </ol>
+   </blockquote>
+   <p>to</p>
+   <blockquote>
+    <ol start="2">
+     <li data-md>
+      <p>Let <var>policies</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-clone" id="ref-for-list-clone">clone</a> of <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url" id="ref-for-concept-response-url②">URL</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin①">origin</a>'s <a data-link-type="dfn" href="#origin-origin-policy" id="ref-for-origin-origin-policy①">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-content-security-policies" id="ref-for-origin-policy-content-security-policies②">content security policies</a>.</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append③">Append</a> to <var>policies</var> the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list" id="ref-for-abstract-opdef-parse-a-serialized-csp-list②">parsing</a> the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values" id="ref-for-extract-header-list-values②">extracting header list values</a> given `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy" id="ref-for-header-content-security-policy⑦"><code>Content-Security-Policy</code></a>` and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list④">header list</a>, with a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source②">source</a> of "<code>header</code>", and a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition②">disposition</a> of "<code>enforce</code>".</p>
+     <li data-md>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append④">Append</a> to <var>policies</var> the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list" id="ref-for-abstract-opdef-parse-a-serialized-csp-list③">parsing</a> the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values" id="ref-for-extract-header-list-values③">extracting header list values</a> given `<a data-link-type="http-header" href="https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only" id="ref-for-header-content-security-policy-report-only③"><code>Content-Security-Policy-Report-Only</code></a>` and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list⑤">header list</a>, with a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-source" id="ref-for-policy-source③">source</a> of "<code>header</code>", and a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-csp/#policy-disposition" id="ref-for-policy-disposition③">disposition</a> of "<code>report</code>".</p>
+    </ol>
+   </blockquote>
    <h2 class="heading settled" data-level="6" id="privacy-and-security"><span class="secno">6. </span><span class="content">Privacy and security considerations</span><a class="self-link" href="#privacy-and-security"></a></h2>
    <h3 class="heading settled" data-level="6.1" id="tracking"><span class="secno">6.1. </span><span class="content">Tracking</span><a class="self-link" href="#tracking"></a></h3>
    <p>The use of HTTP responses and the HTTP cache as the source of truth for origin policies, as outlined in <a href="#updating">§ 4.2 Updating the origin policy</a>, brings with it the usual privacy considerations related to the HTTP cache. In particular, to avoid using an origin policy as a tracking vector, user agents need to implement the full HTTP cache semantics for origin policies, including recent innovations such as <a href="https://github.com/whatwg/fetch/issues/904">double-keying</a>. Similarly, user agents need to ensure that when the user clears their HTTP cache entries for an origin, any cached origin policies are similarly cleared.</p>
    <p>We mention these concerns here because although the processing model uses the HTTP cache directly, we anticipate that implementations might use a separate storage mechanism for origin policies behind the scenes, e.g. for performance reasons. That is, these concerns are taken care of automatically at the specification level, but might require extra care while implementing.</p>
    <h3 class="heading settled" data-level="6.2" id="well-known-security"><span class="secno">6.2. </span><span class="content">The use of a well-known URL</span><a class="self-link" href="#well-known-security"></a></h3>
-   <p>This specification forces the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑨">origin policy manifest</a> to live at a specific URL, <code>/.well-known/origin-policy</code>. Compared to using a configurable location, this choice enhances security.</p>
+   <p>This specification forces the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest①①">origin policy manifest</a> to live at a specific URL, <code>/.well-known/origin-policy</code>. Compared to using a configurable location, this choice enhances security.</p>
    <p>In particular, the action of setting a policy for an entire origin is an action that should involve the folks responsible for running the origin’s server, as it has cross-cutting effects upon every application hosted on an origin. That is, the use of a well-known URL ensures that individual web application developers, without access to the entire server and its configuration, cannot interfere with other web applications running on that same origin.</p>
    <p>Consider, for example, MegaCorp, Inc.'s <code>https://example.com</code>, which hosts a mail application, a mapping application, a document editing application, and so on. It would be unfortunate indeed if one of these applications accidentally pinned a policy to the entire origin which didn’t account for the rest of the origin’s contents. To mitigate that risk, this specification forces the manifest to live in a shared location for all of <code>https://example.com</code>. The goal is explicitly to elicit the kind of discussion and compromise within an origin that needs to happen in order to deploy an origin policy safely.</p>
    <h2 class="heading settled" data-level="7" id="iana"><span class="secno">7. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
@@ -2059,7 +2134,7 @@ Cache-Control: max-age=86400
    </dl>
    <h3 class="heading settled" data-level="7.3" id="iana-well-known"><span class="secno">7.3. </span><span class="content">Well-known <code>origin-policy</code> URI</span><a class="self-link" href="#iana-well-known"></a></h3>
    <p>This section provides the provisional registration of the <code>origin-policy</code> well-known URI in the Well-Known URIs registry in accordance with <cite>Well-Known Uniform Resource Identifiers (URIs)</cite>. <a data-link-type="biblio" href="#biblio-rfc8615">[RFC8615]</a></p>
-   <p class="note" role="note">Although the rest of this specification, and indeed the rest of the web platform, <a href="https://url.spec.whatwg.org/#url-apis-elsewhere">use the term "URL"</a>, this section in particular intersects with a community that uses the term "URI".</p>
+   <p class="note" role="note">Although the rest of this specification, and indeed the rest of the web platform, <a href="https://url.spec.whatwg.org/#url-apis-elsewhere">uses the term "URL"</a>, this section in particular intersects with a community that uses the term "URI".</p>
    <dl>
     <dt data-md>URI suffix
     <dd data-md>
@@ -2217,6 +2292,8 @@ for being awesome!</p>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
    <li><a href="#application-originpolicyjson">application/originpolicy+json</a><span>, in §2.2</span>
+   <li><a href="#origin-policy-manifest-content_security">content_security</a><span>, in §2.2.3</span>
+   <li><a href="#origin-policy-content-security-policies">content security policies</a><span>, in §3</span>
    <li><a href="#origin-policy-feature-policy">feature policy</a><span>, in §3</span>
    <li><a href="#origin-policy-manifest-features">features</a><span>, in §2.2.2</span>
    <li><a href="#get-an-origin-policy-from-a-manifest-response">get an origin policy from a manifest response</a><span>, in §4.2</span>
@@ -2238,6 +2315,8 @@ for being awesome!</p>
    <li><a href="#parse-a-string-into-an-origin-policy">parse a string into an origin policy</a><span>, in §4.3</span>
    <li><a href="#parse-an-origin-policy-header">parsing an `Origin-Policy` header</a><span>, in §4.1</span>
    <li><a href="#parse-a-string-into-an-origin-policy">parsing a string into an origin policy</a><span>, in §4.3</span>
+   <li><a href="#origin-policy-manifest-content_security-policies">policies</a><span>, in §2.2.3</span>
+   <li><a href="#origin-policy-manifest-content_security-policies_report_only">policies_report_only</a><span>, in §2.2.3</span>
    <li><a href="#origin-policy-manifest-features-policy">policy</a><span>, in §2.2.2</span>
    <li><a href="#retrieve-the-cached-origin-policy">retrieve the cached origin policy</a><span>, in §4.2</span>
    <li><a href="#retrieve-the-cached-origin-policy">retrieving the cached origin policy</a><span>, in §4.2</span>
@@ -2250,24 +2329,105 @@ for being awesome!</p>
    <a href="https://w3c.github.io/webappsec-csp/#content-security-policy">https://w3c.github.io/webappsec-csp/#content-security-policy</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-content-security-policy">1.1. Examples</a> <a href="#ref-for-content-security-policy①">(2)</a>
+    <li><a href="#ref-for-content-security-policy②">2.2.3. The "content_security" policy item</a> <a href="#ref-for-content-security-policy③">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-content-security-policy-object">
+   <a href="https://w3c.github.io/webappsec-csp/#content-security-policy-object">https://w3c.github.io/webappsec-csp/#content-security-policy-object</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-content-security-policy-object">2.2.3. The "content_security" policy item</a>
+    <li><a href="#ref-for-content-security-policy-object①">3. Data model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-header-content-security-policy">
    <a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy">https://w3c.github.io/webappsec-csp/#header-content-security-policy</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-header-content-security-policy">1. Introduction</a> <a href="#ref-for-header-content-security-policy①">(2)</a>
+    <li><a href="#ref-for-header-content-security-policy②">2.2.3. The "content_security" policy item</a> <a href="#ref-for-header-content-security-policy③">(2)</a> <a href="#ref-for-header-content-security-policy④">(3)</a> <a href="#ref-for-header-content-security-policy⑤">(4)</a>
+    <li><a href="#ref-for-header-content-security-policy⑥">5.3. Content Security Policy</a> <a href="#ref-for-header-content-security-policy⑦">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-header-content-security-policy-report-only">
+   <a href="https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only">https://w3c.github.io/webappsec-csp/#header-content-security-policy-report-only</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-header-content-security-policy-report-only">2.2.3. The "content_security" policy item</a> <a href="#ref-for-header-content-security-policy-report-only①">(2)</a>
+    <li><a href="#ref-for-header-content-security-policy-report-only②">5.3. Content Security Policy</a> <a href="#ref-for-header-content-security-policy-report-only③">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-csp-list">
+   <a href="https://w3c.github.io/webappsec-csp/#csp-list">https://w3c.github.io/webappsec-csp/#csp-list</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-csp-list">2.2.3. The "content_security" policy item</a> <a href="#ref-for-csp-list①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-policy-directive-set">
+   <a href="https://w3c.github.io/webappsec-csp/#policy-directive-set">https://w3c.github.io/webappsec-csp/#policy-directive-set</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-policy-directive-set">4.3. Parsing</a> <a href="#ref-for-policy-directive-set①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-policy-disposition">
+   <a href="https://w3c.github.io/webappsec-csp/#policy-disposition">https://w3c.github.io/webappsec-csp/#policy-disposition</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-policy-disposition">5.3. Content Security Policy</a> <a href="#ref-for-policy-disposition①">(2)</a> <a href="#ref-for-policy-disposition②">(3)</a> <a href="#ref-for-policy-disposition③">(4)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-frame-ancestors">
+   <a href="https://w3c.github.io/webappsec-csp/#frame-ancestors">https://w3c.github.io/webappsec-csp/#frame-ancestors</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-frame-ancestors">2.2. The origin policy manifest</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-object-src">
+   <a href="https://w3c.github.io/webappsec-csp/#object-src">https://w3c.github.io/webappsec-csp/#object-src</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-object-src">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-object-src①">2.2.3. The "content_security" policy item</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-abstract-opdef-parse-a-serialized-csp">
+   <a href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp">https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-abstract-opdef-parse-a-serialized-csp">4.3. Parsing</a> <a href="#ref-for-abstract-opdef-parse-a-serialized-csp①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-abstract-opdef-parse-a-serialized-csp-list">
+   <a href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list">https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp-list</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-abstract-opdef-parse-a-serialized-csp-list">5.3. Content Security Policy</a> <a href="#ref-for-abstract-opdef-parse-a-serialized-csp-list①">(2)</a> <a href="#ref-for-abstract-opdef-parse-a-serialized-csp-list②">(3)</a> <a href="#ref-for-abstract-opdef-parse-a-serialized-csp-list③">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-script-src">
    <a href="https://w3c.github.io/webappsec-csp/#script-src">https://w3c.github.io/webappsec-csp/#script-src</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-script-src">1.1. Examples</a> <a href="#ref-for-script-src①">(2)</a> <a href="#ref-for-script-src②">(3)</a>
+    <li><a href="#ref-for-script-src③">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-script-src④">2.2.3. The "content_security" policy item</a> <a href="#ref-for-script-src⑤">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-serialized-csp">
+   <a href="https://w3c.github.io/webappsec-csp/#serialized-csp">https://w3c.github.io/webappsec-csp/#serialized-csp</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-serialized-csp">2.2.3. The "content_security" policy item</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-set-response-csp-list">
+   <a href="https://w3c.github.io/webappsec-csp/#set-response-csp-list">https://w3c.github.io/webappsec-csp/#set-response-csp-list</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-set-response-csp-list">5.3. Content Security Policy</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-policy-source">
+   <a href="https://w3c.github.io/webappsec-csp/#policy-source">https://w3c.github.io/webappsec-csp/#policy-source</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-policy-source">5.3. Content Security Policy</a> <a href="#ref-for-policy-source①">(2)</a> <a href="#ref-for-policy-source②">(3)</a> <a href="#ref-for-policy-source③">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-document">
    <a href="https://dom.spec.whatwg.org/#document">https://dom.spec.whatwg.org/#document</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-document">2.2.2. The "features" policy item</a>
+    <li><a href="#ref-for-document①">2.2.3. The "content_security" policy item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-utf-8">
@@ -2356,6 +2516,12 @@ for being awesome!</p>
     <li><a href="#ref-for-concept-header-extract-mime-type">4.2. Updating the origin policy</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-extract-header-list-values">
+   <a href="https://fetch.spec.whatwg.org/#extract-header-list-values">https://fetch.spec.whatwg.org/#extract-header-list-values</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-extract-header-list-values">5.3. Content Security Policy</a> <a href="#ref-for-extract-header-list-values①">(2)</a> <a href="#ref-for-extract-header-list-values②">(3)</a> <a href="#ref-for-extract-header-list-values③">(4)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-concept-fetch">
    <a href="https://fetch.spec.whatwg.org/#concept-fetch">https://fetch.spec.whatwg.org/#concept-fetch</a><b>Referenced in:</b>
    <ul>
@@ -2380,6 +2546,7 @@ for being awesome!</p>
    <ul>
     <li><a href="#ref-for-concept-response-header-list">4.1. Response processing</a>
     <li><a href="#ref-for-concept-response-header-list①">4.2. Updating the origin policy</a>
+    <li><a href="#ref-for-concept-response-header-list②">5.3. Content Security Policy</a> <a href="#ref-for-concept-response-header-list③">(2)</a> <a href="#ref-for-concept-response-header-list④">(3)</a> <a href="#ref-for-concept-response-header-list⑤">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-http-network-fetch">
@@ -2417,8 +2584,10 @@ for being awesome!</p>
    <a href="https://fetch.spec.whatwg.org/#concept-response">https://fetch.spec.whatwg.org/#concept-response</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-response">2.1. The `Origin-Policy` HTTP header</a> <a href="#ref-for-concept-response①">(2)</a>
-    <li><a href="#ref-for-concept-response②">4.1. Response processing</a> <a href="#ref-for-concept-response③">(2)</a>
-    <li><a href="#ref-for-concept-response④">4.2. Updating the origin policy</a> <a href="#ref-for-concept-response⑤">(2)</a> <a href="#ref-for-concept-response⑥">(3)</a>
+    <li><a href="#ref-for-concept-response②">2.2.2. The "features" policy item</a>
+    <li><a href="#ref-for-concept-response③">2.2.3. The "content_security" policy item</a>
+    <li><a href="#ref-for-concept-response④">4.1. Response processing</a> <a href="#ref-for-concept-response⑤">(2)</a>
+    <li><a href="#ref-for-concept-response⑥">4.2. Updating the origin policy</a> <a href="#ref-for-concept-response⑦">(2)</a> <a href="#ref-for-concept-response⑧">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-request-service-workers-mode">
@@ -2437,12 +2606,19 @@ for being awesome!</p>
    <a href="https://fetch.spec.whatwg.org/#concept-response-url">https://fetch.spec.whatwg.org/#concept-response-url</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-response-url">4.1. Response processing</a> <a href="#ref-for-concept-response-url①">(2)</a>
+    <li><a href="#ref-for-concept-response-url②">5.3. Content Security Policy</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-body-wait">
    <a href="https://fetch.spec.whatwg.org/#concept-body-wait">https://fetch.spec.whatwg.org/#concept-body-wait</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-body-wait">4.2. Updating the origin policy</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-concept-document-csp-list">
+   <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-document-csp-list">https://html.spec.whatwg.org/multipage/dom.html#concept-document-csp-list</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-concept-document-csp-list">2.2.3. The "content_security" policy item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-document-feature-policy">
@@ -2485,6 +2661,12 @@ for being awesome!</p>
     <li><a href="#ref-for-concept-origin⑤">4.2. Updating the origin policy</a> <a href="#ref-for-concept-origin⑥">(2)</a> <a href="#ref-for-concept-origin⑦">(3)</a> <a href="#ref-for-concept-origin⑧">(4)</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-script">
+   <a href="https://html.spec.whatwg.org/multipage/scripting.html#script">https://html.spec.whatwg.org/multipage/scripting.html#script</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-script">2.2.3. The "content_security" policy item</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-ascii-serialisation-of-an-origin">
    <a href="https://html.spec.whatwg.org/multipage/origin.html#ascii-serialisation-of-an-origin">https://html.spec.whatwg.org/multipage/origin.html#ascii-serialisation-of-an-origin</a><b>Referenced in:</b>
    <ul>
@@ -2522,6 +2704,12 @@ for being awesome!</p>
     <li><a href="#ref-for-list-contain">4.2. Updating the origin policy</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-iteration-continue">
+   <a href="https://infra.spec.whatwg.org/#iteration-continue">https://infra.spec.whatwg.org/#iteration-continue</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-iteration-continue">4.3. Parsing</a> <a href="#ref-for-iteration-continue①">(2)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-map-exists">
    <a href="https://infra.spec.whatwg.org/#map-exists">https://infra.spec.whatwg.org/#map-exists</a><b>Referenced in:</b>
    <ul>
@@ -2533,6 +2721,7 @@ for being awesome!</p>
    <a href="https://infra.spec.whatwg.org/#list-iterate">https://infra.spec.whatwg.org/#list-iterate</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-list-iterate">4.1. Response processing</a>
+    <li><a href="#ref-for-list-iterate①">4.3. Parsing</a> <a href="#ref-for-list-iterate②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-struct-item">
@@ -2545,22 +2734,24 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="term-for-list">
    <a href="https://infra.spec.whatwg.org/#list">https://infra.spec.whatwg.org/#list</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list">4.1. Response processing</a>
-    <li><a href="#ref-for-list①">4.2. Updating the origin policy</a>
+    <li><a href="#ref-for-list">3. Data model</a>
+    <li><a href="#ref-for-list①">4.1. Response processing</a>
+    <li><a href="#ref-for-list②">4.2. Updating the origin policy</a>
+    <li><a href="#ref-for-list③">4.3. Parsing</a> <a href="#ref-for-list④">(2)</a> <a href="#ref-for-list⑤">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-map">
    <a href="https://infra.spec.whatwg.org/#ordered-map">https://infra.spec.whatwg.org/#ordered-map</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-ordered-map">4.1. Response processing</a>
-    <li><a href="#ref-for-ordered-map①">4.3. Parsing</a> <a href="#ref-for-ordered-map②">(2)</a>
+    <li><a href="#ref-for-ordered-map①">4.3. Parsing</a> <a href="#ref-for-ordered-map②">(2)</a> <a href="#ref-for-ordered-map③">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-map">
    <a href="https://infra.spec.whatwg.org/#ordered-map">https://infra.spec.whatwg.org/#ordered-map</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-ordered-map">4.1. Response processing</a>
-    <li><a href="#ref-for-ordered-map①">4.3. Parsing</a> <a href="#ref-for-ordered-map②">(2)</a>
+    <li><a href="#ref-for-ordered-map①">4.3. Parsing</a> <a href="#ref-for-ordered-map②">(2)</a> <a href="#ref-for-ordered-map③">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-set">
@@ -2579,7 +2770,7 @@ for being awesome!</p>
    <a href="https://infra.spec.whatwg.org/#string">https://infra.spec.whatwg.org/#string</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-string">3. Data model</a> <a href="#ref-for-string①">(2)</a>
-    <li><a href="#ref-for-string④">4.3. Parsing</a> <a href="#ref-for-string⑤">(2)</a>
+    <li><a href="#ref-for-string④">4.3. Parsing</a> <a href="#ref-for-string⑤">(2)</a> <a href="#ref-for-string⑥">(3)</a> <a href="#ref-for-string⑦">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-struct">
@@ -2667,6 +2858,7 @@ for being awesome!</p>
    <a href="https://url.spec.whatwg.org/#concept-url-origin">https://url.spec.whatwg.org/#concept-url-origin</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-url-origin">4.1. Response processing</a>
+    <li><a href="#ref-for-concept-url-origin①">5.3. Content Security Policy</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url-parser">
@@ -2693,8 +2885,20 @@ for being awesome!</p>
     <a data-link-type="biblio">[CSP]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-content-security-policy" style="color:initial">content security policy</span>
+     <li><span class="dfn-paneled" id="term-for-content-security-policy-object" style="color:initial">content security policy object</span>
      <li><span class="dfn-paneled" id="term-for-header-content-security-policy" style="color:initial">content-security-policy</span>
+     <li><span class="dfn-paneled" id="term-for-header-content-security-policy-report-only" style="color:initial">content-security-policy-report-only</span>
+     <li><span class="dfn-paneled" id="term-for-csp-list" style="color:initial">csp list</span>
+     <li><span class="dfn-paneled" id="term-for-policy-directive-set" style="color:initial">directive set</span>
+     <li><span class="dfn-paneled" id="term-for-policy-disposition" style="color:initial">disposition</span>
+     <li><span class="dfn-paneled" id="term-for-frame-ancestors" style="color:initial">frame-ancestors</span>
+     <li><span class="dfn-paneled" id="term-for-object-src" style="color:initial">object-src</span>
+     <li><span class="dfn-paneled" id="term-for-abstract-opdef-parse-a-serialized-csp" style="color:initial">parse a serialized CSP</span>
+     <li><span class="dfn-paneled" id="term-for-abstract-opdef-parse-a-serialized-csp-list" style="color:initial">parse a serialized CSP list</span>
      <li><span class="dfn-paneled" id="term-for-script-src" style="color:initial">script-src</span>
+     <li><span class="dfn-paneled" id="term-for-serialized-csp" style="color:initial">serialized csp</span>
+     <li><span class="dfn-paneled" id="term-for-set-response-csp-list" style="color:initial">set response's csp list</span>
+     <li><span class="dfn-paneled" id="term-for-policy-source" style="color:initial">source</span>
     </ul>
    <li>
     <a data-link-type="biblio">[DOM]</a> defines the following terms:
@@ -2726,6 +2930,7 @@ for being awesome!</p>
      <li><span class="dfn-paneled" id="term-for-concept-request-credentials-mode" style="color:initial">credentials mode</span>
      <li><span class="dfn-paneled" id="term-for-concept-request-destination" style="color:initial">destination</span>
      <li><span class="dfn-paneled" id="term-for-concept-header-extract-mime-type" style="color:initial">extracting a mime type</span>
+     <li><span class="dfn-paneled" id="term-for-extract-header-list-values" style="color:initial">extracting header list values</span>
      <li><span class="dfn-paneled" id="term-for-concept-fetch" style="color:initial">fetch</span>
      <li><span class="dfn-paneled" id="term-for-concept-header-list-get" style="color:initial">get</span>
      <li><span class="dfn-paneled" id="term-for-concept-header" style="color:initial">header</span>
@@ -2744,22 +2949,25 @@ for being awesome!</p>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="term-for-concept-document-csp-list" style="color:initial">csp list</span>
      <li><span class="dfn-paneled" id="term-for-concept-document-feature-policy" style="color:initial">feature policy</span>
      <li><span class="dfn-paneled" id="term-for-the-iframe-element" style="color:initial">iframe</span>
      <li><span class="dfn-paneled" id="term-for-in-parallel" style="color:initial">in parallel</span>
      <li><span class="dfn-paneled" id="term-for-meta" style="color:initial">meta</span>
      <li><span class="dfn-paneled" id="term-for-navigate" style="color:initial">navigate</span>
      <li><span class="dfn-paneled" id="term-for-concept-origin" style="color:initial">origin</span>
+     <li><span class="dfn-paneled" id="term-for-script" style="color:initial">script</span>
      <li><span class="dfn-paneled" id="term-for-ascii-serialisation-of-an-origin" style="color:initial">serialization of an origin</span>
     </ul>
    <li>
     <a data-link-type="biblio">[INFRA]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="term-for-set-append" style="color:initial">append</span>
+     <li><span class="dfn-paneled" id="term-for-set-append" style="color:initial">append <small>(for set)</small></span>
      <li><span class="dfn-paneled" id="term-for-byte-sequence" style="color:initial">byte sequence</span>
-     <li><span class="dfn-paneled" id="term-for-map-clone" style="color:initial">clone</span>
+     <li><span class="dfn-paneled" id="term-for-map-clone" style="color:initial">clone <small>(for map)</small></span>
      <li><span class="dfn-paneled" id="term-for-code-point" style="color:initial">code point</span>
      <li><span class="dfn-paneled" id="term-for-list-contain" style="color:initial">contain</span>
+     <li><span class="dfn-paneled" id="term-for-iteration-continue" style="color:initial">continue</span>
      <li><span class="dfn-paneled" id="term-for-map-exists" style="color:initial">exist</span>
      <li><span class="dfn-paneled" id="term-for-list-iterate" style="color:initial">for each</span>
      <li><span class="dfn-paneled" id="term-for-struct-item" style="color:initial">item</span>
@@ -2884,8 +3092,9 @@ for being awesome!</p>
     <li><a href="#ref-for-origin-policy-manifest②">1.1. Examples</a> <a href="#ref-for-origin-policy-manifest③">(2)</a>
     <li><a href="#ref-for-origin-policy-manifest④">2.2.1. The "id" member</a>
     <li><a href="#ref-for-origin-policy-manifest⑤">2.2.2. The "features" policy item</a> <a href="#ref-for-origin-policy-manifest⑥">(2)</a>
-    <li><a href="#ref-for-origin-policy-manifest⑦">2.3. The origin-policy well-known URL</a> <a href="#ref-for-origin-policy-manifest⑧">(2)</a>
-    <li><a href="#ref-for-origin-policy-manifest⑨">6.2. The use of a well-known URL</a>
+    <li><a href="#ref-for-origin-policy-manifest⑦">2.2.3. The "content_security" policy item</a> <a href="#ref-for-origin-policy-manifest⑧">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest⑨">2.3. The origin-policy well-known URL</a> <a href="#ref-for-origin-policy-manifest①⓪">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest①①">6.2. The use of a well-known URL</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="application-originpolicyjson">
@@ -2901,15 +3110,17 @@ for being awesome!</p>
     <li><a href="#ref-for-origin-policy-manifest-id">1.1. Examples</a> <a href="#ref-for-origin-policy-manifest-id①">(2)</a> <a href="#ref-for-origin-policy-manifest-id②">(3)</a>
     <li><a href="#ref-for-origin-policy-manifest-id③">2.2. The origin policy manifest</a>
     <li><a href="#ref-for-origin-policy-manifest-id④">2.2.2. The "features" policy item</a>
-    <li><a href="#ref-for-origin-policy-manifest-id⑤">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-id⑥">(2)</a> <a href="#ref-for-origin-policy-manifest-id⑦">(3)</a>
+    <li><a href="#ref-for-origin-policy-manifest-id⑤">2.2.3. The "content_security" policy item</a>
+    <li><a href="#ref-for-origin-policy-manifest-id⑥">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-id⑦">(2)</a> <a href="#ref-for-origin-policy-manifest-id⑧">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy-manifest-features">
    <b><a href="#origin-policy-manifest-features">#origin-policy-manifest-features</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-origin-policy-manifest-features">2.2. The origin policy manifest</a>
-    <li><a href="#ref-for-origin-policy-manifest-features①">2.2.2. The "features" policy item</a>
-    <li><a href="#ref-for-origin-policy-manifest-features②">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-features③">(2)</a> <a href="#ref-for-origin-policy-manifest-features④">(3)</a>
+    <li><a href="#ref-for-origin-policy-manifest-features">1.1. Examples</a> <a href="#ref-for-origin-policy-manifest-features①">(2)</a>
+    <li><a href="#ref-for-origin-policy-manifest-features②">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-origin-policy-manifest-features③">2.2.2. The "features" policy item</a>
+    <li><a href="#ref-for-origin-policy-manifest-features④">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-features⑤">(2)</a> <a href="#ref-for-origin-policy-manifest-features⑥">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy-manifest-features-policy">
@@ -2918,6 +3129,31 @@ for being awesome!</p>
     <li><a href="#ref-for-origin-policy-manifest-features-policy">2.2. The origin policy manifest</a>
     <li><a href="#ref-for-origin-policy-manifest-features-policy①">2.2.2. The "features" policy item</a>
     <li><a href="#ref-for-origin-policy-manifest-features-policy②">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-features-policy③">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-manifest-content_security">
+   <b><a href="#origin-policy-manifest-content_security">#origin-policy-manifest-content_security</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-manifest-content_security">1.1. Examples</a> <a href="#ref-for-origin-policy-manifest-content_security①">(2)</a> <a href="#ref-for-origin-policy-manifest-content_security②">(3)</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security③">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security④">2.2.3. The "content_security" policy item</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security⑤">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-content_security⑥">(2)</a> <a href="#ref-for-origin-policy-manifest-content_security⑦">(3)</a> <a href="#ref-for-origin-policy-manifest-content_security⑧">(4)</a> <a href="#ref-for-origin-policy-manifest-content_security⑨">(5)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-manifest-content_security-policies">
+   <b><a href="#origin-policy-manifest-content_security-policies">#origin-policy-manifest-content_security-policies</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies">1.1. Examples</a> <a href="#ref-for-origin-policy-manifest-content_security-policies①">(2)</a> <a href="#ref-for-origin-policy-manifest-content_security-policies②">(3)</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies③">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies④">2.2.3. The "content_security" policy item</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies⑤">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-content_security-policies⑥">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-manifest-content_security-policies_report_only">
+   <b><a href="#origin-policy-manifest-content_security-policies_report_only">#origin-policy-manifest-content_security-policies_report_only</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies_report_only">2.2. The origin policy manifest</a>
+    <li><a href="#ref-for-origin-policy-manifest-content_security-policies_report_only①">4.3. Parsing</a> <a href="#ref-for-origin-policy-manifest-content_security-policies_report_only②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy">
@@ -2947,6 +3183,14 @@ for being awesome!</p>
     <li><a href="#ref-for-origin-policy-feature-policy②">3. Data model</a>
     <li><a href="#ref-for-origin-policy-feature-policy③">4.3. Parsing</a>
     <li><a href="#ref-for-origin-policy-feature-policy④">5.2. Feature Policy</a> <a href="#ref-for-origin-policy-feature-policy⑤">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-content-security-policies">
+   <b><a href="#origin-policy-content-security-policies">#origin-policy-content-security-policies</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-content-security-policies">3. Data model</a>
+    <li><a href="#ref-for-origin-policy-content-security-policies①">4.3. Parsing</a>
+    <li><a href="#ref-for-origin-policy-content-security-policies②">5.3. Content Security Policy</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="null-policy">
@@ -2997,6 +3241,7 @@ for being awesome!</p>
    <b><a href="#origin-origin-policy">#origin-origin-policy</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-origin-origin-policy">5.2. Feature Policy</a>
+    <li><a href="#ref-for-origin-origin-policy①">5.3. Content Security Policy</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="get-the-origin-policy-manifest-url">

@@ -11,7 +11,7 @@ Example:
 ```js
 {
   "features": ...,
-  "content-security": ...,
+  "content_security": ...,
   "referrer": ...
 }
 ```
@@ -38,14 +38,14 @@ The following policy items are ones that we are reasonably sure on the format of
 
 The `"content_security"` policy item is an object with two possible keys:
 
-* `"policy"`, which contains an array of strings that are equivalent to [`Content-Security-Policy`](https://w3c.github.io/webappsec-csp/#csp-header) HTTP response headers, and
-* `"policy_report_only"`, which contains an array of strings that are equivalent to [`Content-Security-Policy-Report-Only`](https://w3c.github.io/webappsec-csp/#cspro-header) HTTP response headers.
+* `"policies"`, which contains an array of strings that are equivalent to [`Content-Security-Policy`](https://w3c.github.io/webappsec-csp/#csp-header) HTTP response headers, and
+* `"policies_report_only"`, which contains an array of strings that are equivalent to [`Content-Security-Policy-Report-Only`](https://w3c.github.io/webappsec-csp/#cspro-header) HTTP response headers.
 
 The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
 
-Just as with headers, you can chain multiple policies by either listing them as seperate strings in the array of strings, or by merging them into one string and separating them by a comma.
+Commas are not allowed inside a policy; instead, multiple policies need to be listed as multiple array members.
 
-Any CSP applied via HTTP headers or `<meta>` tags is applied after those from the origin policy, as if concatenated with a separating comma.
+Any CSP applied via HTTP headers or `<meta>` tags is applied after those from the origin policy, as if using separate headers.
 
 Examples:
 
@@ -53,8 +53,8 @@ Examples:
 {
   "id": "my-policy",
   "content_security": {
-    "policy": ["frame-ancestors 'none'", "object-src 'none'"],
-    "policy_report_only": ["script-src 'self' https://cdn.example.com/js/"]
+    "policies": ["frame-ancestors 'none'", "object-src 'none'"],
+    "policies_report_only": ["script-src 'self' https://cdn.example.com/js/"]
   }
 }
 ```
@@ -63,7 +63,7 @@ Examples:
 {
   "id": "my-policy",
   "content_security": {
-    "policy": ["frame-ancestors 'none'; object-src 'none'"]
+    "policies": ["frame-ancestors 'none'; object-src 'none'"]
   }
 }
 ```
@@ -77,9 +77,7 @@ The `"features"` policy item is an object with two possible keys:
 
 The format of the strings is the same as those of the HTTP headers. (I.e., there is no further "JSON-ification" of the content security policies.)
 
-Any feature policies applied via HTTP headers are applied after those from the origin policy, as if concatenated with a separating comma.
-
-TODO: [string vs. array of strings for FP vs. CSP is strange](https://github.com/WICG/origin-policy/issues/50).
+Any feature policies applied via HTTP headers are applied after those from the origin policy, as if using separate headers.
 
 Example:
 

@@ -108,7 +108,7 @@ This document introduces a new delivery mechanism for policies which are meant t
 
   <pre highlight="json">
   {
-    "<a for="origin policy manifest">id</a>": "policy-1",
+    "<a for="origin policy manifest">ids</a>": ["policy-1"],
     "<a for="origin policy manifest">content_security</a>": {
       "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     }
@@ -135,7 +135,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   ...
   </pre>
 
-  Upon seeing the `<a http-header><code>Origin-Policy</code></a>` header, the browser will check if it has an origin policy for <code>https://example.com/</code> with ID "<code>policy-1</code>" cached. For this first request, no such cache entry is found. Since the [=null policy=] is not in the header's <code>allowed</code> list, this means that although the browser can continue to download the response body, further processing of the response (in this case [=navigate|navigation=]) is blocked on retrieving and applying the origin policy. So the browser does that:
+  Upon seeing the `<a http-header><code>Origin-Policy</code></a>` header, the browser will check if it has a cached origin policy for <code>https://example.com/</code>, with "<code>policy-1</code>" as one of its [=origin policy/IDs=]. For this first request, no such cache entry is found. Since the [=null policy=] is not in the header's <code>allowed</code> list, this means that although the browser can continue to download the response body, further processing of the response (in this case [=navigate|navigation=]) is blocked on retrieving and applying the origin policy. So the browser does that:
 
   <pre>
   GET /.well-known/origin-policy HTTP/1.1
@@ -159,7 +159,7 @@ This document introduces a new delivery mechanism for policies which are meant t
 <div class="example" id="example-repeat-visit">
   From the landing page at <code>https://example.com/</code>, the user clicks a link and navigates to <code>https://example.com/about</code>. The request and response headers are the same as in the previous example, but this time the browser handles things a bit differently.
 
-  This time, when the browser goes to look for "<code>policy-1</code>", it finds it in the HTTP cache. (We're assuming here that less than 86400 seconds have passed.) So no requests to <code>https://example.com/.well-known/origin-policy</code> need to be made, and the response for <code>https://example.com/about</code> can be immediately processed, with the "<code>policy-1</code>" origin policy applied.
+  This time, when the browser goes to look for "<code>policy-1</code>", it finds a matching policy in the HTTP cache. (We're assuming here that less than 86400 seconds have passed.) So no requests to <code>https://example.com/.well-known/origin-policy</code> need to be made, and the response for <code>https://example.com/about</code> can be immediately processed, with the origin policy applied.
 </div>
 
 <div class="example" id="example-third-party">
@@ -169,7 +169,7 @@ This document introduces a new delivery mechanism for policies which are meant t
     <iframe src="https://example.com/widget"></iframe>
   </xmp>
 
-  When a user visits <code>https://example.net</code>, the subresource request for <code>https://example.com/widget</code> goes through the same origin policy retrieval process as in <a href="#example-initial-policy">the first visit</a>. Note that this is true <em>even if the user has already visited <code>https://example.com</code></em>, because origin policies are stored in the HTTP cache, which is <a href="https://github.com/whatwg/fetch/pull/943">partitioned</a> by top-level origin. <!-- TODO xref top-level origin when it's defined --> <!-- TODO xref privacy and security considerations section when it exists and discusses this issue --> That is, there is no cache entry for <code>https://example.com/.well-known/origin-policy</code> in the HTTP cache partition corresponding to <code>https://example.net</code>.
+  When a user visits <code>https://example.net</code>, the subresource request for <code>https://example.com/widget</code> goes through the same origin policy retrieval process as in <a href="#example-initial-policy">the first visit</a>. Note that this is true <em>even if the user has already visited <code>https://example.com</code></em>, because origin policies are stored in the HTTP cache, which is <a href="https://github.com/whatwg/fetch/pull/943">partitioned</a> by top-level origin. <!-- TODO xref top-level origin when it's defined --> That is, there is no cache entry for <code>https://example.com/.well-known/origin-policy</code> in the HTTP cache partition corresponding to <code>https://example.net</code>. See [[#tracking]] for more on why this is the case.
 
   But the HTTP cache still helps: repeat visits to <code>https://example.net</code> will be able to use the <code>https://example.com/.well-known/origin-policy</code> cache entry in the <code>https://example.net</code> cache partition, and avoid fetching the origin policy for the embedded <{iframe}>.
 </div>
@@ -182,7 +182,7 @@ This document introduces a new delivery mechanism for policies which are meant t
 
   <pre highlight="json">
   {
-    "<a for="origin policy manifest">id</a>": "policy-1",
+    "<a for="origin policy manifest">ids</a>": ["policy-1"],
     "<a for="origin policy manifest">content_security</a>": {
       "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     },
@@ -194,11 +194,11 @@ This document introduces a new delivery mechanism for policies which are meant t
 
   New visitors to their site, who download the origin policy manifest for the first time, will get this updated policy, and thus their browsers will report any synchronous XHRs. The same is true for visitors whose cache entry for the origin policy manifest expires, once they re-fetch the updated one. But can we do better?
 
-  Yes, we can! The trick is to leverage the [=origin policy/ID|policy ID=] mechanism. First, update the manifest with a new ID:
+  Yes, we can! The trick is to leverage the [=origin policy/IDs|policy IDs=] mechanism. First, update the manifest with a new ID:
 
   <pre highlight="json">
   {
-  <mark>  "<a for="origin policy manifest">id</a>": "policy-2"</mark>,
+  <mark>  "<a for="origin policy manifest">ids</a>": ["policy-2"]</mark>,
     "<a for="origin policy manifest">content_security</a>": {
       "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
     },
@@ -216,13 +216,51 @@ This document introduces a new delivery mechanism for policies which are meant t
 
   When the browser sees this header value on any response from <code>https://example.com</code>, one of three things will happen:
 
-  * It will have no origin policy cached for <code>https://example.com</code>. Then, the browser will fetch <code>https://example.com/.well-known/origin-policy</code> before processing the response, and get "<code>policy-2</code>". Thus the response will be loaded with the feature policy applied.
+  * It will have no origin policy cached for <code>https://example.com</code>. Then, the browser will fetch <code>https://example.com/.well-known/origin-policy</code> before processing the response, and get the result, which has "<code>policy-2</code>" as one of its [=origin policy/IDs=]. Thus the response will be loaded with the feature policy applied.
 
-  * It will have "<code>policy-1</code>" cached. In this case, because "<code>policy-1</code>" is in the <code>allowed</code> list, it applies "<code>policy-1</code>" to the resource being loaded, without blocking response processing on any origin policy fetches. This means the feature policy does not apply to the loaded resource. But because "<code>policy-2</code>" was marked as <code>preferred</code>, the browser will additionally fetch <code>https://example.com/.well-known/origin-policy</code> to update its cache entry, so that any future fetches for <code>https://example.com</code> can benefit from "<code>policy-2</code>", and have the feature policy applied.
+  * It will have the previous policy, with <code>"ids": ["policy-1"]</code>, cached. In this case, because "<code>policy-1</code>" is in the <code>allowed</code> list, it applies the previous policy to the resource being loaded, without blocking response processing on any origin policy fetches. This means the feature policy does not apply to the loaded resource. But because "<code>policy-2</code>" was marked as <code>preferred</code>, the browser will additionally fetch <code>https://example.com/.well-known/origin-policy</code> to update its cache entry, so that any future fetches for <code>https://example.com</code> can benefit from the newest revision, and have the feature policy applied.
 
-  * It will have "<code>policy-2</code>" cached. In this case, the <code>preferred</code> policy is available, so the browser uses that, and does not need to bother re-fetching the origin policy manifest.
+  * It will have the new policy, with <code>"ids": ["policy-2"]</code>, cached. In this case, the <code>preferred</code> policy is available, so the browser uses that, and does not need to bother re-fetching the origin policy manifest.
 
-  In this way, MegaCorp can deploy the new "<code>policy-2</code>" origin policy even to clients within the 24-hour <code>max-age</code> window for the origin policy resource, without incurring any extra fetches if the good-enough "<code>policy-1</code>" is available for immediate use.
+  In this way, MegaCorp can deploy the new origin policy even to clients within the 24-hour <code>max-age</code> window for the origin policy resource, without incurring any extra fetches if the good-enough previous policy is available for immediate use.
+</div>
+
+<div class="example" id="example-policy-multiple-ids">
+  The above example has a flaw when combined with cached resources. Consider the case where the user has previously visited <code>https://example.com/static-page.html</code>, which was delivered with headers such as
+
+  <pre>
+  HTTP/1.1 200 OK
+  Content-Type: text/html
+  ...
+  <a http-header>Origin-Policy</a>: allowed=("policy-1")
+  <a http-header>Vary</a>: origin-policy
+  Cache-Control: max-age=31536000
+  ...
+  </pre>
+
+  i.e. the page was cached for a year.
+
+  If the user re-visits this URL, then the page will be loaded from the cache. But the cached page does not allow "<code>policy-2</code>", which is the only [=origin policy/ID=] found in the current origin policy at <code>https://example.com/.well-known/origin-policy</code>. It only allows "<code>policy-1</code>".
+
+  As with all origin policy mismatches, this will cause a re-fetch of the origin policy to try to find a new policy that matches the one requested by the `<a http-header><code>Origin-Policy</code></a>` header. (We saw this previously on <a href="#example-initial-policy">the first visit</a>, when the page requested "<code>policy-1</code>" but the current policy for the origin was the [=null policy=].) But in this case, such a request will just return the same origin policy manifest, with <code>"ids": ["policy-2"]</code>. Thus, <code>https://example.com/static-page.html</code> will fail to load.
+
+  To fix this, the server operator can instead update their origin policy as follows:
+
+  <pre highlight="json">
+  {
+  <mark>  "<a for="origin policy manifest">ids</a>": ["policy-1", "policy-2"]</mark>,
+    "<a for="origin policy manifest">content_security</a>": {
+      "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> 'self' https://cdn.example.com"]
+    },
+    "<a for="origin policy manifest">features</a>": {
+      "policy_report_only": "<a spec="xhr">sync-xhr</a> 'none'"
+    }
+  }
+  </pre>
+
+  This would mean that the new origin policy is able to be applied even when "<code>policy-1</code>" is requested, such as in the case of our cached static page.
+
+  The general rule here is that when adding a new value to the "<code><a for="origin policy manifest">ids</a></code>" field of their origin policy manifest, server operators will be best served by keeping any previous [=origin policy/IDs=] as well, at least until any cached resources that reference that origin policy could have expired.
 </div>
 
 <div class="example" id="example-killswitch">
@@ -261,7 +299,7 @@ The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of
 <div class="example" id="example-manifest-structure">
   <pre highlight="json">
   {
-    "<a for="origin policy manifest">id</a>": "my-policy",
+    "<a for="origin policy manifest">ids</a>": ["my-policy"],
     "<a for="origin policy manifest">features</a>": {
       "<a for="origin policy manifest/features">policy</a>": "fullscreen 'none'; geolocation 'none'"
     },
@@ -275,11 +313,11 @@ The <dfn>origin policy manifest</dfn> is a JSON-formatted document consisting of
 
 This section gives an overview of the file format, as well authoring requirements. The processing model for the manifest, including how to deal with violations of these authoring requirements, are handled by the algorithms in [[#parsing]].
 
-<h4 id="manifest-id">The "<code>id</code>" member</h4>
+<h4 id="manifest-ids">The "<code>ids</code>" member</h4>
 
-The "<dfn for="origin policy manifest"><code>id</code></dfn>" member defines the [=origin policy/ID=] of the [=/origin policy=]. This is used, in conjunction with the `<a http-header><code>Origin-Policy</code></a>` header, to allow [=/origins=] to express their preferences and requirements among any previously-cached revisions of the [=origin policy manifest=].
+The "<dfn for="origin policy manifest"><code>ids</code></dfn>" member defines the [=origin policy/IDs=] of the [=/origin policy=]. These are used, in conjunction with the `<a http-header><code>Origin-Policy</code></a>` header, to allow [=/origins=] to express their preferences and requirements among any previously-cached revisions of the [=origin policy manifest=].
 
-It must be present, and must be a [=valid origin policy ID=] string.
+It must be present, and must be an array containing only [=valid origin policy ID=] strings. At least one such string must be present in the array.
 
 <h4 id="policy-item-features">The "<code>features</code>" policy item</h4>
 
@@ -296,7 +334,7 @@ As per the processing model in [[#monkeypatch-fp]], feature policy directives su
 
   <pre highlight="json">
   {
-    "<a for="origin policy manifest">id</a>": "my-policy",
+    "<a for="origin policy manifest">ids</a>": ["my-policy"],
     "<a for="origin policy manifest">features</a>": {
       "<a for="origin policy manifest/features">policy</a>": "fullscreen 'self'; geolocation 'none'"
     }
@@ -327,7 +365,7 @@ As per the processing model in [[#monkeypatch-csp]], content security policies s
 
   <pre highlight="json">
   {
-    "<a for="origin policy manifest">id</a>": "my-policy",
+    "<a for="origin policy manifest">ids</a>": ["my-policy"],
     "<a for="origin policy manifest">content_security</a>": {
       "<a for="origin policy manifest/content_security">policies</a>": ["<a>script-src</a> cdn.example.org 'unsafe-inline'; <a>object-src</a> 'none'"]
     }
@@ -357,14 +395,14 @@ The processing model for how browsers send [=requests=] to this URL is given in 
 
 An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/items=]:
 
-: <dfn for="origin policy">ID</dfn>
-:: A [=/string=], which is a [=valid origin policy ID=], or null.
+: <dfn for="origin policy">IDs</dfn>
+:: Either a [=list=] of [=/strings=] which are each a [=valid origin policy ID=], or a list containing the single item null.
 : <dfn for="origin policy">feature policy</dfn>
 :: A [=feature policy directive=]. [[!FEATURE-POLICY]]
 : <dfn for="origin policy">content security policies</dfn>
 :: A [=list=] of [=content security policy object|content security policies=]. [[!CSP]]
 
-The <dfn>null policy</dfn> is an [=/origin policy=] with null [=origin policy/ID=] and empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null [=origin policy/ID=].
+The <dfn>null policy</dfn> is an [=/origin policy=] whose [=origin policy/IDs=] is a list containing the single item null, and who has empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null in its [=origin policy/IDs=] list.
 
 A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
 
@@ -418,13 +456,13 @@ This section details the entry point algorithms, for determining which origin po
   To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given a [=list=] of strings |allowedIds| and an optional string |preferredId|:
 
   1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] for |origin|.
-  1. If |preferredId| was given, and equals |cachedPolicy|'s [=origin policy/ID=], then return "<code>success</code>".
+  1. If |preferredId| was given, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return "<code>success</code>".
      <p class="note">Since |preferredId| is always a [=valid origin policy ID=], and in particular is not null, this step will never match if |cachedPolicy| is the [=null policy=].</p>
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, then return "<code>success</code>".
   1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is null, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>no-cache</code>".
-  1. If |allowedIds| contains |cachedPolicy|'s [=origin policy/ID=], then:
-    1. If |cachedPolicy|'s [=origin policy/ID=] is null, or |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+  1. If any of |allowedIds| are [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then:
+    1. If |cachedPolicy| is the [=null policy=], or |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return "<code>success</code>".
   1. If |allowedIds| contains null, then:
     1. If |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
@@ -432,8 +470,8 @@ This section details the entry point algorithms, for determining which origin po
   1. Let |networkResponse| be the result of [=fetching=] |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
   1. Let |networkPolicy| be the result of [=getting an origin policy from a manifest response=] given |networkResponse|.
   1. If either of the following is true:
-      * |preferredId| was given, and equals |networkPolicy|'s [=origin policy/ID=]; or
-      * |allowedIds| [=list/contains=] |networkPolicy|'s [=origin policy/ID=],
+      * |preferredId| was given, and is [=list/contained=] in |networkPolicy|'s [=origin policy/IDs=]; or
+      * |allowedIds| [=list/contains=] one of |networkPolicy|'s [=origin policy/IDs=],
     then return "<code>success</code>".
   1. Return "<code>failure</code>".
 
@@ -448,9 +486,9 @@ This section details the entry point algorithms, for determining which origin po
         * |allowedIds| contains null: use the [=null policy=], and refresh the HTTP cache in the background.
         * |allowedIds| does not contain null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
       * |cachedPolicy| is not the [=null policy=]:
-        * |allowedIds| contains |cachedPolicy|'s [=origin policy/ID=]: use |cachedPolicy|, and refresh the HTTP cache in the background if |preferredId| was provided.
-        * |allowedIds| does not contain |cachedPolicy|'s [=origin policy/ID=] but does contain null: use the [=null policy=], and refresh the HTTP cache in the background if |preferredId| was provided.
-        * |allowedIds| contains neither |cachedPolicy|'s [=origin policy/ID=] nor null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
+        * |allowedIds| contains one of |cachedPolicy|'s [=origin policy/IDs=]: use |cachedPolicy|, and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| does not contain any of |cachedPolicy|'s [=origin policy/IDs=] but does contain null: use the [=null policy=], and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| contains neither any of |cachedPolicy|'s [=origin policy/IDs=] nor null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
   </div>
 </div>
 
@@ -495,8 +533,10 @@ This section details the parsing and validation algorithms for the JSON structur
 
   1. Let |parsed| be the result of [=parse JSON into Infra values|parsing JSON into Infra values=] given |string|. If this throws an exception, then return the [=null policy=].
   1. If |parsed| is not a [=map=], then return the [=null policy=].
-  1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] does not [=map/exist=], then return the [=null policy=].
-  1. If |parsed|["<a for="origin policy manifest"><code>id</code></a>"] is not a [=valid origin policy ID=], then return the [=null policy=].
+  1. Let |ids| be an empty list.
+  1. If |parsed|["<a for="origin policy manifest"><code>ids</code></a>"] does [=map/exists=] and is a [=list=], then [=list/for each=] |potentialId| in |parsed|["<a for="origin policy manifest"><code>ids</code></a>"]:
+    1. If |potentialId| is a [=valid origin policy ID=], then [=list/append=] |potentialId| to |ids|.
+  1. If |ids| [=list/is empty=], then return the [=null policy=].
   1. Let |featurePolicy| be an empty [=feature policy directive=].
   1. If |parsed|["<a for="origin policy manifest"><code>features</code></a>"] exists and is a [=map=], and |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"] exists and is a string, then set |featurePolicy| to the result of [=parsing a feature policy directive=] given |parsed|["<a for="origin policy manifest"><code>features</code></a>"]["<a for="origin policy manifest/features"><code>policy</code></a>"].
   1. Let |contentSecurityPolicies| be an empty [=list=].
@@ -509,7 +549,7 @@ This section details the parsing and validation algorithms for the JSON structur
       1. If |potentialPolicyString| is not a [=string=], then [=continue=].
       1. Let |policy| be the result of [$parse a serialized CSP|parsing a serialized CSP$] given |potentialPolicyString|, "<code>header</code>", and "<code>report</code>".
       1. If |policy|'s [=policy/directive set=] is not empty, then [=list/append=] |policy| to |contentSecurityPolicies|.
-  1. Return a new [=/origin policy=] whose [=origin policy/ID=] is |parsed|["<a for="origin policy manifest"><code>id</code></a>"], [=origin policy/feature policy=] is |featurePolicy|, and [=origin policy/content security policies=] is |contentSecurityPolicies|.
+  1. Return a new [=/origin policy=] whose [=origin policy/IDs=] is |ids|, [=origin policy/feature policy=] is |featurePolicy|, and [=origin policy/content security policies=] is |contentSecurityPolicies|.
 </div>
 
 <h2 id="monkeypatches">Patches to other specifications</h2>

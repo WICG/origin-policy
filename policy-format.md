@@ -4,17 +4,7 @@
 
 ## General file format
 
-An origin policy document is a JSON document, whose top-level must be an object, that contains a series of policy items. Each key in the object names a policy item, and its value contains an item specific configuration. The keys and values for each proposed policy item are described below.
-
-Example:
-
-```js
-{
-  "features": ...,
-  "content_security": ...,
-  "referrer": ...
-}
-```
+An origin policy document is a JSON document, whose top-level must be an object, that contains an `"ids"` array plus a series of policy items. Each key in the object names a policy item, and its value contains an item specific configuration. The keys and values for each proposed policy item are described below.
 
 The MIME type for origin policy manifest files is `application/originpolicy+json`.
 
@@ -51,7 +41,7 @@ Examples:
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "content_security": {
     "policies": ["frame-ancestors 'none'", "object-src 'none'"],
     "policies_report_only": ["script-src 'self' https://cdn.example.com/js/"]
@@ -61,7 +51,7 @@ Examples:
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "content_security": {
     "policies": ["frame-ancestors 'none'; object-src 'none'"]
   }
@@ -83,7 +73,7 @@ Example:
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "features": {
     "policy": "geolocation 'self' https://example.com"
   }
@@ -96,14 +86,9 @@ The following policy items are still under discussion, with their formats not ex
 
 #### [Origin isolation](https://github.com/domenic/origin-isolation)
 
-The current proposal for enabling origin isolation is with a `"origin_isolated"` policy item, which can be set to two values:
+The current proposal for enabling origin isolation is with a `"isolation"` policy item, which has several boolean sub-keys indicating the reason for isolation.
 
-* `"best-effort"` indicates origin isolation should be done, with a best-effort attempt at process separation
-* `"none"` indicates no origin isolation should be done
-
-Any unrecognized values would be treated as `"best-effort"`, for future compatibility.
-
-This policy item is mainly under flux for naming reasons: both the [`"origin_isolated"` key](https://github.com/domenic/origin-isolation/issues/5) and the [`"best-effort"` value](https://github.com/domenic/origin-isolation/issues/1) need a bit more bikeshedding.
+This policy item is mainly under flux due to uncertainty that the specific sub-keys chosen are finalized.
 
 ### Transport-Level Security (TLS)
 
@@ -116,12 +101,12 @@ Example:
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "tls": {
     "required": true,
-    "certificate-transparency": {
+    "certificate_transparency": {
       "disposition": "enforce",
-      "report-to": "group-name"
+      "report_to": "group-name"
     }
   }
 }
@@ -135,8 +120,8 @@ Referrer policy configuration might look like:
 
 ```json
 {
-  "id": "my-policy",
-  "referrer-policy": "origin-when-cross-origin"
+  "ids": ["my-policy"],
+  "referrer": "origin-when-cross-origin"
 }
 ```
 
@@ -148,8 +133,8 @@ Setting default client hints might look like:
 
 ```json
 {
-  "id": "my-policy",
-  "client-hints": ["DPR", "Width", "Viewport-Width"]
+  "ids": ["my-policy"],
+  "client_hints": ["DPR", "Width", "Viewport-Width"]
 }
 ```
 
@@ -161,7 +146,7 @@ Configuring the behavior of CORS preflights to the origin in question might look
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "cors_preflights": {
     "no_credentials": {
       "origins": "*",

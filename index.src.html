@@ -246,7 +246,7 @@ The `<dfn http-header><code>Origin-Policy</code></dfn>` response [=header=] can 
 `<a http-header><code>Origin-Policy</code></a>` is a [=structured header/dictionary=] structured header. The dictionary has two keys: [[!STRUCTURED-HEADERS]]
 
 * <code>allowed</code>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, and
-* <code>preferred</code>, whose value is a string.
+* <code>preferred</code>, whose value is a [=valid origin policy ID=].
 
 At least one of these two entries needs to be provided for the header to have useful behavior.
 

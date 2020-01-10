@@ -22,6 +22,10 @@ There needs to be a way for a page to remove any previous origin policies, befor
 
 Any scenario in which the browser communicates previously-sent information back to the server or website can be (ab)used as a cookie. Previous incarnations of origin policy communicated the currently-downloaded policy version. But even the behaviors controlled by origin policy could be used in this manner.
 
+### Cache-friendly
+
+There must be a way to express that a new origin policy should apply even to take long-lived, cached resources, e.g. static HTML pages. This can be tricky since such cached responses are, by definition, not updated, and so cannot explicitly request the new policy.
+
 ## Proposed model
 
 Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin-policy`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/whatwg/fetch/issues/904): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking. This also means that clearing of the cache should generally clear any origin policy.
@@ -32,17 +36,17 @@ When the browser makes a request to _url_, it:
 * Makes the request to _url_.
 * The response can contain a header of the form `Origin-Policy: allowed=("policyA" "polB" "polC" null), preferred="policyZ"`. This indicates that policies with identifiers `"policyA"`, `"polB"`, `"polC"`, or `"policyZ"` are acceptable to the site, or the null origin policy. Call these the _list of acceptable policies_. If the response contains no such header, then the _list of acceptable policies_ contains just the null policy.
 * Checks the _list of acceptable policies_ against the _candidate origin policy_.
-  * If the _candidate origin policy_ is in the _list of acceptable origin policies_, then:
+  * If the _candidate origin policy_ has an ID that is in the _list of acceptable origin policies_, then:
     * Apply the _candidate origin policy_ and load the response. (This might apply the null policy.)
-    * If _candidate origin policy_ is not the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
+    * If _candidate origin policy_ does not contain an ID that matches the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
   * Otherwise, if the _list of acceptable origin policies_ only contains the null policy but _candidate origin policy_ is not the null policy, then:
     * Apply the null policy anyway, and load the response with it.
     * In the background, re-fetch `$that_origin/.well-known/origin-policy` to refresh the HTTP cache.
   * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any processing of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
 
-Here, the identifier for an origin policy is found inside its JSON document, e.g. `"identifier": "policyA"`.
+Here, the IDs for an origin policy are found inside its JSON document, e.g. `"ids": ["policyA", "polB"]`.
 
-Note the distinction between string-based policy identifiers, surrounded by quotes (e.g. `"policyA"`), and the `null` token, which is not quoted. This distinction is given to use by the structured headers specification.
+Note the distinction between string-based policy identifiers, surrounded by quotes (e.g. `"policyA"`), and the `null` token, which is not quoted. This distinction is given to us by the structured headers specification.
 
 ### Evaluation
 
@@ -54,6 +58,8 @@ This model allows a kill switch by having sites send `Origin-Policy: allowed=(nu
 
 This model is privacy-preserving in that it uses the HTTP cache double-keying semantics for the origin policy data and behavior.
 
+This model is cache-friendly by allowing multiple ID values for a policy. When updating a policy, server operators should keep the previous ID value in the array, until any cached resources that are requesting that ID have expired.
+
 ### Comparison to previous model
 
 Compared to the [previously-specified model](https://github.com/WICG/origin-policy/tree/c3be6b3b84c92a8e49fce1a5eca91a7eb70c4158), this model has the following advantages:
@@ -63,6 +69,7 @@ Compared to the [previously-specified model](https://github.com/WICG/origin-poli
 * **Allows async update.** Previously there was no mechanism specified to allow the server to signal their preferred policy, separate from their allowed policy.
 * **Is more frugal.** In particular, it does not require the client to send any request headers. Instead it relies on `/.well-known/` URLs.
 * **Works on subresources.** Nothing in this protocol is specific to navigation requests. It can also be used to gather origin policies from subresources; for example a page on `https://www.example.com/` which performs `fetch("https://api.example.com/endpointA")` could perform a CORS preflight the first time, but come back with an async-updated origin policy keyed to the (`https://api.example.com/`, `https://example.com/`) tuple which allows a future fetch to `https://api.example.com/endpointB` to avoid the CORS preflight.
+* **Is more cache-friendly.** Previously, cached resources would downgrade the default origin policy for the entire origin to the old revision that they requested. (This default would only matter for pages which did not send an explicit `Sec-Origin-Policy` header, though, so this merely unfortunate, not terrible.)
 
 The main drawback of this model is that it is slightly less efficient in some sync update cases. In particular, in this model, if a site wants to mandate a specific policy before any page loads occur, it has two choices:
 

@@ -43,7 +43,7 @@ Server operators can provide a per-origin **origin policy manifest**, at `/.well
 
 ```json
 {
-  "id": "my-policy",
+  "ids": ["my-policy"],
   "content_security": {
     "policies": ["frame-ancestors 'none'", "object-src 'none'"],
     "policies_report_only": ["script-src 'self' https://cdn.example.com/js/"]
@@ -74,7 +74,7 @@ Browsers then fetch and cache origin policies for a given origin. They can optio
 Origin-Policy: allowed=(null "my-policy" "my-old-policy"), preferred="my-policy"
 ```
 
-Here the header specifies allowed and preferred policies, which correspond to the JSON document's `"id"` value. This allows servers to take on a variety of behaviors, including:
+Here the header specifies allowed and preferred policies, which are matched against the JSON document's `"ids"` values. This allows servers to take on a variety of behaviors, including:
 
 * Require that a given origin policy be available (either from the cache or via fetching) and applied, before proceeding with page initialization
 * Allow a previous revision of the policy, or no policy at all, to apply, but in the background do an asynchronous update of the policy so that future resource fetches will apply the preferred one.

@@ -1167,6 +1167,18 @@ Possible extra rowspan handling
 		margin-left: auto;
 		margin-right: auto;
 	}
+	.overlarge {
+		/* Magic to create good table positioning:
+		   "content column" is 50ems wide at max; less on smaller screens.
+		   Extra space (after ToC + content) is empty on the right.
+
+		   1. When table < content column, centers table in column.
+		   2. When content < table < available, left-aligns.
+		   3. When table > available, fills available + scroll bar.
+		*/ 
+		display: grid;
+		grid-template-columns: minmax(0, 50em);
+	}
 	.overlarge > table {
 		/* limit preferred width of table */
 		max-width: 50em;
@@ -1176,7 +1188,6 @@ Possible extra rowspan handling
 
 	@media (min-width: 55em) {
 		.overlarge {
-			margin-left: calc(13px + 26.5rem - 50vw);
 			margin-right: calc(13px + 26.5rem - 50vw);
 			max-width: none;
 		}
@@ -1184,14 +1195,12 @@ Possible extra rowspan handling
 	@media screen and (min-width: 78em) {
 		body:not(.toc-inline) .overlarge {
 			/* 30.5em body padding 50em content area */
-			margin-left: calc(40em - 50vw) !important;
 			margin-right: calc(40em - 50vw) !important;
 		}
 	}
 	@media screen and (min-width: 90em) {
 		body:not(.toc-inline) .overlarge {
 			/* 4em html margin 30.5em body padding 50em content area */
-			margin-left: 0 !important;
 			margin-right: calc(84.5em - 100vw) !important;
 		}
 	}
@@ -1213,7 +1222,7 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 087ea90e1ebd0321c20373d89950d1c6b73d5df1" name="generator">
+  <meta content="Bikeshed version 6a4c097ae8b731ee02752a258e8ac5ffbb752299" name="generator">
   <link href="https://wicg.github.io/origin-policy/" rel="canonical">
 <style>/* style-md-lists */
 
@@ -1472,7 +1481,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2019-12-13">13 December 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-01-13">13 January 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1486,7 +1495,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
     </dl>
    </div>
    <div data-fill-with="warning"></div>
-   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2019 the Contributors to the Origin Policy Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+   <p class="copyright" data-fill-with="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2020 the Contributors to the Origin Policy Specification, published by the <a href="https://www.w3.org/community/wicg/">Web Platform Incubator Community Group</a> under the <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
 A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available. </p>
    <hr title="Separator for header">
   </div>
@@ -1692,7 +1701,7 @@ Cache-Control: max-age=86400
     <li data-md>
      <p><code>allowed</code>, whose value is an <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#inner-list" id="ref-for-inner-list">inner list</a> that contains <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id">valid origin policy IDs</a> as strings, or the token <code>null</code>, and</p>
     <li data-md>
-     <p><code>preferred</code>, whose value is a string.</p>
+     <p><code>preferred</code>, whose value is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id①">valid origin policy ID</a>.</p>
    </ul>
    <p>At least one of these two entries needs to be provided for the header to have useful behavior.</p>
    <p>No <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#param" id="ref-for-param">parameters</a> are used in any locations within the structured header.</p>
@@ -1716,7 +1725,7 @@ Cache-Control: max-age=86400
    <p>This section gives an overview of the file format, as well authoring requirements. The processing model for the manifest, including how to deal with violations of these authoring requirements, are handled by the algorithms in <a href="#parsing">§ 4.3 Parsing</a>.</p>
    <h4 class="heading settled" data-level="2.2.1" id="manifest-id"><span class="secno">2.2.1. </span><span class="content">The "<code>id</code>" member</span><a class="self-link" href="#manifest-id"></a></h4>
    <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-id"><code>id</code></dfn>" member defines the <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id①">ID</a> of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy③">origin policy</a>. This is used, in conjunction with the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑧"><code>Origin-Policy</code></a>` header, to allow <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin③">origins</a> to express their preferences and requirements among any previously-cached revisions of the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest④">origin policy manifest</a>.</p>
-   <p>It must be present, and must be a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id①">valid origin policy ID</a> string.</p>
+   <p>It must be present, and must be a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id②">valid origin policy ID</a> string.</p>
    <h4 class="heading settled" data-level="2.2.2" id="policy-item-features"><span class="secno">2.2.2. </span><span class="content">The "<code>features</code>" policy item</span><a class="self-link" href="#policy-item-features"></a></h4>
    <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-features"><code>features</code></dfn>" member defines the baseline <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy①">feature policy</a> to apply to any responses from the origin.</p>
    <p>If present, it must be an object, with one possible key: "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest/features" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-features-policy"><code>policy</code></dfn>". The "<code>policy</code>" sub-member’s value must be a string that matches the <a data-link-type="dfn" href="https://wicg.github.io/feature-policy/#serialized-feature-policy" id="ref-for-serialized-feature-policy"><code>serialized-feature-policy</code></a> production. <a data-link-type="biblio" href="#biblio-feature-policy">[FEATURE-POLICY]</a></p>
@@ -1765,7 +1774,7 @@ Cache-Control: max-age=86400
    <dl>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="origin policy" data-dfn-type="dfn" data-noexport id="origin-policy-id">ID</dfn>
     <dd data-md>
-     <p>A <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a>, which is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id②">valid origin policy ID</a>, or null.</p>
+     <p>A <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a>, which is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id③">valid origin policy ID</a>, or null.</p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="origin policy" data-dfn-type="dfn" data-noexport id="origin-policy-feature-policy">feature policy</dfn>
     <dd data-md>
      <p>A <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#policy-directive" id="ref-for-policy-directive">feature policy directive</a>. <a data-link-type="biblio" href="#biblio-feature-policy">[FEATURE-POLICY]</a></p>
@@ -1823,7 +1832,7 @@ Cache-Control: max-age=86400
          <li data-md>
           <p>If <var>allowedId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string②">string</a> or the <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token">token</a> <code>null</code>, then return "<code>unparseable</code>".</p>
          <li data-md>
-          <p class="assertion">Assert: if <var>allowedId</var> is a string, then it is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id③">valid origin policy ID</a>.</p>
+          <p class="assertion">Assert: if <var>allowedId</var> is a string, then it is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id④">valid origin policy ID</a>.</p>
          <li data-md>
           <p>If <var>allowedId</var> is the <code>null</code> <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token①">token</a>, then set <var>allowedId</var> to null. <span class="note">This is just a "type conversion" into our usual value space of Infra values. <a data-link-type="biblio" href="#biblio-infra">[INFRA]</a></span></p>
          <li data-md>
@@ -1840,7 +1849,7 @@ Cache-Control: max-age=86400
        <li data-md>
         <p>If <var>preferredId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string③">string</a>, or is the empty string, then return "<code>unparseable</code>".</p>
        <li data-md>
-        <p class="assertion">Assert: <var>preferredId</var> is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id④">valid origin policy ID</a>.</p>
+        <p class="assertion">Assert: <var>preferredId</var> is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑤">valid origin policy ID</a>.</p>
       </ol>
      <li data-md>
       <p>Return the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple">tuple</a> (<var>allowedIds</var>, <var>preferredId</var>).</p>
@@ -1855,7 +1864,7 @@ Cache-Control: max-age=86400
       <p>Let <var>cachedPolicy</var> be the result of <a data-link-type="dfn" href="#retrieve-the-cached-origin-policy" id="ref-for-retrieve-the-cached-origin-policy">retrieving the cached origin policy</a> for <var>origin</var>.</p>
      <li data-md>
       <p>If <var>preferredId</var> was given, and equals <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-id" id="ref-for-origin-policy-id④">ID</a>, then return "<code>success</code>".</p>
-      <p class="note" role="note">Since <var>preferredId</var> is always a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑤">valid origin policy ID</a>, and in particular is not null, this step will never match if <var>cachedPolicy</var> is the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy③">null policy</a>.</p>
+      <p class="note" role="note">Since <var>preferredId</var> is always a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑥">valid origin policy ID</a>, and in particular is not null, this step will never match if <var>cachedPolicy</var> is the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy③">null policy</a>.</p>
      <li data-md>
       <p>Let <var>url</var> be the result of <a data-link-type="dfn" href="#get-the-origin-policy-manifest-url" id="ref-for-get-the-origin-policy-manifest-url">getting the origin policy manifest URL</a> for <var>origin</var>.</p>
      <li data-md>
@@ -1979,7 +1988,7 @@ Cache-Control: max-age=86400
      <li data-md>
       <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑥"><code>id</code></a>"] does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exist</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①③">null policy</a>.</p>
      <li data-md>
-      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑦"><code>id</code></a>"] is not a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑥">valid origin policy ID</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>.</p>
+      <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-id" id="ref-for-origin-policy-manifest-id⑦"><code>id</code></a>"] is not a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑦">valid origin policy ID</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>.</p>
      <li data-md>
       <p>Let <var>featurePolicy</var> be an empty <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#policy-directive" id="ref-for-policy-directive①">feature policy directive</a>.</p>
      <li data-md>
@@ -3205,12 +3214,12 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="valid-origin-policy-id">
    <b><a href="#valid-origin-policy-id">#valid-origin-policy-id</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-valid-origin-policy-id">2.1. The `Origin-Policy` HTTP header</a>
-    <li><a href="#ref-for-valid-origin-policy-id①">2.2.1. The "id" member</a>
-    <li><a href="#ref-for-valid-origin-policy-id②">3. Data model</a>
-    <li><a href="#ref-for-valid-origin-policy-id③">4.1. Response processing</a> <a href="#ref-for-valid-origin-policy-id④">(2)</a>
-    <li><a href="#ref-for-valid-origin-policy-id⑤">4.2. Updating the origin policy</a>
-    <li><a href="#ref-for-valid-origin-policy-id⑥">4.3. Parsing</a>
+    <li><a href="#ref-for-valid-origin-policy-id">2.1. The `Origin-Policy` HTTP header</a> <a href="#ref-for-valid-origin-policy-id①">(2)</a>
+    <li><a href="#ref-for-valid-origin-policy-id②">2.2.1. The "id" member</a>
+    <li><a href="#ref-for-valid-origin-policy-id③">3. Data model</a>
+    <li><a href="#ref-for-valid-origin-policy-id④">4.1. Response processing</a> <a href="#ref-for-valid-origin-policy-id⑤">(2)</a>
+    <li><a href="#ref-for-valid-origin-policy-id⑥">4.2. Updating the origin policy</a>
+    <li><a href="#ref-for-valid-origin-policy-id⑦">4.3. Parsing</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="update-the-origin-policy-from-a-response">

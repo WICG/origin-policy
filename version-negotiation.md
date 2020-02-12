@@ -30,23 +30,15 @@ There must be a way to express that a new origin policy should apply even to tak
 
 Conceptually, origin policies are stored in the HTTP cache, under the URL `$origin/.well-known/origin-policy`. In particular, this means they are double-keyed [in the same way as the HTTP cache](https://github.com/whatwg/fetch/issues/904): that is, by (origin of document, origin of top-document). This prevents them from being used for cross-site tracking. This also means that clearing of the cache should generally clear any origin policy.
 
-When the browser makes a request to _url_, it:
+A policy can have several identifiers, found in its JSON document as, for example, `"ids": ["policyA", "polB"]`.
 
-* Checks if it has something cached, and not expired, for `$that_origin/.well-known/origin-policy`. If so, this is the _candidate origin policy_; otherwise the _candidate origin policy_ is the null policy.
-* Makes the request to _url_.
-* The response can contain a header of the form `Origin-Policy: allowed=("policyA" "polB" "polC" null), preferred="policyZ"`. This indicates that policies with identifiers `"policyA"`, `"polB"`, `"polC"`, or `"policyZ"` are acceptable to the site, or the null origin policy. Call these the _list of acceptable policies_. If the response contains no such header, then the _list of acceptable policies_ contains just the null policy.
-* Checks the _list of acceptable policies_ against the _candidate origin policy_.
-  * If the _candidate origin policy_ has an ID that is in the _list of acceptable origin policies_, then:
-    * Apply the _candidate origin policy_ and load the response. (This might apply the null policy.)
-    * If _candidate origin policy_ does not contain an ID that matches the preferred origin policy (indicated by the `preferrered=` portion), then the browser sends a low-priority request to `$that_origin/.well-known/origin-policy` to refresh the HTTP cache, but it won't apply for this page load.
-  * Otherwise, if the _list of acceptable origin policies_ only contains the null policy but _candidate origin policy_ is not the null policy, then:
-    * Apply the null policy anyway, and load the response with it.
-    * In the background, re-fetch `$that_origin/.well-known/origin-policy` to refresh the HTTP cache.
-  * Otherwise, the browser makes a request (on the same connection, if HTTP/2), to `$that_origin/.well-known/origin-policy`. It delays any processing of the response for _url_ until the new policy has been loaded. If the new policy's identifier still doesn't match the _list of acceptable policies_, then the result of the origin navigation request is a network error.
+The `Origin-Policy` header can express that it allows, or prefers, specifically-identified policies. The header also can express that it allows any policy, with the token `lastest`, or no policy at all, with the token `null`. Finally, the header can express that it prefers the latest origin policy from the network, with the token `latest-from-network`.
 
-Here, the IDs for an origin policy are found inside its JSON document, e.g. `"ids": ["policyA", "polB"]`.
+* ID-based matching is used when the web application wants to express constraints on the contents of the policy.
+* `latest` and `latest-from-network` are used when the web application wants to ensure there is an origin policy, but does not want to take on the maintenance burden of expressing ID-based constraints.
+* `null` is used when the web application is OK with a given response being processed without an origin policy, for example to avoid an extra server round-trip.
 
-Note the distinction between string-based policy identifiers, surrounded by quotes (e.g. `"policyA"`), and the `null` token, which is not quoted. This distinction is given to us by the structured headers specification.
+(Note the distinction between string-based policy identifiers, surrounded by quotes, and the special tokens, which are not quoted. This distinction is given to us by the structured headers specification.)
 
 ### Evaluation
 

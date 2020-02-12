@@ -208,7 +208,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   Then, change the `<a http-header><code>Origin-Policy</code></a>` response header to indicate that this new policy is preferred:
 
   <pre>
-  <a http-header>Origin-Policy</a>: allowed=("policy-1" "policy-2"), preferred="policy-2"
+  <a http-header>Origin-Policy</a>: preferred="policy-2", allowed=("policy-1")
   </pre>
 
   When the browser sees this header value on any response from <code>https://example.com</code>, one of three things will happen:
@@ -260,6 +260,34 @@ This document introduces a new delivery mechanism for policies which are meant t
   The general rule here is that when adding a new value to the "<code><a for="origin policy manifest">ids</a></code>" field of their origin policy manifest, server operators will be best served by keeping any previous [=origin policy/IDs=] as well, at least until any cached resources that reference that origin policy could have expired.
 </div>
 
+<div class="example" id="example-null">
+  MegaCorp has noticed that first-time visitors to their site, as in <a href="#example-initial-policy">the example above</a>, are having a suboptimal experience, with their responses being blocked by an additional round-trip to fetch the origin policy. Upon reflection, MegaCorp realizes that first-time visitors probably don't need origin policies applied. All of their site's exciting stuff is hidden behind a login wall, which involves at least one navigation. So it would be fine to omit the origin policy for such initial responses, as long as it gets applied on post-login responses.
+
+  To express this, MegaCorp modifies their response header to
+
+  <pre>
+  <a http-header>Origin-Policy</a>: preferred="policy-2", allowed=("policy-1" <mark>null</mark>)
+  </pre>
+
+  This indicates that the [=null origin policy=] is acceptable, if both "<code>policy-1</code>" and "<code>policy-2</code>" are not cached, and thus allows responses to initial visitors to proceed without blocking on fetching an origin policy. But, because there is a <code>preferred</code> value, in such cases the browser will also do a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code>, to update the HTTP cache for any future requests to <code>https://example.com/</code>.
+
+  MegaCorp could even vary their `<a http-header><code>Origin-Policy</code></a>` header dynamically between this fast-but-permissive version and the previous blocking-and-strict version, depending on characteristics of the request such as [=credentials=].
+</div>
+
+<div class="example" id="example-latest">
+  MegaCorp is downsizing, and can no longer spare headcount for a dedicated Origin Policy Specialist to carefully maintain their origin policy manifest's "<code><a for="origin policy manifest">ids</a></code>" field, and their `<a http-header><code>Origin-Policy</code></a>` header <code>allowed</code> and <code>preferred</code> values. They just want to perform updates to their origin policy manifest, and have them rolled out to their visitors as soon as is possible.
+
+  To make this work, they change all their response headers to
+
+  <pre>
+  <a http-header>Origin-Policy</a>: preferred=latest-from-network, allowed=(latest null)
+  </pre>
+
+  which will ensure that browser uses the latest origin policy available from the cache, if any, or the [=null origin policy=], if nothing is cached. Furthermore, the <code>preferred=latest-from-network</code> part of the header ensures that the browser will always perform a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code> to update the HTTP cache.
+
+  This is slightly less efficient than the previous version. And, it doesn't allow expressing constraints on the contents of policies, by matching preferred and allowed values with the manifest's "<code><a for="origin policy manifest">ids</a></code>" field. But, it is simpler to maintain.
+</div>
+
 <div class="example" id="example-killswitch">
   MegaCorp wishes to remove the origin policy, and ensure that any visitors to its site no longer get any of its effects. It can do so by using the following `<a http-header><code>Origin-Policy</code></a>` response header:
 
@@ -267,7 +295,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   <a http-header>Origin-Policy</a>: allowed=(null)
   </pre>
 
-  When the browser recieves this header, it will ensure that no origin policy is applied for the response, since only the [=null policy=] is allowed. It will also evict any cache entries for <code>https://example.com/.well-known/origin-policy</code>.
+  When the browser receives this header, it will ensure that no origin policy is applied for the response, since only the [=null policy=] is allowed.
 </div>
 
 </div>
@@ -280,14 +308,16 @@ The `<dfn http-header><code>Origin-Policy</code></dfn>` response [=header=] can 
 
 `<a http-header><code>Origin-Policy</code></a>` is a [=structured header/dictionary=] structured header. The dictionary has two keys: [[!STRUCTURED-HEADERS]]
 
-* <code>allowed</code>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, and
-* <code>preferred</code>, whose value is a [=valid origin policy ID=].
+* <code>allowed</code>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, or the token <code>latest</code>; and
+* <code>preferred</code>, whose value is either a [=valid origin policy ID=], or the token <code>latest-from-network</code>.
 
 At least one of these two entries needs to be provided for the header to have useful behavior.
 
+<p class="note">If an ID is provided for <code>preferred</code>, it is unnecessary to also include it in the <code>allowed</code> list.</p>
+
 No [=structured header/parameters=] are used in any locations within the structured header.
 
-The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the [=null policy|null origin policy=] for processing the [=response=]. The processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=].
+The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the [=null origin policy=] for processing the [=response=]. The processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=].
 
 <h3 id="manifest-file">The origin policy manifest</h3>
 
@@ -399,7 +429,7 @@ An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/it
 : <dfn for="origin policy">content security policies</dfn>
 :: A [=list=] of [=content security policy object|content security policies=]. [[!CSP]]
 
-The <dfn>null policy</dfn> is an [=/origin policy=] whose [=origin policy/IDs=] is a list containing the single item null, and who has empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null in its [=origin policy/IDs=] list.
+The <dfn lt="null policy|null origin policy">null policy</dfn> is an [=/origin policy=] whose [=origin policy/IDs=] is a list containing the single item null, and who has empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null in its [=origin policy/IDs=] list.
 
 A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
 
@@ -685,6 +715,7 @@ Thanks to
 Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
+Eric Portis,
 Jeffrey Yasskin, and
 Nihanth Subramanya
 for being awesome!

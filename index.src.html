@@ -438,6 +438,8 @@ A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are
 
 <h2 id="processing-model">Processing model</h2>
 
+The below algorithms make use of the special values <dfn>latest</dfn> and <dfn>latest-from-network</dfn>, which we use as the parsed representation of the corresponding [=structured header/tokens=] from the `<a http-header><code>Origin-Policy</code></a>` structured header.
+
 <h3 id="from-response">Response processing</h3>
 
 This section details the entry point algorithms, for determining which origin policy applies to an incoming [=response=].
@@ -450,7 +452,7 @@ This section details the entry point algorithms, for determining which origin po
   1. If |header| is null, then return "<code>success</code>".
   1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return "<code>success</code>".
   1. Let |origin| be |response|'s [=response/URL=]'s [=url/origin=].
-  1. Return the result of [=updating an origin's origin policy=] for |origin| given |client| and |allowedIds|. If |preferredId| is not null, pass it along too.
+  1. Return the result of [=updating an origin's origin policy=] for |origin| given |client|, |allowedIds|, and |preferredId|.
 </div>
 
 <div algorithm>
@@ -463,15 +465,17 @@ This section details the entry point algorithms, for determining which origin po
     1. Let |rawAllowedList| be |parsedHeader|["<code>allowed</code>"][0].
     1. [=For each=] |itemTuple| in |rawAllowedList|:
       1. Let |allowedId| be |itemTuple|[0].
-      1. If |allowedId| is not a [=structured header/string=] or the [=structured header/token=] <code>null</code>, then return "<code>unparseable</code>".
+      1. If |allowedId| is not a [=structured header/string=], the [=structured header/token=] <code>null</code>, or the [=structured header/token=] <code>latest</code>, then return "<code>unparseable</code>".
+      1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null.
+      1. If |allowedId| is the <code>latest</code> [=structured header/token=], then set |allowedId| to [=latest=].
       1. Assert: if |allowedId| is a string, then it is a [=valid origin policy ID=].
-      1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null. <span class="note">This is just a "type conversion" into our usual value space of Infra values. [[!INFRA]]</span>
       1. [=set/Append=] |allowedId| to |allowedIds|.
   1. Let |preferredId| be null.
   1. If |parsedHeader|["<code>preferred</code>"] [=map/exists=]:
     1. Set |preferredId| to |parsedHeader|["<code>preferred</code>"][0].
-    1. If |preferredId| is not a [=structured header/string=], or is the empty string, then return "<code>unparseable</code>".
-    1. Assert: |preferredId| is a [=valid origin policy ID=].
+    1. If |preferredId| is not a [=structured header/string=] or the [=structured header/token=] <code>latest-from-network</code>, or it is the empty string, then return "<code>unparseable</code>".
+    1. If |preferredId| is the <code>latest-from-network</code> [=structured header/token=], then set |preferredId| to [=latest-from-network=].
+    1. Assert: if |preferredId| is a string, then it is a [=valid origin policy ID=].
   1. Return the [=tuple=] (|allowedIds|, |preferredId|).
 
   <p class="note">The constant lookups of the 0th [=tuple/item=] in [=tuples=] above is due to the way that structured header parse results are generally packaged as tuples where the 0th item is the value of interest, and the 1st item is an associated [=ordered map=] of [=structured header/parameters=]. In all cases we ignore the parameters.</p>
@@ -480,24 +484,24 @@ This section details the entry point algorithms, for determining which origin po
 <h3 id="updating">Updating the origin policy</h3>
 
 <div algorithm>
-  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given an [=environment settings object=] |client|, a [=list=] of strings |allowedIds| and an optional string |preferredId|:
+  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given |client|, |allowedIds|, and |preferredId|:
 
   1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] for |origin|.
-  1. If |preferredId| was given, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return "<code>success</code>".
-     <p class="note">Since |preferredId| is always a [=valid origin policy ID=], and in particular is not null, this step will never match if |cachedPolicy| is the [=null policy=].</p>
+  1. If |preferredId| is a string, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return "<code>success</code>".
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, then return "<code>success</code>".
   1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", [=request/referrer policy=] is "<code>no-referrer</code>", and [=request/cache mode=] is "<code>no-cache</code>".
-  1. If any of |allowedIds| are [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then:
-    1. If |cachedPolicy| is the [=null policy=], or |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+  1. If |allowedIds| [=list/contains=] one of |cachedPolicy|'s [=origin policy/IDs=], or if |allowedIds| [=list/contains=] [=latest=], then:
+    1. If |cachedPolicy| is the [=null policy=], or |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return "<code>success</code>".
   1. If |allowedIds| contains null, then:
-    1. If |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+    1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return "<code>success</code>".
   1. Let |networkResponse| be the result of [=fetching=] |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
   1. Let |networkPolicy| be the result of [=getting an origin policy from a manifest response=] given |networkResponse|.
-  1. If either of the following is true:
-      * |preferredId| was given, and is [=list/contained=] in |networkPolicy|'s [=origin policy/IDs=]; or
+  1. If any of the following is true:
+      * |preferredId| is [=latest-from-network=]; or
+      * |preferredId| is a string, and is [=list/contained=] in |networkPolicy|'s [=origin policy/IDs=]; or
       * |allowedIds| [=list/contains=] one of |networkPolicy|'s [=origin policy/IDs=],
     then return "<code>success</code>".
   1. Return "<code>failure</code>".
@@ -513,9 +517,11 @@ This section details the entry point algorithms, for determining which origin po
         * |allowedIds| contains null: use the [=null policy=], and refresh the HTTP cache in the background.
         * |allowedIds| does not contain null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
       * |cachedPolicy| is not the [=null policy=]:
-        * |allowedIds| contains one of |cachedPolicy|'s [=origin policy/IDs=]: use |cachedPolicy|, and refresh the HTTP cache in the background if |preferredId| was provided.
-        * |allowedIds| does not contain any of |cachedPolicy|'s [=origin policy/IDs=] but does contain null: use the [=null policy=], and refresh the HTTP cache in the background if |preferredId| was provided.
-        * |allowedIds| contains neither any of |cachedPolicy|'s [=origin policy/IDs=] nor null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
+        * |allowedIds| matches one of |cachedPolicy|'s [=origin policy/IDs=]: use |cachedPolicy|, and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| does not match any of |cachedPolicy|'s [=origin policy/IDs=] but does contain null: use the [=null policy=], and refresh the HTTP cache in the background if |preferredId| was provided.
+        * |allowedIds| does not match any of |cachedPolicy|'s [=origin policy/IDs=] and does not contain null: fetch |networkPolicy|, and use it if it matches |allowedIds| or |preferredId|.
+
+    Here [=latest=] always matches a non-[=null policy|null=] |cachedPolicy| and and [=latest-from-network=] always matches a fetched |networkPolicy|.
   </div>
 </div>
 

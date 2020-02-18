@@ -413,14 +413,14 @@ A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are
 This section details the entry point algorithms, for determining which origin policy applies to an incoming [=response=].
 
 <div algorithm>
-  To <dfn>update the origin policy from a response</dfn>, given a [=response=] |response|:
+  To <dfn>update the origin policy from a response</dfn>, given a [=response=] |response| and an [=environment settings object=] |client|:
 
   1. If |response|'s [=response/URL=] is null, then return "<code>success</code>".
   1. Let |header| be the result of [=header list/getting=] `<a http-header><code>Origin-Policy</code></a>` from |response|'s [=response/header list=].
   1. If |header| is null, then return "<code>success</code>".
   1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return "<code>success</code>".
   1. Let |origin| be |response|'s [=response/URL=]'s [=url/origin=].
-  1. Return the result of [=updating an origin's origin policy=] for |origin| given |allowedIds|. If |preferredId| is not null, pass it along too.
+  1. Return the result of [=updating an origin's origin policy=] for |origin| given |client| and |allowedIds|. If |preferredId| is not null, pass it along too.
 </div>
 
 <div algorithm>
@@ -450,14 +450,14 @@ This section details the entry point algorithms, for determining which origin po
 <h3 id="updating">Updating the origin policy</h3>
 
 <div algorithm>
-  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given a [=list=] of strings |allowedIds| and an optional string |preferredId|:
+  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given an [=environment settings object=] |client|, a [=list=] of strings |allowedIds| and an optional string |preferredId|:
 
   1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] for |origin|.
   1. If |preferredId| was given, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return "<code>success</code>".
      <p class="note">Since |preferredId| is always a [=valid origin policy ID=], and in particular is not null, this step will never match if |cachedPolicy| is the [=null policy=].</p>
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, then return "<code>success</code>".
-  1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is null, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>no-cache</code>".
+  1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", [=request/referrer policy=] is "<code>no-referrer</code>", and [=request/cache mode=] is "<code>no-cache</code>".
   1. If any of |allowedIds| are [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then:
     1. If |cachedPolicy| is the [=null policy=], or |preferredId| was provided, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return "<code>success</code>".
@@ -555,7 +555,7 @@ The following patches to other specifications would be incorporated as appropria
 
 <h3 id="monkeypatch-fetch">Fetch</h3>
 
-The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a step after step 5, i.e. after request body streaming has begun but before response body streaming begins. This must call [=update the origin policy from a response=] given the response. (This could cause the algorithm to block while it fetches an origin policy, if required do to so by the `<a http-header><code>Origin-Policy</code></a>` header.)
+The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a step after step 5, i.e. after request body streaming has begun but before response body streaming begins. This must call [=update the origin policy from a response=] given the response and the request's [=request/client=]. (This could cause the algorithm to block while it fetches an origin policy, if required do to so by the `<a http-header><code>Origin-Policy</code></a>` header.)
 
 <h3 id="monkeypatch-fp">Feature Policy</h3>
 

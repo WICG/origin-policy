@@ -52,15 +52,10 @@ Server operators can provide a per-origin **origin policy manifest**, at `/.well
     "policy": "geolocation 'self' https://example.com",
     "policy_report_only": "document-domain 'none'"
   },
-  "cors_preflights": {
-    "no_credentials": {
-      "origins": "*"
-    },
-    "unsafe_include_credentials": {
-      "origins": ["https://trusted.example.com/"]
-    },
-  },
-  "origin_isolated": "best-effort"
+  "isolation": {
+    "prefer_isolated_event_loop": true,
+    "prefer_isolated_memory": true
+  }
 }
 ```
 

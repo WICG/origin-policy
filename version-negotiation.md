@@ -32,7 +32,7 @@ Conceptually, origin policies are stored in the HTTP cache, under the URL `$orig
 
 A policy can have several identifiers, found in its JSON document as, for example, `"ids": ["policyA", "polB"]`.
 
-The `Origin-Policy` header can express that it allows, or prefers, specifically-identified policies. The header also can express that it allows any policy, with the token `lastest`, or no policy at all, with the token `null`. Finally, the header can express that it prefers the latest origin policy from the network, with the token `latest-from-network`.
+The `Origin-Policy` header can express that it allows, or prefers, specifically-identified policies. The header also can express that it allows any policy, with the token `lastest`, or that it allows no policy at all, with the token `null`. Finally, the header can express that it prefers the latest origin policy from the network, with the token `latest-from-network`.
 
 * ID-based matching is used when the web application wants to express constraints on the contents of the policy.
 * `latest` and `latest-from-network` are used when the web application wants to ensure there is an origin policy, but does not want to take on the maintenance burden of expressing ID-based constraints.

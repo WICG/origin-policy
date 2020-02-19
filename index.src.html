@@ -71,9 +71,6 @@ spec: CSP; type: dfn; urlPrefix: https://w3c.github.io/webappsec-csp/
 spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
   type: http-header
     text: Strict-Transport-Security; url: section-6.1
-spec: RFC7231; urlPrefix: https://tools.ietf.org/html/rfc7231
-  type: http-header
-    text: Vary; url: section-7.1.4
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -128,7 +125,6 @@ This document introduces a new delivery mechanism for policies which are meant t
   Content-Type: text/html
   ...
   <a http-header>Origin-Policy</a>: allowed=("policy-1")
-  <a http-header>Vary</a>: origin-policy
   ...
   </pre>
 
@@ -230,7 +226,6 @@ This document introduces a new delivery mechanism for policies which are meant t
   Content-Type: text/html
   ...
   <a http-header>Origin-Policy</a>: allowed=("policy-1")
-  <a http-header>Vary</a>: origin-policy
   Cache-Control: max-age=31536000
   ...
   </pre>
@@ -722,6 +717,7 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
-Jeffrey Yasskin, and
+Jeffrey Yasskin,
+Mark Nottingham, and
 Nihanth Subramanya
 for being awesome!

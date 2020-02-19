@@ -1620,7 +1620,6 @@ Connection: keep-alive
 Content-Type: text/html
 ...
 <a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①">Origin-Policy</a>: allowed=("policy-1")
-<a data-link-type="http-header" href="https://tools.ietf.org/html/rfc7231#section-7.1.4" id="ref-for-section-7.1.4">Vary</a>: origin-policy
 ...
 </pre>
     <p>Upon seeing the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②"><code>Origin-Policy</code></a>` header, the browser will check if it has a cached origin policy for <code>https://example.com/</code>, with "<code>policy-1</code>" as one of its <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids">IDs</a>. For this first request, no such cache entry is found. Since the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy">null policy</a> is not in the header’s <code>allowed</code> list, this means that although the browser can continue to download the response body, further processing of the response (in this case <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate" id="ref-for-navigate">navigation</a>) is blocked on retrieving and applying the origin policy. So the browser does that:</p>
@@ -1693,7 +1692,6 @@ Cache-Control: max-age=86400
 Content-Type: text/html
 ...
 <a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑤">Origin-Policy</a>: allowed=("policy-1")
-<a data-link-type="http-header" href="https://tools.ietf.org/html/rfc7231#section-7.1.4" id="ref-for-section-7.1.4①">Vary</a>: origin-policy
 Cache-Control: max-age=31536000
 ...
 </pre>
@@ -2222,7 +2220,8 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
-Jeffrey Yasskin, and
+Jeffrey Yasskin,
+Mark Nottingham, and
 Nihanth Subramanya
 for being awesome!</p>
   </main>
@@ -2899,12 +2898,6 @@ for being awesome!</p>
     <li><a href="#ref-for-section-6.1">1. Introduction</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-section-7.1.4">
-   <a href="https://tools.ietf.org/html/rfc7231#section-7.1.4">https://tools.ietf.org/html/rfc7231#section-7.1.4</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-section-7.1.4">1.1. Examples</a> <a href="#ref-for-section-7.1.4①">(2)</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-potentially-trustworthy-origin">
    <a href="https://w3c.github.io/webappsec-secure-contexts/#potentially-trustworthy-origin">https://w3c.github.io/webappsec-secure-contexts/#potentially-trustworthy-origin</a><b>Referenced in:</b>
    <ul>
@@ -3091,11 +3084,6 @@ for being awesome!</p>
      <li><span class="dfn-paneled" id="term-for-section-6.1" style="color:initial">strict-transport-security</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[rfc7231]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="term-for-section-7.1.4" style="color:initial">vary</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[secure-contexts]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-potentially-trustworthy-origin" style="color:initial">potentially trustworthy origin</span>
@@ -3163,8 +3151,6 @@ for being awesome!</p>
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/">DOM Standard</a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
    <dt id="biblio-origin-wide-cors">[ORIGIN-WIDE-CORS]
    <dd>Takeshi Yoshino. <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">Origin-Wide CORS</a>. URL: <a href="https://github.com/tyoshino/origin-wide-cors/blob/master/README.md">https://github.com/tyoshino/origin-wide-cors/blob/master/README.md</a>
-   <dt id="biblio-rfc7231">[RFC7231]
-   <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://httpwg.org/specs/rfc7231.html">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>. June 2014. Proposed Standard. URL: <a href="https://httpwg.org/specs/rfc7231.html">https://httpwg.org/specs/rfc7231.html</a>
    <dt id="biblio-rfc7541">[RFC7541]
    <dd>R. Peon; H. Ruellan. <a href="https://httpwg.org/specs/rfc7541.html">HPACK: Header Compression for HTTP/2</a>. May 2015. Proposed Standard. URL: <a href="https://httpwg.org/specs/rfc7541.html">https://httpwg.org/specs/rfc7541.html</a>
    <dt id="biblio-site-wide-headers">[SITE-WIDE-HEADERS]

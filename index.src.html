@@ -465,7 +465,7 @@ This section details the entry point algorithms, for determining which origin po
     1. Let |rawAllowedList| be |parsedHeader|["<code>allowed</code>"][0].
     1. [=For each=] |itemTuple| in |rawAllowedList|:
       1. Let |allowedId| be |itemTuple|[0].
-      1. If |allowedId| is not a [=structured header/string=], the [=structured header/token=] <code>null</code>, or the [=structured header/token=] <code>latest</code>, then return "<code>unparseable</code>".
+      1. If |allowedId| is not a [=structured header/string=], the [=structured header/token=] <code>null</code>, or the [=structured header/token=] <code>latest</code>, or if |allowedId| is the empty string, then return "<code>unparseable</code>".
       1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null.
       1. If |allowedId| is the <code>latest</code> [=structured header/token=], then set |allowedId| to [=latest=].
       1. Assert: if |allowedId| is a string, then it is a [=valid origin policy ID=].

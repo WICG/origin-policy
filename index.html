@@ -1481,7 +1481,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-02-19">19 February 2020</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-02-20">20 February 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1746,7 +1746,7 @@ Cache-Control: max-age=31536000
    </ul>
    <p>At least one of these two entries needs to be provided for the header to have useful behavior.</p>
    <p class="note" role="note">If an ID is provided for <code>preferred</code>, it is unnecessary to also include it in the <code>allowed</code> list.</p>
-   <p>No <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#param" id="ref-for-param">parameters</a> are used in any locations within the structured header.</p>
+   <p>This specification does not currently use <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#param" id="ref-for-param">parameters</a> in any locations within the structured header it defines.</p>
    <p>The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in <a href="#from-response">§ 4.1 Response processing</a>. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑤">null origin policy</a> for processing the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①">response</a>. The processing model for omitting the header is to use any previously-cached <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy②">origin policy</a> for the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin②">origin</a>.</p>
    <h3 class="heading settled" data-level="2.2" id="manifest-file"><span class="secno">2.2. </span><span class="content">The origin policy manifest</span><a class="self-link" href="#manifest-file"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="origin-policy-manifest">origin policy manifest</dfn> is a JSON-formatted document consisting of a top-level object with one or more members. Its <a data-link-type="dfn" href="https://mimesniff.spec.whatwg.org/#mime-type" id="ref-for-mime-type">MIME type</a> is <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="application-originpolicyjson"><code>application/originpolicy+json</code></dfn>, and it is always treated as <a data-link-type="dfn" href="https://encoding.spec.whatwg.org/#utf-8" id="ref-for-utf-8">UTF-8</a>.</p>

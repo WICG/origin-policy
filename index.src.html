@@ -310,7 +310,7 @@ At least one of these two entries needs to be provided for the header to have us
 
 <p class="note">If an ID is provided for <code>preferred</code>, it is unnecessary to also include it in the <code>allowed</code> list.</p>
 
-No [=structured header/parameters=] are used in any locations within the structured header.
+This specification does not currently use [=structured header/parameters=] in any locations within the structured header it defines.
 
 The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the [=null origin policy=] for processing the [=response=]. The processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=].
 

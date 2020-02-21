@@ -66,6 +66,10 @@ spec: FEATURE-POLICY; type: dfn; urlPrefix: https://w3c.github.io/webappsec-feat
   text: feature policy directive; url: policy-directive
   text: parsing a feature policy directive; url: parse-policy-directive
   text: create a feature policy for a browsing context; url: create-for-browsingcontext
+  text: create a feature policy from a response; url: create-from-response
+  text: process response policy; url: process-response-policy; for: feature policy
+  text: merge directive with declared policy; url: merge-directive-with-declared-policy; for: feature policy
+  text: parse header from value and origin; url: parse-header-from-value-and-origin; for: feature policy
 spec: CSP; type: dfn; urlPrefix: https://w3c.github.io/webappsec-csp/
   text: set response's CSP list; url: set-response-csp-list
 spec: RFC6797; urlPrefix: https://tools.ietf.org/html/rfc6797
@@ -440,14 +444,14 @@ The below algorithms make use of the special values <dfn>latest</dfn> and <dfn>l
 This section details the entry point algorithms, for determining which origin policy applies to an incoming [=response=].
 
 <div algorithm>
-  To <dfn>update the origin policy from a response</dfn>, given a [=response=] |response| and an [=environment settings object=] |client|:
+  To <dfn lt="get the origin policy for a response|getting the origin policy for a response">get the origin policy for a response</dfn>, given a [=response=] |response| and an [=environment settings object=] |client|:
 
-  1. If |response|'s [=response/URL=] is null, then return "<code>success</code>".
-  1. Let |header| be the result of [=header list/getting=] `<a http-header><code>Origin-Policy</code></a>` from |response|'s [=response/header list=].
-  1. If |header| is null, then return "<code>success</code>".
-  1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return "<code>success</code>".
+  1. If |response|'s [=response/URL=] is null, then return the [=null policy=].
   1. Let |origin| be |response|'s [=response/URL=]'s [=url/origin=].
-  1. Return the result of [=updating an origin's origin policy=] for |origin| given |client|, |allowedIds|, and |preferredId|.
+  1. Let |header| be the result of [=header list/getting=] `<a http-header><code>Origin-Policy</code></a>` from |response|'s [=response/header list=].
+  1. If |header| is null, then return the result of [=retrieving the cached origin policy=] for |origin| given |client|.
+  1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return the [=null policy=].
+  1. Return the result of [=fetching an origin's origin policy=] for |origin| given |client|, |allowedIds|, and |preferredId|.
 </div>
 
 <div algorithm>
@@ -479,26 +483,26 @@ This section details the entry point algorithms, for determining which origin po
 <h3 id="updating">Updating the origin policy</h3>
 
 <div algorithm>
-  To <dfn lt="update an origin's origin policy|updating an origin's origin policy">update an origin's origin policy</dfn> for an [=/origin=] |origin| given |client|, |allowedIds|, and |preferredId|:
+  To <dfn lt="fetch an origin's origin policy|fetching an origin's origin policy">fetch an origin's origin policy</dfn> for an [=/origin=] |origin| given |client|, |allowedIds|, and |preferredId|:
 
-  1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] for |origin|.
-  1. If |preferredId| is a string, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return "<code>success</code>".
+  1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] given |origin| and |client|.
+  1. If |preferredId| is a string, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return |cachedPolicy|.
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
-  1. If |url| is null, then return "<code>success</code>".
+  1. If |url| is null, then return the [=null policy=].
   1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", [=request/referrer policy=] is "<code>no-referrer</code>", and [=request/cache mode=] is "<code>no-cache</code>".
   1. If |allowedIds| [=list/contains=] one of |cachedPolicy|'s [=origin policy/IDs=], or if |allowedIds| [=list/contains=] [=latest=], then:
     1. If |cachedPolicy| is the [=null policy=], or |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
-    1. Return "<code>success</code>".
+    1. Return |cachedPolicy|.
   1. If |allowedIds| contains null, then:
     1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
-    1. Return "<code>success</code>".
+    1. Return the [=null policy=].
   1. Let |networkResponse| be the result of [=fetching=] |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
   1. Let |networkPolicy| be the result of [=getting an origin policy from a manifest response=] given |networkResponse|.
   1. If any of the following is true:
       * |preferredId| is [=latest-from-network=]; or
       * |preferredId| is a string, and is [=list/contained=] in |networkPolicy|'s [=origin policy/IDs=]; or
       * |allowedIds| [=list/contains=] one of |networkPolicy|'s [=origin policy/IDs=],
-    then return "<code>success</code>".
+    then return |networkPolicy|.
   1. Return "<code>failure</code>".
 
   <p class="note">Although this specification uses the full [=fetching=] mechanism to check the HTTP cache for an origin policy, and then [=getting an origin policy from a manifest response|re-parses=] the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
@@ -523,15 +527,13 @@ This section details the entry point algorithms, for determining which origin po
 <!-- TODO: should this behave more like stale-while-revalidate, in particular the prevent no-cache cache-control header modification flag?-->
 
 <div algorithm="retrieve the cached origin policy">
-  To <dfn lt="retrieve the cached origin policy|retrieving the cached origin policy">retrieve the cached origin policy</dfn> for an [=/origin=] |origin|:
+  To <dfn lt="retrieve the cached origin policy|retrieving the cached origin policy">retrieve the cached origin policy</dfn> for an [=/origin=] |origin| given an [=environment settings object=] |client|:
 
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, return the [=null policy=].
-  1. Let |cacheCheckRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is null, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>only-if-cached</code>".
+  1. Let |cacheCheckRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>only-if-cached</code>".
   1. Let |cachedResponse| be the result of [=fetching=] |cacheCheckRequest|.
   1. Return the result of [=getting an origin policy from a manifest response=] given |cachedResponse|.
-
-  We define the <dfn for="origin" export>origin policy</dfn> for a given [=/origin=] to be the result of [=retrieving the cached origin policy=] for that origin.
 </div>
 
 <div algorithm>
@@ -586,33 +588,34 @@ The following patches to other specifications would be incorporated as appropria
 
 <h3 id="monkeypatch-fetch">Fetch</h3>
 
-The <a spec="FETCH">HTTP-network fetch</a> algorithm is modified by inserting a step after step 5, i.e. after request body streaming has begun but before response body streaming begins. This must call [=update the origin policy from a response=] given the response and the request's [=request/client=]. (This could cause the algorithm to block while it fetches an origin policy, if required do to so by the `<a http-header><code>Origin-Policy</code></a>` header.)
+Every [=response=] gets an associated <dfn for="response">origin policy</dfn>, which is an [=/origin policy=]. It is initially the [=null origin policy=].
+
+The <a spec="FETCH">main fetch</a> algorithm is modified by inserting the following step after step 10. (This is after headers have been received and much of the other preliminaries processed, but the request body is likely still downloading.)
+
+1. Let |originPolicy| be the result of [=getting the origin policy for a response=] given |internalResponse| and <var ignore>request</var>'s [=request/client=].
+1. If |originPolicy| is "<code>failure</code>", then set <var ignore>response</var> and |internalResponse| to a [=network error=].
+1. Otherwise, set |internalResponse|'s [=response/origin policy=] to |originPolicy|.
 
 <h3 id="monkeypatch-fp">Feature Policy</h3>
 
-The [=create a feature policy for a browsing context=] algorithm is modified by modifying the returned [=feature policy=]'s <a spec="FEATURE-POLICY">declared policy</a> to be a [=map/clone=] of <var ignore>origin</var>'s [=origin/origin policy=]'s [=origin policy/feature policy=].
+The [=feature policy/process response policy=] and algorithm needs to be replaced with the following, given a [=response=] |response| and [=/origin=] |origin|:
 
-<p class="note">This means any allowlists provided in the `<a http-header><code>Feature-Policy</code></a>` header will override those provided by the origin policy.</p>
+1. Let |policy| be a [=list/clone=] of |response|'s [=response/origin policy=]'s [=origin policy/feature policy=].
+1. Let |header| be the concatenation of the [=header/values=] of all [=header=] fields in |response|'s [=response/header list=] whose name is `<a http-header><code>Feature-Policy</code></a>`, separated by U+002C (,) (according to [RFC7230, 3.2.2]).
+1. For each |element| returned by <a lt="split on commas">splitting |header| on commas</a>:
+  1. Let |directive| be the result of [=parsing a feature policy directive=] given |element| and |origin|.
+  1. Perform [=feature policy/merge directive with declared policy=] given |directive| and |policy|.
+1. Return |policy|.
+
+<p class="note">The [=feature policy/parse header from value and origin=] sub-algorithm is no longer necessary; its contents were inlined into the above rewrite.</p>
 
 <h3 id="monkeypatch-csp">Content Security Policy</h3>
 
-The two main substantive steps of the [=set response's CSP list=] algorithm are modified from
+The <a spec="CSP">set response's CSP list</a> algorithm needs its step 1 replaced with the following:
 
-<blockquote>
-  2.  Let |policies| be the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>enforce</code>".
+1. Set |response|'s [=response/CSP list=] to a [=list/clone=] of |response|'s [=response/origin policy=]'s [=origin policy/content security policies=].
 
-  3. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy-Report-Only</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>report</code>".
-</blockquote>
-
-to
-
-<blockquote>
-  2. Let |policies| be a [=list/clone=] of |response|'s [=response/URL=]'s [=url/origin=]'s [=origin/origin policy=]'s [=origin policy/content security policies=].
-
-  3. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>enforce</code>".
-
-  4. [=list/Append=] to |policies| the result of <a spec="CSP" abstract-op lt="parse a serialized CSP list">parsing</a> the result of [=extracting header list values=] given `<a http-header><code>Content-Security-Policy-Report-Only</code></a>` and |response|'s [=response/header list=], with a [=policy/source=] of "<code>header</code>", and a [=policy/disposition=] of "<code>report</code>".
-</blockquote>
+(The rest of the algorithm will then append to this list.)
 
 <h2 id="privacy-and-security">Privacy and security considerations</h2>
 

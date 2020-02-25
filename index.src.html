@@ -422,13 +422,13 @@ The processing model for how browsers send [=requests=] to this URL is given in 
 An <dfn>origin policy</dfn> is a [=struct=] containing the following [=struct/items=]:
 
 : <dfn for="origin policy">IDs</dfn>
-:: Either a [=list=] of [=/strings=] which are each a [=valid origin policy ID=], or a list containing the single item null.
+:: A [=list=] of [=/strings=] which are each a [=valid origin policy ID=].
 : <dfn for="origin policy">feature policy</dfn>
 :: A [=feature policy directive=]. [[!FEATURE-POLICY]]
 : <dfn for="origin policy">content security policies</dfn>
 :: A [=list=] of [=content security policy object|content security policies=]. [[!CSP]]
 
-The <dfn lt="null policy|null origin policy">null policy</dfn> is an [=/origin policy=] whose [=origin policy/IDs=] is a list containing the single item null, and who has empty lists for its [=origin policy/feature policy=] and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can have a null in its [=origin policy/IDs=] list.
+The <dfn lt="null policy|null origin policy">null policy</dfn> is an [=/origin policy=] that has empty lists for its [=origin policy/IDs=], [=origin policy/feature policy=], and [=origin policy/content security policies=]. As enforced by the processing model, no other policy can an empty [=origin policy/IDs=] list.
 
 A [=/string=] is a <dfn>valid origin policy ID</dfn> if all of the following are true:
 
@@ -486,12 +486,12 @@ This section details the entry point algorithms, for determining which origin po
   To <dfn lt="fetch an origin's origin policy|fetching an origin's origin policy">fetch an origin's origin policy</dfn> for an [=/origin=] |origin| given |client|, |allowedIds|, and |preferredId|:
 
   1. Let |cachedPolicy| be the result of [=retrieving the cached origin policy=] given |origin| and |client|.
-  1. If |preferredId| is a string, and is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return |cachedPolicy|.
+  1. If |preferredId| is [=list/contained=] in |cachedPolicy|'s [=origin policy/IDs=], then return |cachedPolicy|.
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, then return the [=null policy=].
   1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", [=request/referrer policy=] is "<code>no-referrer</code>", and [=request/cache mode=] is "<code>no-cache</code>".
-  1. If |allowedIds| [=list/contains=] one of |cachedPolicy|'s [=origin policy/IDs=], or if |allowedIds| [=list/contains=] [=latest=], then:
-    1. If |cachedPolicy| is the [=null policy=], or |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+  1. If |cachedPolicy| is not the [=null policy=], and either |allowedIds| [=list/contains=] one of |cachedPolicy|'s [=origin policy/IDs=], or |allowedIds| [=list/contains=] [=latest=], then:
+    1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return |cachedPolicy|.
   1. If |allowedIds| contains null, then:
     1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)

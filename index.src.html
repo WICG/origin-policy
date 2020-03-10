@@ -671,15 +671,19 @@ Various parts of the Service Worker specification need patching to support the {
 
 <h4 id="monkeypatch-sw-model">Model</h4>
 
-Every [=/service worker=] gains an associated <dfn for="service worker">origin policy IDs</dfn>, which is a <code><a interface>FrozenArray</a>&lt;<a interface>DOMString</a>></code>.
+Every [=/service worker=] gains an associated <dfn for="service worker">origin policy IDs</dfn>, which is a [=list=] of [=strings=].
 
 <h4 id="monkeypatch-sw-update">Update algorithm</h4>
 
-The <a spec="SERVICE-WORKERS">update</a> algorithm needs to save the [=/origin policy=] [=origin policy/IDs=] from the [=response=] onto the [=/service worker=]. To do so, insert the following step after step 1:
+The <a spec="SERVICE-WORKERS">update</a> algorithm needs to save the [=/origin policy=] [=origin policy/IDs=] from the [=response=] onto the [=/service worker=]. To do so, insert the following step after step 6:
 
-1. Let <var ignore>origin policy IDs</var> be the result of [=create a frozen array|creating a frozen array=] from <var ignore>response</var>'s [=response/origin policy=]'s [=origin policy/IDs=].
+1. Let <var ignore>origin policy IDs</var> be an empty [=list=].
 
-and then the following step after step 15:
+Then insert the following step after step 9's [=perform the fetch=] substep 9:
+
+1. Set <var ignore>origin policy IDs</var> to <var ignore>response</var>'s [=response/origin policy=]'s [=origin policy/IDs=].
+
+and finally add the following step after step 14:
 
 1. Set <var ignore>service worker</var>'s [=service worker/origin policy IDs=] to <var ignore>origin policy IDs</var>.
 
@@ -687,7 +691,7 @@ and then the following step after step 15:
 
 The <a spec="SERVICE-WORKERS">run service worker</a> algorithm needs to copy the [=service worker/origin policy IDs=] from the [=/service worker=] onto the {{ServiceWorkerGlobalScope}}. To do so, insert the following step after step 7.7:
 
-1. Set <var ignore>workerGlobalScope</var>'s [=WindowOrWorkerGlobalScope/origin policy IDs=] to <var ignore>serviceWorker</var>'s [=service worker/origin policy IDs=].
+1. Set <var ignore>workerGlobalScope</var>'s [=WindowOrWorkerGlobalScope/origin policy IDs=] to the result of [=create a frozen array|creating a frozen array=] from <var ignore>serviceWorker</var>'s [=service worker/origin policy IDs=].
 
 <h3 id="monkeypatch-fp">Feature Policy</h3>
 
@@ -813,6 +817,7 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
+Jake Archibald,
 Jeffrey Yasskin,
 Mark Nottingham, and
 Nihanth Subramanya

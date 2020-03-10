@@ -160,7 +160,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   HTTP/1.1 200 OK
   Content-Type: text/html
   ...
-  <a http-header>Origin-Policy</a>: allowed=("policy-1")
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=("policy-1")
   ...
   </pre>
 
@@ -240,7 +240,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   Then, change the `<a http-header><code>Origin-Policy</code></a>` response header to indicate that this new policy is preferred:
 
   <pre>
-  <a http-header>Origin-Policy</a>: preferred="policy-2", allowed=("policy-1")
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>="policy-2", <a for="Origin-Policy">allowed</a>=("policy-1")
   </pre>
 
   When the browser sees this header value on any response from <code>https://example.com</code>, one of three things will happen:
@@ -261,7 +261,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   HTTP/1.1 200 OK
   Content-Type: text/html
   ...
-  <a http-header>Origin-Policy</a>: allowed=("policy-1")
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=("policy-1")
   Cache-Control: max-age=31536000
   ...
   </pre>
@@ -297,21 +297,21 @@ This document introduces a new delivery mechanism for policies which are meant t
   To express this, MegaCorp modifies their response header to
 
   <pre>
-  <a http-header>Origin-Policy</a>: preferred="policy-2", allowed=("policy-1" <mark>null</mark>)
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>="policy-2", <a for="Origin-Policy">allowed</a>=("policy-1" <mark>null</mark>)
   </pre>
 
-  This indicates that the [=null origin policy=] is acceptable, if both "<code>policy-1</code>" and "<code>policy-2</code>" are not cached, and thus allows responses to initial visitors to proceed without blocking on fetching an origin policy. But, because there is a <code>preferred</code> value, in such cases the browser will also do a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code>, to update the HTTP cache for any future requests to <code>https://example.com/</code>.
+  This indicates that the [=null origin policy=] is acceptable, if both "<code>policy-1</code>" and "<code>policy-2</code>" are not cached, and thus allows responses to initial visitors to proceed without blocking on fetching an origin policy. But, because there is a <a for="Origin-Policy"><code>preferred</code></a> value, in such cases the browser will also do a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code>, to update the HTTP cache for any future requests to <code>https://example.com/</code>.
 
   MegaCorp could even vary their `<a http-header><code>Origin-Policy</code></a>` header dynamically between this fast-but-permissive version and the previous blocking-and-strict version, depending on characteristics of the request such as [=credentials=].
 </div>
 
 <div class="example" id="example-latest">
-  MegaCorp is downsizing, and can no longer spare headcount for a dedicated Origin Policy Specialist to carefully maintain their origin policy manifest's "<code><a for="origin policy manifest">ids</a></code>" field, and their `<a http-header><code>Origin-Policy</code></a>` header <code>allowed</code> and <code>preferred</code> values. They just want to perform updates to their origin policy manifest, and have them rolled out to their visitors as soon as is possible.
+  MegaCorp is downsizing, and can no longer spare headcount for a dedicated Origin Policy Specialist to carefully maintain their origin policy manifest's "<code><a for="origin policy manifest">ids</a></code>" field, and their `<a http-header><code>Origin-Policy</code></a>` header <a for="Origin-Policy"><code>allowed</code></a> and <a for="Origin-Policy"><code>preferred</code></a> values. They just want to perform updates to their origin policy manifest, and have them rolled out to their visitors as soon as is possible.
 
   To make this work, they change all their response headers to
 
   <pre>
-  <a http-header>Origin-Policy</a>: preferred=latest-from-network, allowed=(latest null)
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>=latest-from-network, <a for="Origin-Policy">allowed</a>=(latest null)
   </pre>
 
   which will ensure that browser uses the latest origin policy available from the cache, if any, or the [=null origin policy=], if nothing is cached. Furthermore, the <code>preferred=latest-from-network</code> part of the header ensures that the browser will always perform a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code> to update the HTTP cache.
@@ -323,7 +323,7 @@ This document introduces a new delivery mechanism for policies which are meant t
   MegaCorp wishes to remove the origin policy, and ensure that any visitors to its site no longer get any of its effects. It can do so by using the following `<a http-header><code>Origin-Policy</code></a>` response header:
 
   <pre>
-  <a http-header>Origin-Policy</a>: allowed=(null)
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=(null)
   </pre>
 
   When the browser receives this header, it will ensure that no origin policy is applied for the response, since only the [=null policy=] is allowed.
@@ -339,16 +339,38 @@ The `<dfn http-header><code>Origin-Policy</code></dfn>` response [=header=] can 
 
 `<a http-header><code>Origin-Policy</code></a>` is a [=structured header/dictionary=] structured header. The dictionary has two keys: [[!STRUCTURED-HEADERS]]
 
-* <code>allowed</code>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, or the token <code>latest</code>; and
-* <code>preferred</code>, whose value is either a [=valid origin policy ID=], or the token <code>latest-from-network</code>.
+* <dfn for="Origin-Policy"><code>allowed</code></dfn>, whose value is an [=structured header/inner list=] that contains [=valid origin policy IDs=] as strings, or the token <code>null</code>, or the token <code>latest</code>; and
+* <dfn for="Origin-Policy"><code>preferred</code></dfn>, whose value is either a [=valid origin policy ID=], or the token <code>latest-from-network</code>.
 
-At least one of these two entries needs to be provided for the header to have useful behavior.
+Either a non-empty <a for="Origin-Policy"><code>allowed</code></a> list, or a <a for="Origin-Policy"><code>preferred</code></a> value, or both, need to be provided.
 
-<p class="note">If an ID is provided for <code>preferred</code>, it is unnecessary to also include it in the <code>allowed</code> list.</p>
+<p class="note">If an ID is provided for <a for="Origin-Policy"><code>preferred</code></a>, it is unnecessary to also include it in the <a for="Origin-Policy"><code>allowed</code></a> list.</p>
 
-This specification does not currently use [=structured header/parameters=] in any locations within the structured header it defines.
+This specification does not currently use [=structured header/parameters=] in any locations within the structured header it defines. (Any provided will be ignored.)
 
-The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the [=null origin policy=] for processing the [=response=]. The processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=].
+The full processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in [[#from-response]]. Roughly speaking, the processing model for omitting the header is to use any previously-cached [=/origin policy=] for the [=/origin=], whereas a malformed header or one with no valid values will cause the [=response=] will be treated as a [=network error=].
+
+<div class="example" id="example-invalid-headers">
+  [[#examples]] gives several examples of valid values for the `<a http-header><code>Origin-Policy</code></a>` header. The following are all invalid and will cause a network error:
+
+  <pre>
+  <a http-header>Origin-Policy</a>:
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=()
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=latest
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>=?0, <a for="Origin-Policy">allowed</a>=(another-token)
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>=latest-from-network, <a for="Origin-Policy">allowed</a>=(1.5 null)
+  </pre>
+
+  The following examples all contain extraneous features, but those features are ignored, and will not cause a network error:
+
+  <pre>
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">allowed</a>=(latest);param=param-value
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>=another-token, <a for="Origin-Policy">allowed</a>=("my-policy" yet-another-token)
+  <a http-header>Origin-Policy</a>: <a for="Origin-Policy">preferred</a>="my-policy", <a for="Origin-Policy">allowed</a>=(latest null), another-dictionary-key=some-value
+  </pre>
+
+  Allowing these currently-extraneous features provides potential future extensibility points.
+</div>
 
 <h3 id="manifest-file">The origin policy manifest</h3>
 
@@ -482,31 +504,34 @@ This section details the entry point algorithms, for determining which origin po
   1. Let |origin| be |response|'s [=response/URL=]'s [=url/origin=].
   1. Let |header| be the result of [=header list/getting=] `<a http-header><code>Origin-Policy</code></a>` from |response|'s [=response/header list=].
   1. If |header| is null, then return the result of [=retrieving the cached origin policy=] for |origin| given |client|.
-  1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>unparseable</code>", then return the [=null policy=].
+  1. Let (|allowedIds|, |preferredId|) be the result of <a>parsing an `<code>Origin-Policy</code>` header</a> given |header|. If this instead returns "<code>parse error</code>", then return "<code>failure</code>".
   1. Return the result of [=fetching an origin's origin policy=] for |origin| given |client|, |allowedIds|, and |preferredId|.
 </div>
 
 <div algorithm>
   To <dfn data-lt="parse an `Origin-Policy` header|parsing an `Origin-Policy` header">parse an `<code>Origin-Policy</code>` header</dfn> given a [=byte sequence=] |headerBytes|:
 
-  1. Let |parsedHeader| be the result of [=parsing a structured header=] given |headerBytes| and "<code>dictionary</code>". If this fails, then return "<code>unparseable</code>".
+  1. Let |parsedHeader| be the result of [=parsing a structured header=] given |headerBytes| and "<code>dictionary</code>". If this fails, then return "<code>parse error</code>".
   1. Let |allowedIds| be an empty [=ordered set=].
-  1. If |parsedHeader|["<code>allowed</code>"] [=map/exists=]:
-    1. If |parsedHeader|["<code>allowed</code>"][0] is not a [=list=], then return "<code>unparseable</code>".
-    1. Let |rawAllowedList| be |parsedHeader|["<code>allowed</code>"][0].
+  1. If |parsedHeader|["<a for="Origin-Policy"><code>allowed</code></a>"] [=map/exists=]:
+    1. If |parsedHeader|["<a for="Origin-Policy"><code>allowed</code></a>"][0] is not a [=list=], then return "<code>parse error</code>".
+    1. Let |rawAllowedList| be |parsedHeader|["<a for="Origin-Policy"><code>allowed</code></a>"][0].
     1. [=For each=] |itemTuple| in |rawAllowedList|:
       1. Let |allowedId| be |itemTuple|[0].
-      1. If |allowedId| is not a [=structured header/string=], the [=structured header/token=] <code>null</code>, or the [=structured header/token=] <code>latest</code>, or if |allowedId| is the empty string, then return "<code>unparseable</code>".
+      1. If |allowedId| is not a [=structured header/string=] or [=structured header/token=], or if |allowedId| is the empty string, then return "<code>parse error</code>".
+      1. If |allowedId| is a [=structured header/token=] but is neither <code>null</code> nor <code>latest</code>, then [=iteration/continue=].
       1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null.
       1. If |allowedId| is the <code>latest</code> [=structured header/token=], then set |allowedId| to [=latest=].
       1. Assert: if |allowedId| is a string, then it is a [=valid origin policy ID=].
       1. [=set/Append=] |allowedId| to |allowedIds|.
   1. Let |preferredId| be null.
-  1. If |parsedHeader|["<code>preferred</code>"] [=map/exists=]:
-    1. Set |preferredId| to |parsedHeader|["<code>preferred</code>"][0].
-    1. If |preferredId| is not a [=structured header/string=] or the [=structured header/token=] <code>latest-from-network</code>, or it is the empty string, then return "<code>unparseable</code>".
+  1. If |parsedHeader|["<a for="Origin-Policy"><code>preferred</code></a>"] [=map/exists=]:
+    1. Set |preferredId| to |parsedHeader|["<a for="Origin-Policy"><code>preferred</code></a>"][0].
+    1. If |preferredId| is not a [=structured header/string=] or the [=structured header/token=], or if |preferredId| is the empty string, then return "<code>parse error</code>".
+    1. If |preferredId| is a [=structured header/token=] but is not <code>latest-from-network</code>, then set |preferredId| to null.
     1. If |preferredId| is the <code>latest-from-network</code> [=structured header/token=], then set |preferredId| to [=latest-from-network=].
     1. Assert: if |preferredId| is a string, then it is a [=valid origin policy ID=].
+  1. If |allowedIds| [=list/is empty=] and |preferredId| is null, then return "<code>parse error</code>".
   1. Return the [=tuple=] (|allowedIds|, |preferredId|).
 
   <p class="note">The constant lookups of the 0th [=tuple/item=] in [=tuples=] above is due to the way that structured header parse results are generally packaged as tuples where the 0th item is the value of interest, and the 1st item is an associated [=ordered map=] of [=structured header/parameters=]. In all cases we ignore the parameters.</p>
@@ -817,8 +842,10 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
+Ian Clelland,
 Jake Archibald,
 Jeffrey Yasskin,
-Mark Nottingham, and
+Mark Nottingham,
+Martin Thomson, and
 Nihanth Subramanya
 for being awesome!

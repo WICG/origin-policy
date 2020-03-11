@@ -1665,7 +1665,7 @@ Connection: keep-alive
 <pre>HTTP/1.1 200 OK
 Content-Type: text/html
 ...
-<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①">Origin-Policy</a>: allowed=("policy-1")
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed">allowed</a>=("policy-1")
 ...
 </pre>
     <p>Upon seeing the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②"><code>Origin-Policy</code></a>` header, the browser will check if it has a cached origin policy for <code>https://example.com/</code>, with "<code>policy-1</code>" as one of its <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids">IDs</a>. For this first request, no such cache entry is found. Since the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy">null policy</a> is not in the header’s <code>allowed</code> list, this means that although the browser can continue to download the response body, further processing of the response (in this case <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate" id="ref-for-navigate">navigation</a>) is blocked on retrieving and applying the origin policy. So the browser does that:</p>
@@ -1719,7 +1719,7 @@ Cache-Control: max-age=86400
 <c- p>}</c->
 </pre>
     <p>Then, change the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy③"><code>Origin-Policy</code></a>` response header to indicate that this new policy is preferred:</p>
-<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy④">Origin-Policy</a>: preferred="policy-2", allowed=("policy-1")
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy④">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred">preferred</a>="policy-2", <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①">allowed</a>=("policy-1")
 </pre>
     <p>When the browser sees this header value on any response from <code>https://example.com</code>, one of three things will happen:</p>
     <ul>
@@ -1737,7 +1737,7 @@ Cache-Control: max-age=86400
 <pre>HTTP/1.1 200 OK
 Content-Type: text/html
 ...
-<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑤">Origin-Policy</a>: allowed=("policy-1")
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑤">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed②">allowed</a>=("policy-1")
 Cache-Control: max-age=31536000
 ...
 </pre>
@@ -1761,22 +1761,22 @@ Cache-Control: max-age=31536000
    <div class="example" id="example-null">
     <a class="self-link" href="#example-null"></a> MegaCorp has noticed that first-time visitors to their site, as in <a href="#example-initial-policy">the example above</a>, are having a suboptimal experience, with their responses being blocked by an additional round-trip to fetch the origin policy. Upon reflection, MegaCorp realizes that first-time visitors probably don’t need origin policies applied. All of their site’s exciting stuff is hidden behind a login wall, which involves at least one navigation. So it would be fine to omit the origin policy for such initial responses, as long as it gets applied on post-login responses. 
     <p>To express this, MegaCorp modifies their response header to</p>
-<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑦">Origin-Policy</a>: preferred="policy-2", allowed=("policy-1" <mark>null</mark>)
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑦">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred①">preferred</a>="policy-2", <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed③">allowed</a>=("policy-1" <mark>null</mark>)
 </pre>
-    <p>This indicates that the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②">null origin policy</a> is acceptable, if both "<code>policy-1</code>" and "<code>policy-2</code>" are not cached, and thus allows responses to initial visitors to proceed without blocking on fetching an origin policy. But, because there is a <code>preferred</code> value, in such cases the browser will also do a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code>, to update the HTTP cache for any future requests to <code>https://example.com/</code>.</p>
+    <p>This indicates that the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②">null origin policy</a> is acceptable, if both "<code>policy-1</code>" and "<code>policy-2</code>" are not cached, and thus allows responses to initial visitors to proceed without blocking on fetching an origin policy. But, because there is a <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred②"><code>preferred</code></a> value, in such cases the browser will also do a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code>, to update the HTTP cache for any future requests to <code>https://example.com/</code>.</p>
     <p>MegaCorp could even vary their `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑧"><code>Origin-Policy</code></a>` header dynamically between this fast-but-permissive version and the previous blocking-and-strict version, depending on characteristics of the request such as <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#credentials" id="ref-for-credentials">credentials</a>.</p>
    </div>
    <div class="example" id="example-latest">
-    <a class="self-link" href="#example-latest"></a> MegaCorp is downsizing, and can no longer spare headcount for a dedicated Origin Policy Specialist to carefully maintain their origin policy manifest’s "<code><a data-link-type="dfn" href="#origin-policy-manifest-ids" id="ref-for-origin-policy-manifest-ids⑤">ids</a></code>" field, and their `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑨"><code>Origin-Policy</code></a>` header <code>allowed</code> and <code>preferred</code> values. They just want to perform updates to their origin policy manifest, and have them rolled out to their visitors as soon as is possible. 
+    <a class="self-link" href="#example-latest"></a> MegaCorp is downsizing, and can no longer spare headcount for a dedicated Origin Policy Specialist to carefully maintain their origin policy manifest’s "<code><a data-link-type="dfn" href="#origin-policy-manifest-ids" id="ref-for-origin-policy-manifest-ids⑤">ids</a></code>" field, and their `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy⑨"><code>Origin-Policy</code></a>` header <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed④"><code>allowed</code></a> and <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred③"><code>preferred</code></a> values. They just want to perform updates to their origin policy manifest, and have them rolled out to their visitors as soon as is possible. 
     <p>To make this work, they change all their response headers to</p>
-<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⓪">Origin-Policy</a>: preferred=latest-from-network, allowed=(latest null)
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⓪">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred④">preferred</a>=latest-from-network, <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed⑤">allowed</a>=(latest null)
 </pre>
     <p>which will ensure that browser uses the latest origin policy available from the cache, if any, or the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy③">null origin policy</a>, if nothing is cached. Furthermore, the <code>preferred=latest-from-network</code> part of the header ensures that the browser will always perform a non-blocking fetch to <code>https://example.com/.well-known/origin-policy</code> to update the HTTP cache.</p>
     <p>This is slightly less efficient than the previous version. And, it doesn’t allow expressing constraints on the contents of policies, by matching preferred and allowed values with the manifest’s "<code><a data-link-type="dfn" href="#origin-policy-manifest-ids" id="ref-for-origin-policy-manifest-ids⑥">ids</a></code>" field. But, it is simpler to maintain.</p>
    </div>
    <div class="example" id="example-killswitch">
     <a class="self-link" href="#example-killswitch"></a> MegaCorp wishes to remove the origin policy, and ensure that any visitors to its site no longer get any of its effects. It can do so by using the following `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①①"><code>Origin-Policy</code></a>` response header: 
-<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①②">Origin-Policy</a>: allowed=(null)
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①②">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed⑥">allowed</a>=(null)
 </pre>
     <p>When the browser receives this header, it will ensure that no origin policy is applied for the response, since only the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy④">null policy</a> is allowed.</p>
    </div>
@@ -1786,14 +1786,29 @@ Cache-Control: max-age=31536000
    <p>`<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①③"><code>Origin-Policy</code></a>` is a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#dictionary" id="ref-for-dictionary">dictionary</a> structured header. The dictionary has two keys: <a data-link-type="biblio" href="#biblio-structured-headers">[STRUCTURED-HEADERS]</a></p>
    <ul>
     <li data-md>
-     <p><code>allowed</code>, whose value is an <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#inner-list" id="ref-for-inner-list">inner list</a> that contains <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id">valid origin policy IDs</a> as strings, or the token <code>null</code>, or the token <code>latest</code>; and</p>
+     <p><dfn class="dfn-paneled" data-dfn-for="Origin-Policy" data-dfn-type="dfn" data-noexport id="origin-policy-allowed"><code>allowed</code></dfn>, whose value is an <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#inner-list" id="ref-for-inner-list">inner list</a> that contains <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id">valid origin policy IDs</a> as strings, or the token <code>null</code>, or the token <code>latest</code>; and</p>
     <li data-md>
-     <p><code>preferred</code>, whose value is either a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id①">valid origin policy ID</a>, or the token <code>latest-from-network</code>.</p>
+     <p><dfn class="dfn-paneled" data-dfn-for="Origin-Policy" data-dfn-type="dfn" data-noexport id="origin-policy-preferred"><code>preferred</code></dfn>, whose value is either a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id①">valid origin policy ID</a>, or the token <code>latest-from-network</code>.</p>
    </ul>
-   <p>At least one of these two entries needs to be provided for the header to have useful behavior.</p>
-   <p class="note" role="note">If an ID is provided for <code>preferred</code>, it is unnecessary to also include it in the <code>allowed</code> list.</p>
-   <p>This specification does not currently use <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#param" id="ref-for-param">parameters</a> in any locations within the structured header it defines.</p>
-   <p>The processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in <a href="#from-response">§ 4.1 Response processing</a>. In general, the fallback behavior for malformed headers is to behave the same as if `<code>Origin-Policy: allowed=(null)</code>` is sent, and thus use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑤">null origin policy</a> for processing the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①">response</a>. The processing model for omitting the header is to use any previously-cached <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy②">origin policy</a> for the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin②">origin</a>.</p>
+   <p>Either a non-empty <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed⑦"><code>allowed</code></a> list, or a <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred⑤"><code>preferred</code></a> value, or both, need to be provided.</p>
+   <p class="note" role="note">If an ID is provided for <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred⑥"><code>preferred</code></a>, it is unnecessary to also include it in the <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed⑧"><code>allowed</code></a> list.</p>
+   <p>This specification does not currently use <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#param" id="ref-for-param">parameters</a> in any locations within the structured header it defines. (Any provided will be ignored.)</p>
+   <p>The full processing model for this header, including the fallback behavior for when it is not provided or does not conform to the above data model, is given in <a href="#from-response">§ 4.1 Response processing</a>. Roughly speaking, the processing model for omitting the header is to use any previously-cached <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy②">origin policy</a> for the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin②">origin</a>, whereas a malformed header or one with no valid values will cause the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①">response</a> will be treated as a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error">network error</a>.</p>
+   <div class="example" id="example-invalid-headers">
+    <a class="self-link" href="#example-invalid-headers"></a> <a href="#examples">§ 1.1 Examples</a> gives several examples of valid values for the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①④"><code>Origin-Policy</code></a>` header. The following are all invalid and will cause a network error: 
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑤">Origin-Policy</a>:
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑥">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed⑨">allowed</a>=()
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑦">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①⓪">allowed</a>=latest
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑧">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred⑦">preferred</a>=?0, <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①①">allowed</a>=(another-token)
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑨">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred⑧">preferred</a>=latest-from-network, <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①②">allowed</a>=(1.5 null)
+</pre>
+    <p>The following examples all contain extraneous features, but those features are ignored, and will not cause a network error:</p>
+<pre><a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②⓪">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①③">allowed</a>=(latest);param=param-value
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②①">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred⑨">preferred</a>=another-token, <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①④">allowed</a>=("my-policy" yet-another-token)
+<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②②">Origin-Policy</a>: <a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred①⓪">preferred</a>="my-policy", <a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①⑤">allowed</a>=(latest null), another-dictionary-key=some-value
+</pre>
+    <p>Allowing these currently-extraneous features provides potential future extensibility points.</p>
+   </div>
    <h3 class="heading settled" data-level="2.2" id="manifest-file"><span class="secno">2.2. </span><span class="content">The origin policy manifest</span><a class="self-link" href="#manifest-file"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="origin-policy-manifest">origin policy manifest</dfn> is a JSON-formatted document consisting of a top-level object with one or more members. Its <a data-link-type="dfn" href="https://mimesniff.spec.whatwg.org/#mime-type" id="ref-for-mime-type">MIME type</a> is <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="application-originpolicyjson"><code>application/originpolicy+json</code></dfn>, and it is always treated as <a data-link-type="dfn" href="https://encoding.spec.whatwg.org/#utf-8" id="ref-for-utf-8">UTF-8</a>.</p>
    <div class="example" id="example-manifest-structure">
@@ -1812,7 +1827,7 @@ Cache-Control: max-age=31536000
    </div>
    <p>This section gives an overview of the file format, as well authoring requirements. The processing model for the manifest, including how to deal with violations of these authoring requirements, are handled by the algorithms in <a href="#parsing">§ 4.3 Parsing</a>.</p>
    <h4 class="heading settled" data-level="2.2.1" id="manifest-ids"><span class="secno">2.2.1. </span><span class="content">The "<code>ids</code>" member</span><a class="self-link" href="#manifest-ids"></a></h4>
-   <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-ids"><code>ids</code></dfn>" member defines the <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids⑤">IDs</a> of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy③">origin policy</a>. These are used, in conjunction with the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①④"><code>Origin-Policy</code></a>` header, to allow <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin③">origins</a> to express their preferences and requirements among any previously-cached revisions of the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest④">origin policy manifest</a>.</p>
+   <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-ids"><code>ids</code></dfn>" member defines the <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids⑤">IDs</a> of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy③">origin policy</a>. These are used, in conjunction with the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②③"><code>Origin-Policy</code></a>` header, to allow <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin③">origins</a> to express their preferences and requirements among any previously-cached revisions of the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest④">origin policy manifest</a>.</p>
    <p>It must be present, and must be an array containing only <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id②">valid origin policy ID</a> strings. At least one such string must be present in the array.</p>
    <h4 class="heading settled" data-level="2.2.2" id="policy-item-features"><span class="secno">2.2.2. </span><span class="content">The "<code>features</code>" policy item</span><a class="self-link" href="#policy-item-features"></a></h4>
    <p>The "<dfn class="dfn-paneled" data-dfn-for="origin policy manifest" data-dfn-type="dfn" data-noexport id="origin-policy-manifest-features"><code>features</code></dfn>" member defines the baseline <a data-link-type="dfn" href="#origin-policy-feature-policy" id="ref-for-origin-policy-feature-policy①">feature policy</a> to apply to any responses from the origin.</p>
@@ -1855,7 +1870,7 @@ Cache-Control: max-age=31536000
    <h3 class="heading settled" data-level="2.3" id="origin-policy-well-known"><span class="secno">2.3. </span><span class="content">The <code>origin-policy</code> well-known URL</span><a class="self-link" href="#origin-policy-well-known"></a></h3>
    <p><a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest⑨">Origin policy manifests</a> for a given <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin④">origin</a> are located at the well-known URL <code>/.well-known/origin-policy</code>. <a data-link-type="biblio" href="#biblio-rfc8615">[RFC8615]</a></p>
    <p>Servers who wish to provide an origin policy will need to respond to `<code>GET</code>` <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request">requests</a> to this URL with the contents of their <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest①⓪">origin policy manifest</a>, including setting the correct value of <a data-link-type="dfn" href="#application-originpolicyjson" id="ref-for-application-originpolicyjson"><code>application/originpolicy+json</code></a> for the response’s `<code>Content-Type</code>` header.</p>
-   <p>The usual caching strategies (e.g. long <code>max-age</code>, or using the `<code>Etag</code>` header) are quite useful in conjunction with the <code>/.well-known/origin-policy</code> resource, especially since the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑤"><code>Origin-Policy</code></a>` header can be used to force a cache refresh.</p>
+   <p>The usual caching strategies (e.g. long <code>max-age</code>, or using the `<code>Etag</code>` header) are quite useful in conjunction with the <code>/.well-known/origin-policy</code> resource, especially since the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②④"><code>Origin-Policy</code></a>` header can be used to force a cache refresh.</p>
    <p>The processing model for how browsers send <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request①">requests</a> to this URL is given in <a href="#updating">§ 4.2 Updating the origin policy</a>.</p>
    <h2 class="heading settled" data-level="3" id="data-model"><span class="secno">3. </span><span class="content">Data model</span><a class="self-link" href="#data-model"></a></h2>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="origin-policy">origin policy</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct">struct</a> containing the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item">items</a>:</p>
@@ -1879,22 +1894,22 @@ Cache-Control: max-age=31536000
      <p>It only contains <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-point" id="ref-for-code-point">code points</a> in the range U+0020 SPACE through U+007E (~), inclusive. (This is the same as the range specified to be parseable as a string via structured headers. <a data-link-type="biblio" href="#biblio-structured-headers">[STRUCTURED-HEADERS]</a>)</p>
    </ul>
    <h2 class="heading settled" data-level="4" id="processing-model"><span class="secno">4. </span><span class="content">Processing model</span><a class="self-link" href="#processing-model"></a></h2>
-   <p>The below algorithms make use of the special values <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="latest">latest</dfn> and <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="latest-from-network">latest-from-network</dfn>, which we use as the parsed representation of the corresponding <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token">tokens</a> from the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑥"><code>Origin-Policy</code></a>` structured header.</p>
+   <p>The below algorithms make use of the special values <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="latest">latest</dfn> and <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="latest-from-network">latest-from-network</dfn>, which we use as the parsed representation of the corresponding <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token">tokens</a> from the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②⑤"><code>Origin-Policy</code></a>` structured header.</p>
    <h3 class="heading settled" data-level="4.1" id="from-response"><span class="secno">4.1. </span><span class="content">Response processing</span><a class="self-link" href="#from-response"></a></h3>
    <p>This section details the entry point algorithms, for determining which origin policy applies to an incoming <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response④">response</a>.</p>
    <div class="algorithm" data-algorithm="get the origin policy for a response">
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get the origin policy for a response|getting the origin policy for a response" data-noexport id="get-the-origin-policy-for-a-response">get the origin policy for a response</dfn>, given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑤">response</a> <var>response</var> and an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object">environment settings object</a> <var>client</var>: 
     <ol>
      <li data-md>
-      <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url" id="ref-for-concept-response-url">URL</a> is null, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑥">null policy</a>.</p>
+      <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url" id="ref-for-concept-response-url">URL</a> is null, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑤">null policy</a>.</p>
      <li data-md>
       <p>Let <var>origin</var> be <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-url" id="ref-for-concept-response-url①">URL</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin">origin</a>.</p>
      <li data-md>
-      <p>Let <var>header</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-list-get" id="ref-for-concept-header-list-get">getting</a> `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑦"><code>Origin-Policy</code></a>` from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list">header list</a>.</p>
+      <p>Let <var>header</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-list-get" id="ref-for-concept-header-list-get">getting</a> `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②⑥"><code>Origin-Policy</code></a>` from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list">header list</a>.</p>
      <li data-md>
       <p>If <var>header</var> is null, then return the result of <a data-link-type="dfn" href="#retrieve-the-cached-origin-policy" id="ref-for-retrieve-the-cached-origin-policy">retrieving the cached origin policy</a> for <var>origin</var> given <var>client</var>.</p>
      <li data-md>
-      <p>Let (<var>allowedIds</var>, <var>preferredId</var>) be the result of <a data-link-type="dfn" href="#parse-an-origin-policy-header" id="ref-for-parse-an-origin-policy-header">parsing an `<code>Origin-Policy</code>` header</a> given <var>header</var>. If this instead returns "<code>unparseable</code>", then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑦">null policy</a>.</p>
+      <p>Let (<var>allowedIds</var>, <var>preferredId</var>) be the result of <a data-link-type="dfn" href="#parse-an-origin-policy-header" id="ref-for-parse-an-origin-policy-header">parsing an `<code>Origin-Policy</code>` header</a> given <var>header</var>. If this instead returns "<code>parse error</code>", then return "<code>failure</code>".</p>
      <li data-md>
       <p>Return the result of <a data-link-type="dfn" href="#fetch-an-origins-origin-policy" id="ref-for-fetch-an-origins-origin-policy">fetching an origin’s origin policy</a> for <var>origin</var> given <var>client</var>, <var>allowedIds</var>, and <var>preferredId</var>.</p>
     </ol>
@@ -1903,23 +1918,25 @@ Cache-Control: max-age=31536000
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="parse an `Origin-Policy` header|parsing an `Origin-Policy` header" data-noexport id="parse-an-origin-policy-header">parse an `<code>Origin-Policy</code>` header</dfn> given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#byte-sequence" id="ref-for-byte-sequence">byte sequence</a> <var>headerBytes</var>: 
     <ol>
      <li data-md>
-      <p>Let <var>parsedHeader</var> be the result of <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#text-parse" id="ref-for-text-parse">parsing a structured header</a> given <var>headerBytes</var> and "<code>dictionary</code>". If this fails, then return "<code>unparseable</code>".</p>
+      <p>Let <var>parsedHeader</var> be the result of <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#text-parse" id="ref-for-text-parse">parsing a structured header</a> given <var>headerBytes</var> and "<code>dictionary</code>". If this fails, then return "<code>parse error</code>".</p>
      <li data-md>
       <p>Let <var>allowedIds</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set">ordered set</a>.</p>
      <li data-md>
-      <p>If <var>parsedHeader</var>["<code>allowed</code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>:</p>
+      <p>If <var>parsedHeader</var>["<a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①⑥"><code>allowed</code></a>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>:</p>
       <ol>
        <li data-md>
-        <p>If <var>parsedHeader</var>["<code>allowed</code>"][0] is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a>, then return "<code>unparseable</code>".</p>
+        <p>If <var>parsedHeader</var>["<a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①⑦"><code>allowed</code></a>"][0] is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a>, then return "<code>parse error</code>".</p>
        <li data-md>
-        <p>Let <var>rawAllowedList</var> be <var>parsedHeader</var>["<code>allowed</code>"][0].</p>
+        <p>Let <var>rawAllowedList</var> be <var>parsedHeader</var>["<a data-link-type="dfn" href="#origin-policy-allowed" id="ref-for-origin-policy-allowed①⑧"><code>allowed</code></a>"][0].</p>
        <li data-md>
         <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>itemTuple</var> in <var>rawAllowedList</var>:</p>
         <ol>
          <li data-md>
           <p>Let <var>allowedId</var> be <var>itemTuple</var>[0].</p>
          <li data-md>
-          <p>If <var>allowedId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string②">string</a>, the <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token①">token</a> <code>null</code>, or the <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token②">token</a> <code>latest</code>, or if <var>allowedId</var> is the empty string, then return "<code>unparseable</code>".</p>
+          <p>If <var>allowedId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string②">string</a> or <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token①">token</a>, or if <var>allowedId</var> is the empty string, then return "<code>parse error</code>".</p>
+         <li data-md>
+          <p>If <var>allowedId</var> is a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token②">token</a> but is neither <code>null</code> nor <code>latest</code>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue">continue</a>.</p>
          <li data-md>
           <p>If <var>allowedId</var> is the <code>null</code> <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token③">token</a>, then set <var>allowedId</var> to null.</p>
          <li data-md>
@@ -1933,17 +1950,21 @@ Cache-Control: max-age=31536000
      <li data-md>
       <p>Let <var>preferredId</var> be null.</p>
      <li data-md>
-      <p>If <var>parsedHeader</var>["<code>preferred</code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exists</a>:</p>
+      <p>If <var>parsedHeader</var>["<a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred①①"><code>preferred</code></a>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exists</a>:</p>
       <ol>
        <li data-md>
-        <p>Set <var>preferredId</var> to <var>parsedHeader</var>["<code>preferred</code>"][0].</p>
+        <p>Set <var>preferredId</var> to <var>parsedHeader</var>["<a data-link-type="dfn" href="#origin-policy-preferred" id="ref-for-origin-policy-preferred①②"><code>preferred</code></a>"][0].</p>
        <li data-md>
-        <p>If <var>preferredId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string③">string</a> or the <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token⑤">token</a> <code>latest-from-network</code>, or it is the empty string, then return "<code>unparseable</code>".</p>
+        <p>If <var>preferredId</var> is not a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#string" id="ref-for-string③">string</a> or the <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token⑤">token</a>, or if <var>preferredId</var> is the empty string, then return "<code>parse error</code>".</p>
        <li data-md>
-        <p>If <var>preferredId</var> is the <code>latest-from-network</code> <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token⑥">token</a>, then set <var>preferredId</var> to <a data-link-type="dfn" href="#latest-from-network" id="ref-for-latest-from-network">latest-from-network</a>.</p>
+        <p>If <var>preferredId</var> is a <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token⑥">token</a> but is not <code>latest-from-network</code>, then set <var>preferredId</var> to null.</p>
+       <li data-md>
+        <p>If <var>preferredId</var> is the <code>latest-from-network</code> <a data-link-type="dfn" href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token" id="ref-for-token⑦">token</a>, then set <var>preferredId</var> to <a data-link-type="dfn" href="#latest-from-network" id="ref-for-latest-from-network">latest-from-network</a>.</p>
        <li data-md>
         <p class="assertion">Assert: if <var>preferredId</var> is a string, then it is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑤">valid origin policy ID</a>.</p>
       </ol>
+     <li data-md>
+      <p>If <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-is-empty" id="ref-for-list-is-empty">is empty</a> and <var>preferredId</var> is null, then return "<code>parse error</code>".</p>
      <li data-md>
       <p>Return the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#tuple" id="ref-for-tuple">tuple</a> (<var>allowedIds</var>, <var>preferredId</var>).</p>
     </ol>
@@ -1960,11 +1981,11 @@ Cache-Control: max-age=31536000
      <li data-md>
       <p>Let <var>url</var> be the result of <a data-link-type="dfn" href="#get-the-origin-policy-manifest-url" id="ref-for-get-the-origin-policy-manifest-url">getting the origin policy manifest URL</a> for <var>origin</var>.</p>
      <li data-md>
-      <p>If <var>url</var> is null, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑧">null policy</a>.</p>
+      <p>If <var>url</var> is null, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑥">null policy</a>.</p>
      <li data-md>
       <p>Let <var>networkRequest</var> be a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request②">request</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url">url</a> is <var>url</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client">client</a> is <var>client</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode" id="ref-for-request-service-workers-mode">service-workers mode</a> is "<code>none</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination">destination</a> is "<code>manifest</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode" id="ref-for-concept-request-mode">mode</a> is "<code>same-origin</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode" id="ref-for-concept-request-redirect-mode">redirect mode</a> is "<code>error</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode" id="ref-for-concept-request-credentials-mode">credentials mode</a> is "<code>omit</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-referrer-policy" id="ref-for-concept-request-referrer-policy">referrer policy</a> is "<code>no-referrer</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode" id="ref-for-concept-request-cache-mode">cache mode</a> is "<code>no-cache</code>".</p>
      <li data-md>
-      <p>If <var>cachedPolicy</var> is not the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑨">null policy</a>, and either <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain①">contains</a> one of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids⑨">IDs</a>, or <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain②">contains</a> <a data-link-type="dfn" href="#latest" id="ref-for-latest①">latest</a>, then:</p>
+      <p>If <var>cachedPolicy</var> is not the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑦">null policy</a>, and either <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain①">contains</a> one of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids⑨">IDs</a>, or <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain②">contains</a> <a data-link-type="dfn" href="#latest" id="ref-for-latest①">latest</a>, then:</p>
       <ol>
        <li data-md>
         <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑥">response</a> will not be used.)</p>
@@ -1977,7 +1998,7 @@ Cache-Control: max-age=31536000
        <li data-md>
         <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑦">response</a> will not be used.)</p>
        <li data-md>
-        <p>Return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⓪">null policy</a>.</p>
+        <p>Return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑧">null policy</a>.</p>
       </ol>
      <li data-md>
       <p>Let <var>networkResponse</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch②">fetching</a> <var>networkRequest</var>. (Unlike the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel②">in parallel</a> fetches, this is blocking.)</p>
@@ -2007,26 +2028,26 @@ Cache-Control: max-age=31536000
        <p><var>preferredId</var> mismatches <var>cachedPolicy</var> or is not provided:</p>
        <ul>
         <li data-md>
-         <p><var>cachedPolicy</var> is the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①①">null policy</a>:</p>
+         <p><var>cachedPolicy</var> is the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑨">null policy</a>:</p>
          <ul>
           <li data-md>
-           <p><var>allowedIds</var> contains null: use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①②">null policy</a>, and refresh the HTTP cache in the background.</p>
+           <p><var>allowedIds</var> contains null: use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⓪">null policy</a>, and refresh the HTTP cache in the background.</p>
           <li data-md>
            <p><var>allowedIds</var> does not contain null: fetch <var>networkPolicy</var>, and use it if it matches <var>allowedIds</var> or <var>preferredId</var>.</p>
          </ul>
         <li data-md>
-         <p><var>cachedPolicy</var> is not the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①③">null policy</a>:</p>
+         <p><var>cachedPolicy</var> is not the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①①">null policy</a>:</p>
          <ul>
           <li data-md>
            <p><var>allowedIds</var> matches one of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①②">IDs</a>: use <var>cachedPolicy</var>, and refresh the HTTP cache in the background if <var>preferredId</var> was provided.</p>
           <li data-md>
-           <p><var>allowedIds</var> does not match any of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①③">IDs</a> but does contain null: use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>, and refresh the HTTP cache in the background if <var>preferredId</var> was provided.</p>
+           <p><var>allowedIds</var> does not match any of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①③">IDs</a> but does contain null: use the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①②">null policy</a>, and refresh the HTTP cache in the background if <var>preferredId</var> was provided.</p>
           <li data-md>
            <p><var>allowedIds</var> does not match any of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①④">IDs</a> and does not contain null: fetch <var>networkPolicy</var>, and use it if it matches <var>allowedIds</var> or <var>preferredId</var>.</p>
          </ul>
        </ul>
      </ul>
-     <p>Here <a data-link-type="dfn" href="#latest" id="ref-for-latest②">latest</a> always matches a non-<a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑤">null</a> <var>cachedPolicy</var> and and <a data-link-type="dfn" href="#latest-from-network" id="ref-for-latest-from-network②">latest-from-network</a> always matches a fetched <var>networkPolicy</var>.</p>
+     <p>Here <a data-link-type="dfn" href="#latest" id="ref-for-latest②">latest</a> always matches a non-<a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①③">null</a> <var>cachedPolicy</var> and and <a data-link-type="dfn" href="#latest-from-network" id="ref-for-latest-from-network②">latest-from-network</a> always matches a fetched <var>networkPolicy</var>.</p>
     </div>
    </div>
    <div class="algorithm" data-algorithm="retrieve the cached origin policy">
@@ -2035,7 +2056,7 @@ Cache-Control: max-age=31536000
      <li data-md>
       <p>Let <var>url</var> be the result of <a data-link-type="dfn" href="#get-the-origin-policy-manifest-url" id="ref-for-get-the-origin-policy-manifest-url①">getting the origin policy manifest URL</a> for <var>origin</var>.</p>
      <li data-md>
-      <p>If <var>url</var> is null, return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑥">null policy</a>.</p>
+      <p>If <var>url</var> is null, return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①④">null policy</a>.</p>
      <li data-md>
       <p>Let <var>cacheCheckRequest</var> be a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request③">request</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①">url</a> is <var>url</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client①">client</a> is <var>client</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode" id="ref-for-request-service-workers-mode①">service-workers mode</a> is "<code>none</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination①">destination</a> is "<code>manifest</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode" id="ref-for-concept-request-mode①">mode</a> is "<code>same-origin</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode" id="ref-for-concept-request-redirect-mode①">redirect mode</a> is "<code>error</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode" id="ref-for-concept-request-credentials-mode①">credentials mode</a> is "<code>omit</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode" id="ref-for-concept-request-cache-mode①">cache mode</a> is "<code>only-if-cached</code>".</p>
      <li data-md>
@@ -2057,11 +2078,11 @@ Cache-Control: max-age=31536000
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get an origin policy from a manifest response|getting an origin policy from a manifest response" data-noexport id="get-an-origin-policy-from-a-manifest-response">get an origin policy from a response</dfn> given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑧">response</a> <var>response</var>: 
     <ol>
      <li data-md>
-      <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status">status</a> is not an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status">ok status</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑦">null policy</a>.</p>
+      <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status">status</a> is not an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status">ok status</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑤">null policy</a>.</p>
      <li data-md>
       <p>Let <var>mimeType</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type" id="ref-for-concept-header-extract-mime-type">extracting a MIME type</a> from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list①">header list</a>.</p>
      <li data-md>
-      <p>If <var>mimeType</var>’s <a data-link-type="dfn" href="https://mimesniff.spec.whatwg.org/#mime-type-essence" id="ref-for-mime-type-essence">essence</a> is not "<code>application/originpolicy+json</code>", then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑧">null policy</a>.</p>
+      <p>If <var>mimeType</var>’s <a data-link-type="dfn" href="https://mimesniff.spec.whatwg.org/#mime-type-essence" id="ref-for-mime-type-essence">essence</a> is not "<code>application/originpolicy+json</code>", then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑥">null policy</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-wait" id="ref-for-concept-body-wait">Wait</a> for <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body">body</a>.</p>
      <li data-md>
@@ -2076,9 +2097,9 @@ Cache-Control: max-age=31536000
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="parse a string into an origin policy|parsing a string into an origin policy" data-noexport id="parse-a-string-into-an-origin-policy">parse a string into an origin policy</dfn> given a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑤">string</a> <var>string</var>: 
     <ol>
      <li data-md>
-      <p>Let <var>parsed</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#parse-json-into-infra-values" id="ref-for-parse-json-into-infra-values">parsing JSON into Infra values</a> given <var>string</var>. If this throws an exception, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑨">null policy</a>.</p>
+      <p>Let <var>parsed</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#parse-json-into-infra-values" id="ref-for-parse-json-into-infra-values">parsing JSON into Infra values</a> given <var>string</var>. If this throws an exception, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑦">null policy</a>.</p>
      <li data-md>
-      <p>If <var>parsed</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②⓪">null policy</a>.</p>
+      <p>If <var>parsed</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑧">null policy</a>.</p>
      <li data-md>
       <p>Let <var>ids</var> be an empty list.</p>
      <li data-md>
@@ -2088,7 +2109,7 @@ Cache-Control: max-age=31536000
         <p>If <var>potentialId</var> is a <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑥">valid origin policy ID</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append">append</a> <var>potentialId</var> to <var>ids</var>.</p>
       </ol>
      <li data-md>
-      <p>If <var>ids</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-is-empty" id="ref-for-list-is-empty">is empty</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②①">null policy</a>.</p>
+      <p>If <var>ids</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-is-empty" id="ref-for-list-is-empty①">is empty</a>, then return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy①⑨">null policy</a>.</p>
      <li data-md>
       <p>Let <var>featurePolicy</var> be an empty <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#policy-directive" id="ref-for-policy-directive①">feature policy directive</a>.</p>
      <li data-md>
@@ -2102,7 +2123,7 @@ Cache-Control: max-age=31536000
         <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑦"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies⑥"><code>policies</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑤">list</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate②">for each</a> <var>potentialPolicyString</var> in <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑧"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies" id="ref-for-origin-policy-manifest-content_security-policies⑦"><code>policies</code></a>"]:</p>
         <ol>
          <li data-md>
-          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue">continue</a>.</p>
+          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a>.</p>
          <li data-md>
           <p>Let <var>policy</var> be the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp" id="ref-for-abstract-opdef-parse-a-serialized-csp">parsing a serialized CSP</a> given <var>potentialPolicyString</var>, "<code>header</code>", and "<code>enforce</code>".</p>
          <li data-md>
@@ -2112,7 +2133,7 @@ Cache-Control: max-age=31536000
         <p>If <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security⑨"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies_report_only" id="ref-for-origin-policy-manifest-content_security-policies_report_only①"><code>policies_report_only</code></a>"] exists and is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑥">list</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate③">for each</a> <var>potentialPolicyString</var> in <var>parsed</var>["<a data-link-type="dfn" href="#origin-policy-manifest-content_security" id="ref-for-origin-policy-manifest-content_security①⓪"><code>content_security</code></a>"]["<a data-link-type="dfn" href="#origin-policy-manifest-content_security-policies_report_only" id="ref-for-origin-policy-manifest-content_security-policies_report_only②"><code>policies_report_only</code></a>"]:</p>
         <ol>
          <li data-md>
-          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑦">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a>.</p>
+          <p>If <var>potentialPolicyString</var> is not a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑦">string</a>, then <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue②">continue</a>.</p>
          <li data-md>
           <p>Let <var>policy</var> be the result of <a data-link-type="abstract-op" href="https://w3c.github.io/webappsec-csp/#abstract-opdef-parse-a-serialized-csp" id="ref-for-abstract-opdef-parse-a-serialized-csp①">parsing a serialized CSP</a> given <var>potentialPolicyString</var>, "<code>header</code>", and "<code>report</code>".</p>
          <li data-md>
@@ -2126,13 +2147,13 @@ Cache-Control: max-age=31536000
    <h2 class="heading settled" data-level="5" id="monkeypatches"><span class="secno">5. </span><span class="content">Patches to other specifications</span><a class="self-link" href="#monkeypatches"></a></h2>
    <p>The following patches to other specifications would be incorporated as appropriate once this specification graduates from incubation.</p>
    <h3 class="heading settled" data-level="5.1" id="monkeypatch-fetch"><span class="secno">5.1. </span><span class="content">Fetch</span><a class="self-link" href="#monkeypatch-fetch"></a></h3>
-   <p>Every <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑨">response</a> gets an associated <dfn class="dfn-paneled" data-dfn-for="response" data-dfn-type="dfn" data-noexport id="response-origin-policy">origin policy</dfn>, which is an <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑦">origin policy</a>. It is initially the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②②">null origin policy</a>.</p>
+   <p>Every <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑨">response</a> gets an associated <dfn class="dfn-paneled" data-dfn-for="response" data-dfn-type="dfn" data-noexport id="response-origin-policy">origin policy</dfn>, which is an <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑦">origin policy</a>. It is initially the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②⓪">null origin policy</a>.</p>
    <p>The <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-main-fetch" id="ref-for-concept-main-fetch">main fetch</a> algorithm is modified by inserting the following step after step 10. (This is after headers have been received and much of the other preliminaries processed, but the request body is likely still downloading.)</p>
    <ol>
     <li data-md>
      <p>Let <var>originPolicy</var> be the result of <a data-link-type="dfn" href="#get-the-origin-policy-for-a-response" id="ref-for-get-the-origin-policy-for-a-response">getting the origin policy for a response</a> given <var>internalResponse</var> and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client②">client</a>.</p>
     <li data-md>
-     <p>If <var>originPolicy</var> is "<code>failure</code>", then set <var>response</var> and <var>internalResponse</var> to a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error">network error</a>.</p>
+     <p>If <var>originPolicy</var> is "<code>failure</code>", then set <var>response</var> and <var>internalResponse</var> to a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error①">network error</a>.</p>
     <li data-md>
      <p>Otherwise, set <var>internalResponse</var>’s <a data-link-type="dfn" href="#response-origin-policy" id="ref-for-response-origin-policy">origin policy</a> to <var>originPolicy</var>.</p>
    </ol>
@@ -2147,8 +2168,8 @@ Cache-Control: max-age=31536000
    <dl class="domintro">
     <dt><code>self . <code class="idl"><a data-link-type="idl" href="#dom-windoworworkerglobalscope-originpolicyids" id="ref-for-dom-windoworworkerglobalscope-originpolicyids②">originPolicyIds</a></code></code> 
     <dd>
-     <p>Returns a frozen array containing the <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑥">IDs</a> of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑧">origin policy</a> that applies to the global object. These match the "<a data-link-type="dfn" href="#origin-policy-manifest-ids" id="ref-for-origin-policy-manifest-ids①②"><code>ids</code></a>" member from the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest①①">origin policy manifest</a> (omitting any values that are not <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑦">valid</a>). If the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②③">null origin policy</a> is applied, then the array will be empty.</p>
-     <p>This can be especially useful in scenarios where the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑧"><code>Origin-Policy</code></a>` header allows multiple possible origin policies, or the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②④">null origin policy</a>, and the page wants a signal to determine which policy the browser retrieved.</p>
+     <p>Returns a frozen array containing the <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑥">IDs</a> of the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑧">origin policy</a> that applies to the global object. These match the "<a data-link-type="dfn" href="#origin-policy-manifest-ids" id="ref-for-origin-policy-manifest-ids①②"><code>ids</code></a>" member from the <a data-link-type="dfn" href="#origin-policy-manifest" id="ref-for-origin-policy-manifest①①">origin policy manifest</a> (omitting any values that are not <a data-link-type="dfn" href="#valid-origin-policy-id" id="ref-for-valid-origin-policy-id⑦">valid</a>). If the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②①">null origin policy</a> is applied, then the array will be empty.</p>
+     <p>This can be especially useful in scenarios where the `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②⑦"><code>Origin-Policy</code></a>` header allows multiple possible origin policies, or the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy②②">null origin policy</a>, and the page wants a signal to determine which policy the browser retrieved.</p>
    </dl>
    <p>The <code><dfn class="dfn-paneled idl-code" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="attribute" data-export id="dom-windoworworkerglobalscope-originpolicyids"><code>originPolicyIds</code></dfn></code> attribute’s getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this">this</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids">origin policy IDs</a>.</p>
    <h4 class="heading settled" data-level="5.2.2" id="monkeypatch-html-navigation"><span class="secno">5.2.2. </span><span class="content">Navigation</span><a class="self-link" href="#monkeypatch-html-navigation"></a></h4>
@@ -2225,7 +2246,7 @@ Cache-Control: max-age=31536000
    <p>Consider, for example, MegaCorp, Inc.'s <code>https://example.com</code>, which hosts a mail application, a mapping application, a document editing application, and so on. It would be unfortunate indeed if one of these applications accidentally pinned a policy to the entire origin which didn’t account for the rest of the origin’s contents. To mitigate that risk, this specification forces the manifest to live in a shared location for all of <code>https://example.com</code>. The goal is explicitly to elicit the kind of discussion and compromise within an origin that needs to happen in order to deploy an origin policy safely.</p>
    <h2 class="heading settled" data-level="7" id="iana"><span class="secno">7. </span><span class="content">IANA Considerations</span><a class="self-link" href="#iana"></a></h2>
    <h3 class="heading settled" data-level="7.1" id="iana-header"><span class="secno">7.1. </span><span class="content">The `<code>Origin-Policy</code>` header</span><a class="self-link" href="#iana-header"></a></h3>
-   <p>This section provides the provisional registration of the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header②">header</a> `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy①⑨"><code>Origin-Policy</code></a>` in accordance with <cite>Registration Procedures for Message Header Fields</cite>. <a data-link-type="biblio" href="#biblio-rfc3864">[RFC3864]</a></p>
+   <p>This section provides the provisional registration of the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header②">header</a> `<a data-link-type="http-header" href="#http-headerdef-origin-policy" id="ref-for-http-headerdef-origin-policy②⑧"><code>Origin-Policy</code></a>` in accordance with <cite>Registration Procedures for Message Header Fields</cite>. <a data-link-type="biblio" href="#biblio-rfc3864">[RFC3864]</a></p>
    <dl>
     <dt data-md>Header field name
     <dd data-md>
@@ -2329,9 +2350,11 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
+Ian Clelland,
 Jake Archibald,
 Jeffrey Yasskin,
-Mark Nottingham, and
+Mark Nottingham,
+Martin Thomson, and
 Nihanth Subramanya
 for being awesome!</p>
   </main>
@@ -2467,6 +2490,7 @@ for being awesome!</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
+   <li><a href="#origin-policy-allowed">allowed</a><span>, in §2.1</span>
    <li><a href="#application-originpolicyjson">application/originpolicy+json</a><span>, in §2.2</span>
    <li><a href="#origin-policy-manifest-content_security">content_security</a><span>, in §2.2.3</span>
    <li><a href="#origin-policy-content-security-policies">content security policies</a><span>, in §3</span>
@@ -2508,6 +2532,7 @@ for being awesome!</p>
    <li><a href="#origin-policy-manifest-content_security-policies">policies</a><span>, in §2.2.3</span>
    <li><a href="#origin-policy-manifest-content_security-policies_report_only">policies_report_only</a><span>, in §2.2.3</span>
    <li><a href="#origin-policy-manifest-features-policy">policy</a><span>, in §2.2.2</span>
+   <li><a href="#origin-policy-preferred">preferred</a><span>, in §2.1</span>
    <li><a href="#retrieve-the-cached-origin-policy">retrieve the cached origin policy</a><span>, in §4.2</span>
    <li><a href="#retrieve-the-cached-origin-policy">retrieving the cached origin policy</a><span>, in §4.2</span>
    <li><a href="#valid-origin-policy-id">valid origin policy ID</a><span>, in §3</span>
@@ -2747,7 +2772,8 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="term-for-concept-network-error">
    <a href="https://fetch.spec.whatwg.org/#concept-network-error">https://fetch.spec.whatwg.org/#concept-network-error</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-network-error">5.1. Fetch</a>
+    <li><a href="#ref-for-concept-network-error">2.1. The `Origin-Policy` HTTP header</a>
+    <li><a href="#ref-for-concept-network-error①">5.1. Fetch</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ok-status">
@@ -2964,7 +2990,8 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="term-for-iteration-continue">
    <a href="https://infra.spec.whatwg.org/#iteration-continue">https://infra.spec.whatwg.org/#iteration-continue</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-iteration-continue">4.3. Parsing</a> <a href="#ref-for-iteration-continue①">(2)</a>
+    <li><a href="#ref-for-iteration-continue">4.1. Response processing</a>
+    <li><a href="#ref-for-iteration-continue①">4.3. Parsing</a> <a href="#ref-for-iteration-continue②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-map-exists">
@@ -2984,7 +3011,8 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="term-for-list-is-empty">
    <a href="https://infra.spec.whatwg.org/#list-is-empty">https://infra.spec.whatwg.org/#list-is-empty</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-is-empty">4.3. Parsing</a>
+    <li><a href="#ref-for-list-is-empty">4.1. Response processing</a>
+    <li><a href="#ref-for-list-is-empty①">4.3. Parsing</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-struct-item">
@@ -3144,7 +3172,7 @@ for being awesome!</p>
    <a href="https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token">https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#token</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-token">4. Processing model</a>
-    <li><a href="#ref-for-token①">4.1. Response processing</a> <a href="#ref-for-token②">(2)</a> <a href="#ref-for-token③">(3)</a> <a href="#ref-for-token④">(4)</a> <a href="#ref-for-token⑤">(5)</a> <a href="#ref-for-token⑥">(6)</a>
+    <li><a href="#ref-for-token①">4.1. Response processing</a> <a href="#ref-for-token②">(2)</a> <a href="#ref-for-token③">(3)</a> <a href="#ref-for-token④">(4)</a> <a href="#ref-for-token⑤">(5)</a> <a href="#ref-for-token⑥">(6)</a> <a href="#ref-for-token⑦">(7)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url-origin">
@@ -3427,13 +3455,29 @@ for being awesome!</p>
    <b><a href="#http-headerdef-origin-policy">#http-headerdef-origin-policy</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-http-headerdef-origin-policy">1.1. Examples</a> <a href="#ref-for-http-headerdef-origin-policy①">(2)</a> <a href="#ref-for-http-headerdef-origin-policy②">(3)</a> <a href="#ref-for-http-headerdef-origin-policy③">(4)</a> <a href="#ref-for-http-headerdef-origin-policy④">(5)</a> <a href="#ref-for-http-headerdef-origin-policy⑤">(6)</a> <a href="#ref-for-http-headerdef-origin-policy⑥">(7)</a> <a href="#ref-for-http-headerdef-origin-policy⑦">(8)</a> <a href="#ref-for-http-headerdef-origin-policy⑧">(9)</a> <a href="#ref-for-http-headerdef-origin-policy⑨">(10)</a> <a href="#ref-for-http-headerdef-origin-policy①⓪">(11)</a> <a href="#ref-for-http-headerdef-origin-policy①①">(12)</a> <a href="#ref-for-http-headerdef-origin-policy①②">(13)</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①③">2.1. The `Origin-Policy` HTTP header</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①④">2.2.1. The "ids" member</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①⑤">2.3. The origin-policy well-known URL</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①⑥">4. Processing model</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①⑦">4.1. Response processing</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①⑧">5.2.1. WindowOrWorkerGlobalScope</a>
-    <li><a href="#ref-for-http-headerdef-origin-policy①⑨">7.1. The `Origin-Policy` header</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy①③">2.1. The `Origin-Policy` HTTP header</a> <a href="#ref-for-http-headerdef-origin-policy①④">(2)</a> <a href="#ref-for-http-headerdef-origin-policy①⑤">(3)</a> <a href="#ref-for-http-headerdef-origin-policy①⑥">(4)</a> <a href="#ref-for-http-headerdef-origin-policy①⑦">(5)</a> <a href="#ref-for-http-headerdef-origin-policy①⑧">(6)</a> <a href="#ref-for-http-headerdef-origin-policy①⑨">(7)</a> <a href="#ref-for-http-headerdef-origin-policy②⓪">(8)</a> <a href="#ref-for-http-headerdef-origin-policy②①">(9)</a> <a href="#ref-for-http-headerdef-origin-policy②②">(10)</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②③">2.2.1. The "ids" member</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②④">2.3. The origin-policy well-known URL</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②⑤">4. Processing model</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②⑥">4.1. Response processing</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②⑦">5.2.1. WindowOrWorkerGlobalScope</a>
+    <li><a href="#ref-for-http-headerdef-origin-policy②⑧">7.1. The `Origin-Policy` header</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-allowed">
+   <b><a href="#origin-policy-allowed">#origin-policy-allowed</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-allowed">1.1. Examples</a> <a href="#ref-for-origin-policy-allowed①">(2)</a> <a href="#ref-for-origin-policy-allowed②">(3)</a> <a href="#ref-for-origin-policy-allowed③">(4)</a> <a href="#ref-for-origin-policy-allowed④">(5)</a> <a href="#ref-for-origin-policy-allowed⑤">(6)</a> <a href="#ref-for-origin-policy-allowed⑥">(7)</a>
+    <li><a href="#ref-for-origin-policy-allowed⑦">2.1. The `Origin-Policy` HTTP header</a> <a href="#ref-for-origin-policy-allowed⑧">(2)</a> <a href="#ref-for-origin-policy-allowed⑨">(3)</a> <a href="#ref-for-origin-policy-allowed①⓪">(4)</a> <a href="#ref-for-origin-policy-allowed①①">(5)</a> <a href="#ref-for-origin-policy-allowed①②">(6)</a> <a href="#ref-for-origin-policy-allowed①③">(7)</a> <a href="#ref-for-origin-policy-allowed①④">(8)</a> <a href="#ref-for-origin-policy-allowed①⑤">(9)</a>
+    <li><a href="#ref-for-origin-policy-allowed①⑥">4.1. Response processing</a> <a href="#ref-for-origin-policy-allowed①⑦">(2)</a> <a href="#ref-for-origin-policy-allowed①⑧">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="origin-policy-preferred">
+   <b><a href="#origin-policy-preferred">#origin-policy-preferred</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-origin-policy-preferred">1.1. Examples</a> <a href="#ref-for-origin-policy-preferred①">(2)</a> <a href="#ref-for-origin-policy-preferred②">(3)</a> <a href="#ref-for-origin-policy-preferred③">(4)</a> <a href="#ref-for-origin-policy-preferred④">(5)</a>
+    <li><a href="#ref-for-origin-policy-preferred⑤">2.1. The `Origin-Policy` HTTP header</a> <a href="#ref-for-origin-policy-preferred⑥">(2)</a> <a href="#ref-for-origin-policy-preferred⑦">(3)</a> <a href="#ref-for-origin-policy-preferred⑧">(4)</a> <a href="#ref-for-origin-policy-preferred⑨">(5)</a> <a href="#ref-for-origin-policy-preferred①⓪">(6)</a>
+    <li><a href="#ref-for-origin-policy-preferred①①">4.1. Response processing</a> <a href="#ref-for-origin-policy-preferred①②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="origin-policy-manifest">
@@ -3557,12 +3601,11 @@ for being awesome!</p>
    <b><a href="#null-policy">#null-policy</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-null-policy">1.1. Examples</a> <a href="#ref-for-null-policy①">(2)</a> <a href="#ref-for-null-policy②">(3)</a> <a href="#ref-for-null-policy③">(4)</a> <a href="#ref-for-null-policy④">(5)</a>
-    <li><a href="#ref-for-null-policy⑤">2.1. The `Origin-Policy` HTTP header</a>
-    <li><a href="#ref-for-null-policy⑥">4.1. Response processing</a> <a href="#ref-for-null-policy⑦">(2)</a>
-    <li><a href="#ref-for-null-policy⑧">4.2. Updating the origin policy</a> <a href="#ref-for-null-policy⑨">(2)</a> <a href="#ref-for-null-policy①⓪">(3)</a> <a href="#ref-for-null-policy①①">(4)</a> <a href="#ref-for-null-policy①②">(5)</a> <a href="#ref-for-null-policy①③">(6)</a> <a href="#ref-for-null-policy①④">(7)</a> <a href="#ref-for-null-policy①⑤">(8)</a> <a href="#ref-for-null-policy①⑥">(9)</a> <a href="#ref-for-null-policy①⑦">(10)</a> <a href="#ref-for-null-policy①⑧">(11)</a>
-    <li><a href="#ref-for-null-policy①⑨">4.3. Parsing</a> <a href="#ref-for-null-policy②⓪">(2)</a> <a href="#ref-for-null-policy②①">(3)</a>
-    <li><a href="#ref-for-null-policy②②">5.1. Fetch</a>
-    <li><a href="#ref-for-null-policy②③">5.2.1. WindowOrWorkerGlobalScope</a> <a href="#ref-for-null-policy②④">(2)</a>
+    <li><a href="#ref-for-null-policy⑤">4.1. Response processing</a>
+    <li><a href="#ref-for-null-policy⑥">4.2. Updating the origin policy</a> <a href="#ref-for-null-policy⑦">(2)</a> <a href="#ref-for-null-policy⑧">(3)</a> <a href="#ref-for-null-policy⑨">(4)</a> <a href="#ref-for-null-policy①⓪">(5)</a> <a href="#ref-for-null-policy①①">(6)</a> <a href="#ref-for-null-policy①②">(7)</a> <a href="#ref-for-null-policy①③">(8)</a> <a href="#ref-for-null-policy①④">(9)</a> <a href="#ref-for-null-policy①⑤">(10)</a> <a href="#ref-for-null-policy①⑥">(11)</a>
+    <li><a href="#ref-for-null-policy①⑦">4.3. Parsing</a> <a href="#ref-for-null-policy①⑧">(2)</a> <a href="#ref-for-null-policy①⑨">(3)</a>
+    <li><a href="#ref-for-null-policy②⓪">5.1. Fetch</a>
+    <li><a href="#ref-for-null-policy②①">5.2.1. WindowOrWorkerGlobalScope</a> <a href="#ref-for-null-policy②②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="valid-origin-policy-id">

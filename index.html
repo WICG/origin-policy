@@ -1222,7 +1222,7 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 5721fde7f6b8111f662b83b678f9e181a9838206" name="generator">
+  <meta content="Bikeshed version 5200e023b5b76bb01f8f0ff295f799cb9f4a94f0" name="generator">
   <link href="https://wicg.github.io/origin-policy/" rel="canonical">
 <style>
 /* domintro from https://resources.whatwg.org/standard.css */
@@ -1512,7 +1512,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-02-28">28 February 2020</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-03-11">11 March 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2166,14 +2166,19 @@ Cache-Control: max-age=31536000
    <h3 class="heading settled" data-level="5.3" id="monkeypatch-sw"><span class="secno">5.3. </span><span class="content">Service Worker</span><a class="self-link" href="#monkeypatch-sw"></a></h3>
    <p>Various parts of the Service Worker specification need patching to support the <code class="idl"><a data-link-type="idl" href="#dom-windoworworkerglobalscope-originpolicyids" id="ref-for-dom-windoworworkerglobalscope-originpolicyids③">originPolicyIds</a></code> feature.</p>
    <h4 class="heading settled" data-level="5.3.1" id="monkeypatch-sw-model"><span class="secno">5.3.1. </span><span class="content">Model</span><a class="self-link" href="#monkeypatch-sw-model"></a></h4>
-   <p>Every <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker">service worker</a> gains an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-noexport id="service-worker-origin-policy-ids">origin policy IDs</dfn>, which is a <code><a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-frozen-array" id="ref-for-idl-frozen-array①">FrozenArray</a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②">DOMString</a>></code>.</p>
+   <p>Every <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker">service worker</a> gains an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-noexport id="service-worker-origin-policy-ids">origin policy IDs</dfn>, which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑧">list</a> of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑧">strings</a>.</p>
    <h4 class="heading settled" data-level="5.3.2" id="monkeypatch-sw-update"><span class="secno">5.3.2. </span><span class="content">Update algorithm</span><a class="self-link" href="#monkeypatch-sw-update"></a></h4>
-   <p>The <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#update" id="ref-for-update">update</a> algorithm needs to save the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑨">origin policy</a> <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑨">IDs</a> from the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①⓪">response</a> onto the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker①">service worker</a>. To do so, insert the following step after step 1:</p>
+   <p>The <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#update" id="ref-for-update">update</a> algorithm needs to save the <a data-link-type="dfn" href="#origin-policy" id="ref-for-origin-policy⑨">origin policy</a> <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑨">IDs</a> from the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①⓪">response</a> onto the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker①">service worker</a>. To do so, insert the following step after step 6:</p>
    <ol>
     <li data-md>
-     <p>Let <var>origin policy IDs</var> be the result of <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-frozen-array" id="ref-for-dfn-create-frozen-array③">creating a frozen array</a> from <var>response</var>’s <a data-link-type="dfn" href="#response-origin-policy" id="ref-for-response-origin-policy③">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids②⓪">IDs</a>.</p>
+     <p>Let <var>origin policy IDs</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑨">list</a>.</p>
    </ol>
-   <p>and then the following step after step 15:</p>
+   <p>Then insert the following step after step 9’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch" id="ref-for-fetching-scripts-perform-fetch①">perform the fetch</a> substep 9:</p>
+   <ol>
+    <li data-md>
+     <p>Set <var>origin policy IDs</var> to <var>response</var>’s <a data-link-type="dfn" href="#response-origin-policy" id="ref-for-response-origin-policy③">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids②⓪">IDs</a>.</p>
+   </ol>
+   <p>and finally add the following step after step 14:</p>
    <ol>
     <li data-md>
      <p>Set <var>service worker</var>’s <a data-link-type="dfn" href="#service-worker-origin-policy-ids" id="ref-for-service-worker-origin-policy-ids">origin policy IDs</a> to <var>origin policy IDs</var>.</p>
@@ -2182,7 +2187,7 @@ Cache-Control: max-age=31536000
    <p>The <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#run-service-worker" id="ref-for-run-service-worker">run service worker</a> algorithm needs to copy the <a data-link-type="dfn" href="#service-worker-origin-policy-ids" id="ref-for-service-worker-origin-policy-ids①">origin policy IDs</a> from the <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker" id="ref-for-dfn-service-worker②">service worker</a> onto the <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/ServiceWorker/#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope">ServiceWorkerGlobalScope</a></code>. To do so, insert the following step after step 7.7:</p>
    <ol>
     <li data-md>
-     <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids⑤">origin policy IDs</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#service-worker-origin-policy-ids" id="ref-for-service-worker-origin-policy-ids②">origin policy IDs</a>.</p>
+     <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids⑤">origin policy IDs</a> to the result of <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-frozen-array" id="ref-for-dfn-create-frozen-array③">creating a frozen array</a> from <var>serviceWorker</var>’s <a data-link-type="dfn" href="#service-worker-origin-policy-ids" id="ref-for-service-worker-origin-policy-ids②">origin policy IDs</a>.</p>
    </ol>
    <h3 class="heading settled" data-level="5.4" id="monkeypatch-fp"><span class="secno">5.4. </span><span class="content">Feature Policy</span><a class="self-link" href="#monkeypatch-fp"></a></h3>
    <p>The <a data-link-type="dfn" href="https://w3c.github.io/webappsec-feature-policy/#process-response-policy" id="ref-for-process-response-policy">process response policy</a> and algorithm needs to be replaced with the following, given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①①">response</a> <var>response</var> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin⑧">origin</a> <var>origin</var>:</p>
@@ -2324,6 +2329,7 @@ Anne van Kesteren,
 Daniel Hausknecht,
 Daniel Vogelheim,
 Eric Portis,
+Jake Archibald,
 Jeffrey Yasskin,
 Mark Nottingham, and
 Nihanth Subramanya
@@ -2902,6 +2908,7 @@ for being awesome!</p>
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch">https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-fetching-scripts-perform-fetch">5.2.3. Running a worker</a>
+    <li><a href="#ref-for-fetching-scripts-perform-fetch①">5.3.2. Update algorithm</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-run-a-worker">
@@ -2994,6 +3001,8 @@ for being awesome!</p>
     <li><a href="#ref-for-list②">4.1. Response processing</a>
     <li><a href="#ref-for-list③">4.3. Parsing</a> <a href="#ref-for-list④">(2)</a> <a href="#ref-for-list⑤">(3)</a> <a href="#ref-for-list⑥">(4)</a>
     <li><a href="#ref-for-list⑦">5.2.1. WindowOrWorkerGlobalScope</a>
+    <li><a href="#ref-for-list⑧">5.3.1. Model</a>
+    <li><a href="#ref-for-list⑨">5.3.2. Update algorithm</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-map">
@@ -3033,6 +3042,7 @@ for being awesome!</p>
    <ul>
     <li><a href="#ref-for-string">3. Data model</a> <a href="#ref-for-string①">(2)</a>
     <li><a href="#ref-for-string④">4.3. Parsing</a> <a href="#ref-for-string⑤">(2)</a> <a href="#ref-for-string⑥">(3)</a> <a href="#ref-for-string⑦">(4)</a>
+    <li><a href="#ref-for-string⑧">5.3.1. Model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-struct">
@@ -3153,14 +3163,12 @@ for being awesome!</p>
    <a href="https://heycam.github.io/webidl/#idl-DOMString">https://heycam.github.io/webidl/#idl-DOMString</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-idl-DOMString">5.2.1. WindowOrWorkerGlobalScope</a> <a href="#ref-for-idl-DOMString①">(2)</a>
-    <li><a href="#ref-for-idl-DOMString②">5.3.1. Model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-frozen-array">
    <a href="https://heycam.github.io/webidl/#idl-frozen-array">https://heycam.github.io/webidl/#idl-frozen-array</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-idl-frozen-array">5.2.1. WindowOrWorkerGlobalScope</a>
-    <li><a href="#ref-for-idl-frozen-array①">5.3.1. Model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-create-frozen-array">
@@ -3169,7 +3177,7 @@ for being awesome!</p>
     <li><a href="#ref-for-dfn-create-frozen-array">5.2.1. WindowOrWorkerGlobalScope</a>
     <li><a href="#ref-for-dfn-create-frozen-array①">5.2.2. Navigation</a>
     <li><a href="#ref-for-dfn-create-frozen-array②">5.2.3. Running a worker</a>
-    <li><a href="#ref-for-dfn-create-frozen-array③">5.3.2. Update algorithm</a>
+    <li><a href="#ref-for-dfn-create-frozen-array③">5.3.3. Run service worker algorithm</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-this">
@@ -3348,7 +3356,7 @@ for being awesome!</p>
     <ul>
      <li><span class="dfn-paneled" id="term-for-idl-DOMString" style="color:initial">DOMString</span>
      <li><span class="dfn-paneled" id="term-for-idl-frozen-array" style="color:initial">FrozenArray</span>
-     <li><span class="dfn-paneled" id="term-for-dfn-create-frozen-array" style="color:initial">create a frozen array</span>
+     <li><span class="dfn-paneled" id="term-for-dfn-create-frozen-array" style="color:initial">creating a frozen array</span>
      <li><span class="dfn-paneled" id="term-for-this" style="color:initial">this</span>
     </ul>
    <li>

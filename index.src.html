@@ -548,12 +548,12 @@ This section details the entry point algorithms, for determining which origin po
   1. If |url| is null, then return the [=null policy=].
   1. Let |networkRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", [=request/referrer policy=] is "<code>no-referrer</code>", and [=request/cache mode=] is "<code>no-cache</code>".
   1. If |cachedPolicy| is not the [=null policy=], and either |allowedIds| [=list/contains=] one of |cachedPolicy|'s [=origin policy/IDs=], or |allowedIds| [=list/contains=] [=latest=], then:
-    1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+    1. If |preferredId| is not null, then [=in parallel=], perform a <a spec="FETCH">HTTP-network-or-cache fetch</a> given |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return |cachedPolicy|.
   1. If |allowedIds| contains null, then:
-    1. If |preferredId| is not null, then [=in parallel=], [=fetch=] |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
+    1. If |preferredId| is not null, then [=in parallel=], perform a <a spec="FETCH">HTTP-network-or-cache fetch</a> given |networkRequest|. (This will update the cache, but the [=response=] will not be used.)
     1. Return the [=null policy=].
-  1. Let |networkResponse| be the result of [=fetching=] |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
+  1. Let |networkResponse| be the result of performing a <a spec="FETCH">HTTP-network-or-cache fetch</a> given |networkRequest|. (Unlike the [=in parallel=] fetches, this is blocking.)
   1. Let |networkPolicy| be the result of [=getting an origin policy from a manifest response=] given |networkResponse|.
   1. If any of the following is true:
       * |preferredId| is [=latest-from-network=]; or
@@ -562,7 +562,13 @@ This section details the entry point algorithms, for determining which origin po
     then return |networkPolicy|.
   1. Return "<code>failure</code>".
 
-  <p class="note">Although this specification uses the full [=fetching=] mechanism to check the HTTP cache for an origin policy, and then [=getting an origin policy from a manifest response|re-parses=] the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
+  <div class="note" id="note-why-http-network-or-cache-fetch">
+    We use <a spec="FETCH">HTTP-network-or-cache fetch</a>, instead of [=fetch=], to avoid a potential infinite recursion by way of the modifications to [=fetch=] in [[#monkeypatch-fetch]].
+
+    For the most part, the differences between the two do not matter: steps from [=fetch=] that handle upgrade-insecure-requests, HSTS, bad ports, FTP, mixed content checks, service workers, redirects, and MIME type checking are not applicable to our case. The notable difference is that CSP is bypassed for these fetches.
+  </div>
+
+  <p class="note">Although this specification uses the full <a spec="FETCH">HTTP-network-or-cache fetch</a> mechanism to check the HTTP cache for an origin policy, and then [=getting an origin policy from a manifest response|re-parses=] the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
 
   <div class="note">
     The following provides a non-normative summary of the outcomes of the above algorithm under various conditions:
@@ -589,8 +595,10 @@ This section details the entry point algorithms, for determining which origin po
   1. Let |url| be the result of [=getting the origin policy manifest URL=] for |origin|.
   1. If |url| is null, return the [=null policy=].
   1. Let |cacheCheckRequest| be a new [=request=] whose [=request/url=] is |url|, [=request/client=] is |client|, [=request/service-workers mode=] is "<code>none</code>", [=request/destination=] is "<code>manifest</code>", [=request/mode=] is "<code>same-origin</code>", [=request/redirect mode=] is "<code>error</code>", [=request/credentials mode=] is "<code>omit</code>", and [=request/cache mode=] is "<code>only-if-cached</code>".
-  1. Let |cachedResponse| be the result of [=fetching=] |cacheCheckRequest|.
+  1. Let |cachedResponse| be the result of performing a <a spec="FETCH">HTTP-network-or-cache fetch</a> given |cacheCheckRequest|.
   1. Return the result of [=getting an origin policy from a manifest response=] given |cachedResponse|.
+
+  <p class="note">See <a href="#note-why-http-network-or-cache-fetch">above</a> for why this uses <a spec="FETCH">HTTP-network-or-cache fetch</a> instead of [=fetch=].</p>
 </div>
 
 <div algorithm>

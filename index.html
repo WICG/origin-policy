@@ -1222,7 +1222,7 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 5200e023b5b76bb01f8f0ff295f799cb9f4a94f0" name="generator">
+  <meta content="Bikeshed version 7dd49ddf2b095c0a9accc859934f2349a4fb5d3c" name="generator">
   <link href="https://wicg.github.io/origin-policy/" rel="canonical">
 <style>
 /* domintro from https://resources.whatwg.org/standard.css */
@@ -1512,7 +1512,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"></p>
    <h1 class="p-name no-ref" id="title">Origin Policy</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-03-11">11 March 2020</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-03-16">16 March 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1988,7 +1988,7 @@ Cache-Control: max-age=31536000
       <p>If <var>cachedPolicy</var> is not the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑦">null policy</a>, and either <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain①">contains</a> one of <var>cachedPolicy</var>’s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids⑨">IDs</a>, or <var>allowedIds</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain" id="ref-for-list-contain②">contains</a> <a data-link-type="dfn" href="#latest" id="ref-for-latest①">latest</a>, then:</p>
       <ol>
        <li data-md>
-        <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑥">response</a> will not be used.)</p>
+        <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>, perform a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch">HTTP-network-or-cache fetch</a> given <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑥">response</a> will not be used.)</p>
        <li data-md>
         <p>Return <var>cachedPolicy</var>.</p>
       </ol>
@@ -1996,12 +1996,12 @@ Cache-Control: max-age=31536000
       <p>If <var>allowedIds</var> contains null, then:</p>
       <ol>
        <li data-md>
-        <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①">fetch</a> <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑦">response</a> will not be used.)</p>
+        <p>If <var>preferredId</var> is not null, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a>, perform a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch①">HTTP-network-or-cache fetch</a> given <var>networkRequest</var>. (This will update the cache, but the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑦">response</a> will not be used.)</p>
        <li data-md>
         <p>Return the <a data-link-type="dfn" href="#null-policy" id="ref-for-null-policy⑧">null policy</a>.</p>
       </ol>
      <li data-md>
-      <p>Let <var>networkResponse</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch②">fetching</a> <var>networkRequest</var>. (Unlike the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel②">in parallel</a> fetches, this is blocking.)</p>
+      <p>Let <var>networkResponse</var> be the result of performing a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch②">HTTP-network-or-cache fetch</a> given <var>networkRequest</var>. (Unlike the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel②">in parallel</a> fetches, this is blocking.)</p>
      <li data-md>
       <p>Let <var>networkPolicy</var> be the result of <a data-link-type="dfn" href="#get-an-origin-policy-from-a-manifest-response" id="ref-for-get-an-origin-policy-from-a-manifest-response">getting an origin policy from a manifest response</a> given <var>networkResponse</var>.</p>
      <li data-md>
@@ -2018,7 +2018,11 @@ Cache-Control: max-age=31536000
      <li data-md>
       <p>Return "<code>failure</code>".</p>
     </ol>
-    <p class="note" role="note">Although this specification uses the full <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch③">fetching</a> mechanism to check the HTTP cache for an origin policy, and then <a data-link-type="dfn" href="#get-an-origin-policy-from-a-manifest-response" id="ref-for-get-an-origin-policy-from-a-manifest-response①">re-parses</a> the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
+    <div class="note" id="note-why-http-network-or-cache-fetch" role="note">
+     <a class="self-link" href="#note-why-http-network-or-cache-fetch"></a> We use <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch③">HTTP-network-or-cache fetch</a>, instead of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch">fetch</a>, to avoid a potential infinite recursion by way of the modifications to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①">fetch</a> in <a href="#monkeypatch-fetch">§ 5.1 Fetch</a>. 
+     <p>For the most part, the differences between the two do not matter: steps from <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch②">fetch</a> that handle upgrade-insecure-requests, HSTS, bad ports, FTP, mixed content checks, service workers, redirects, and MIME type checking are not applicable to our case. The notable difference is that CSP is bypassed for these fetches.</p>
+    </div>
+    <p class="note" role="note">Although this specification uses the full <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch④">HTTP-network-or-cache fetch</a> mechanism to check the HTTP cache for an origin policy, and then <a data-link-type="dfn" href="#get-an-origin-policy-from-a-manifest-response" id="ref-for-get-an-origin-policy-from-a-manifest-response①">re-parses</a> the result each time, implementations could use a more efficient mechanism, as long as the results are observably equivalent. In such cases, implementations ought to take particular care around respecting the cache expiration and keying semantics.</p>
     <div class="note" role="note">
       The following provides a non-normative summary of the outcomes of the above algorithm under various conditions: 
      <ul>
@@ -2060,10 +2064,11 @@ Cache-Control: max-age=31536000
      <li data-md>
       <p>Let <var>cacheCheckRequest</var> be a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request③">request</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①">url</a> is <var>url</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client①">client</a> is <var>client</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode" id="ref-for-request-service-workers-mode①">service-workers mode</a> is "<code>none</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination①">destination</a> is "<code>manifest</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-mode" id="ref-for-concept-request-mode①">mode</a> is "<code>same-origin</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode" id="ref-for-concept-request-redirect-mode①">redirect mode</a> is "<code>error</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-credentials-mode" id="ref-for-concept-request-credentials-mode①">credentials mode</a> is "<code>omit</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode" id="ref-for-concept-request-cache-mode①">cache mode</a> is "<code>only-if-cached</code>".</p>
      <li data-md>
-      <p>Let <var>cachedResponse</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch④">fetching</a> <var>cacheCheckRequest</var>.</p>
+      <p>Let <var>cachedResponse</var> be the result of performing a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch⑤">HTTP-network-or-cache fetch</a> given <var>cacheCheckRequest</var>.</p>
      <li data-md>
       <p>Return the result of <a data-link-type="dfn" href="#get-an-origin-policy-from-a-manifest-response" id="ref-for-get-an-origin-policy-from-a-manifest-response②">getting an origin policy from a manifest response</a> given <var>cachedResponse</var>.</p>
     </ol>
+    <p class="note" role="note">See <a href="#note-why-http-network-or-cache-fetch">above</a> for why this uses <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch" id="ref-for-concept-http-network-or-cache-fetch⑥">HTTP-network-or-cache fetch</a> instead of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch③">fetch</a>.</p>
    </div>
    <div class="algorithm" data-algorithm="get the origin policy manifest URL">
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get the origin policy manifest URL|getting the origin policy manifest URL" data-noexport id="get-the-origin-policy-manifest-url">get the origin policy manifest URL</dfn> for an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin⑦">origin</a> <var>origin</var>: 
@@ -2179,7 +2184,7 @@ Cache-Control: max-age=31536000
      <p>Set <var>settingsObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids②">origin policy IDs</a> to the result of <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-frozen-array" id="ref-for-dfn-create-frozen-array①">creating a frozen array</a> from <var>response</var>’s <a data-link-type="dfn" href="#response-origin-policy" id="ref-for-response-origin-policy①">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑦">IDs</a>.</p>
    </ol>
    <h4 class="heading settled" data-level="5.2.3" id="monkeypatch-html-worker"><span class="secno">5.2.3. </span><span class="content">Running a worker</span><a class="self-link" href="#monkeypatch-html-worker"></a></h4>
-   <p>In the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#run-a-worker" id="ref-for-run-a-worker">run a worker</a> algorithm, we need to set the newly-created <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope" id="ref-for-workerglobalscope">WorkerGlobalScope</a></code>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids③">origin policy IDs</a>. To do so, inside the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch" id="ref-for-fetching-scripts-perform-fetch">perform the fetch</a> steps, after step 2 (which calls <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch⑤">fetch</a>) insert the following step:</p>
+   <p>In the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#run-a-worker" id="ref-for-run-a-worker">run a worker</a> algorithm, we need to set the newly-created <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope" id="ref-for-workerglobalscope">WorkerGlobalScope</a></code>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids③">origin policy IDs</a>. To do so, inside the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch" id="ref-for-fetching-scripts-perform-fetch">perform the fetch</a> steps, after step 2 (which calls <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch④">fetch</a>) insert the following step:</p>
    <ol>
     <li data-md>
      <p>Set <var>worker global scope</var>’s <a data-link-type="dfn" href="#windoworworkerglobalscope-origin-policy-ids" id="ref-for-windoworworkerglobalscope-origin-policy-ids④">origin policy IDs</a> to the result of <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-frozen-array" id="ref-for-dfn-create-frozen-array②">creating a frozen array</a> from <var>response</var>’s <a data-link-type="dfn" href="#response-origin-policy" id="ref-for-response-origin-policy②">origin policy</a>'s <a data-link-type="dfn" href="#origin-policy-ids" id="ref-for-origin-policy-ids①⑧">IDs</a>.</p>
@@ -2731,8 +2736,8 @@ for being awesome!</p>
   <aside class="dfn-panel" data-for="term-for-concept-fetch">
    <a href="https://fetch.spec.whatwg.org/#concept-fetch">https://fetch.spec.whatwg.org/#concept-fetch</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-fetch">4.2. Updating the origin policy</a> <a href="#ref-for-concept-fetch①">(2)</a> <a href="#ref-for-concept-fetch②">(3)</a> <a href="#ref-for-concept-fetch③">(4)</a> <a href="#ref-for-concept-fetch④">(5)</a>
-    <li><a href="#ref-for-concept-fetch⑤">5.2.3. Running a worker</a>
+    <li><a href="#ref-for-concept-fetch">4.2. Updating the origin policy</a> <a href="#ref-for-concept-fetch①">(2)</a> <a href="#ref-for-concept-fetch②">(3)</a> <a href="#ref-for-concept-fetch③">(4)</a>
+    <li><a href="#ref-for-concept-fetch④">5.2.3. Running a worker</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-header-list-get">
@@ -2755,6 +2760,12 @@ for being awesome!</p>
     <li><a href="#ref-for-concept-response-header-list">4.1. Response processing</a>
     <li><a href="#ref-for-concept-response-header-list①">4.2. Updating the origin policy</a>
     <li><a href="#ref-for-concept-response-header-list②">5.4. Feature Policy</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-concept-http-network-or-cache-fetch">
+   <a href="https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch">https://fetch.spec.whatwg.org/#concept-http-network-or-cache-fetch</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-concept-http-network-or-cache-fetch">4.2. Updating the origin policy</a> <a href="#ref-for-concept-http-network-or-cache-fetch①">(2)</a> <a href="#ref-for-concept-http-network-or-cache-fetch②">(3)</a> <a href="#ref-for-concept-http-network-or-cache-fetch③">(4)</a> <a href="#ref-for-concept-http-network-or-cache-fetch④">(5)</a> <a href="#ref-for-concept-http-network-or-cache-fetch⑤">(6)</a> <a href="#ref-for-concept-http-network-or-cache-fetch⑥">(7)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-main-fetch">
@@ -3281,6 +3292,7 @@ for being awesome!</p>
      <li><span class="dfn-paneled" id="term-for-concept-header-list-get" style="color:initial">get</span>
      <li><span class="dfn-paneled" id="term-for-concept-header" style="color:initial">header</span>
      <li><span class="dfn-paneled" id="term-for-concept-response-header-list" style="color:initial">header list</span>
+     <li><span class="dfn-paneled" id="term-for-concept-http-network-or-cache-fetch" style="color:initial">http-network-or-cache fetch</span>
      <li><span class="dfn-paneled" id="term-for-concept-main-fetch" style="color:initial">main fetch</span>
      <li><span class="dfn-paneled" id="term-for-concept-request-mode" style="color:initial">mode</span>
      <li><span class="dfn-paneled" id="term-for-concept-network-error" style="color:initial">network error</span>

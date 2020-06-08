@@ -522,7 +522,7 @@ This section details the entry point algorithms, for determining which origin po
       1. If |allowedId| is a [=structured header/token=] but is neither <code>null</code> nor <code>latest</code>, then [=iteration/continue=].
       1. If |allowedId| is the <code>null</code> [=structured header/token=], then set |allowedId| to null.
       1. If |allowedId| is the <code>latest</code> [=structured header/token=], then set |allowedId| to [=latest=].
-      1. Assert: if |allowedId| is a string, then it is a [=valid origin policy ID=].
+      1. [=Assert=]: if |allowedId| is a string, then it is a [=valid origin policy ID=].
       1. [=set/Append=] |allowedId| to |allowedIds|.
   1. Let |preferredId| be null.
   1. If |parsedHeader|["<a for="Origin-Policy"><code>preferred</code></a>"] [=map/exists=]:
@@ -530,7 +530,7 @@ This section details the entry point algorithms, for determining which origin po
     1. If |preferredId| is not a [=structured header/string=] or the [=structured header/token=], or if |preferredId| is the empty string, then return "<code>parse error</code>".
     1. If |preferredId| is a [=structured header/token=] but is not <code>latest-from-network</code>, then set |preferredId| to null.
     1. If |preferredId| is the <code>latest-from-network</code> [=structured header/token=], then set |preferredId| to [=latest-from-network=].
-    1. Assert: if |preferredId| is a string, then it is a [=valid origin policy ID=].
+    1. [=Assert=]: if |preferredId| is a string, then it is a [=valid origin policy ID=].
   1. If |allowedIds| [=list/is empty=] and |preferredId| is null, then return "<code>parse error</code>".
   1. Return the [=tuple=] (|allowedIds|, |preferredId|).
 
